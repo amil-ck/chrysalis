@@ -4,7 +4,8 @@ export default class InfoPane extends React.Component {
     constructor(props) {
         super();
         this.props = props;
-        this.state = {};
+        // Props: itemdata, itemtype
+
     }
 
     render() {

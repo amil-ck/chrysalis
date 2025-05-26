@@ -12,7 +12,7 @@ export default class CreationFlow extends React.Component {
 
     render() {
         return (
-            <div className='creationFlow'>
+            <div className='creationFlow fullPane'>
                 <CreationNavbar />
                 <CreationTab />
             </div>
