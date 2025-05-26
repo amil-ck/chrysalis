@@ -17,6 +17,7 @@ export default class GenericList extends React.Component {
     render() {
 
         const dataToRender = this.state.data.map(item => {
+
         })
 
         return (
