@@ -1,6 +1,7 @@
 import * as React from 'react';
 import GenericList from './Components/GenericList.jsx';
 import GenericListItem from './Components/GenericListItem.jsx';
+import SpellsList from './Components/SpellsList.jsx';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -16,9 +17,7 @@ export default class Main extends React.Component {
         }
 
         return (
-            <GenericList>
-                {listItems}
-            </GenericList>
+            <SpellsList />
         )
     }
 }
