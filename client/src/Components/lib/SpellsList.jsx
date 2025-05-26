@@ -1,5 +1,5 @@
 import * as React from 'react';
-import spells from '../data/spells';
+import spells from '../../data/spells';
 import GenericList from './GenericList.jsx';
 
 export default class SpellsList extends React.Component {
