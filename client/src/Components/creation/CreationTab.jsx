@@ -9,11 +9,12 @@ export default class CreationTab extends React.Component {
         super();
         this.props = props;
         this.state = {
-            navigationTab: props.navigationTab,
-            selectedFeatID: null
+            selectedFeatID: null,
+            selectedSpellID: null
         };
 
         this.onFeatSelected = this.onFeatSelected.bind(this);
+        this.onSpellSelected = this.onSpellSelected.bind(this);
     }
 
     onFeatSelected(id) {
@@ -21,24 +22,19 @@ export default class CreationTab extends React.Component {
             selectedFeatID: id
         })
     }
+    
+    onSpellSelected(id) {
+        this.setState({
+            selectedSpellID: id
+        })
+    }
 
     render() {
-
-        let tabContents;
-
-        if (this.state.navigationTab === "class") {
-            tabContents = <GenericList />
-        }
-
-        const arr = [1, 2, 3];
-
-        console.log(this.state.selectedFeatID);
-
         return (
             <div className='tab'>
                 <div className='lists'>
                     <FeatList onItemSelected={this.onFeatSelected} selectedItemID={this.state.selectedFeatID} />
-                    <SpellList onItemSelected={() => { }} selectedItemID={null} />
+                    <SpellList onItemSelected={this.onSpellSelected} selectedItemID={this.state.selectedSpellID} />
                 </div>
                 <InfoPane />
             </div>

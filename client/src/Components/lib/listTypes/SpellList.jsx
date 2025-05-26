@@ -44,6 +44,7 @@ export default class SpellList extends React.Component {
             title: 'Spells',
             data: spellData,
             columnNames: ["Name", "Level", "School", "Components", "Source"],
+            shownColumns: ["Name", "School", "Components", "Source"],
             allowFilter: ["Level", "School", "Source"],
             presetFilters: {
                 Level: "Cantrip"
