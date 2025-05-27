@@ -85,6 +85,10 @@ div.navbar {
     background-color: #404040;
 }
 
+.listWrapper table tr.doubleSelected {
+    background-color: red;
+}
+
 .listWrapper table td {
     padding: 4px 2px;
     

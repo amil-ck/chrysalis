@@ -18,9 +18,11 @@ export default class GenericList extends React.Component {
             }
         }
 
-        // props: title, data, columnNames, columnLocations, shownColumns, onItemSelected, selectedItemID, startMinimised, allowFilter, presetFilters, multiValueColumns
-
-        this.onItemSelected = props.onItemSelected;
+        // PROPS: 
+        // title (string), data (obj[]), columnNames (string[]), columnLocations (string[]), shownColumns (string[]), 
+        // onItemSelected (function(string id)), onItemDoubleSelected (function(string id)), 
+        // selectedItemID (string), doubleSelectedItems (string[]), startMinimised (bool), 
+        // allowFilter (string[]), presetFilters (obj), multiValueColumns (string[]), doubleSelectOnSingleClick (bool)
 
         this.handleItemClick = this.handleItemClick.bind(this);
         this.toggleMinimised = this.toggleMinimised.bind(this);
@@ -31,9 +33,15 @@ export default class GenericList extends React.Component {
         this.onSortChange = this.onSortChange.bind(this);
     }
 
-    // When a list item has been clicked once
-    handleItemClick(id) {
-        this.onItemSelected(id);
+    // When a list item has been clicked
+    handleItemClick(e, id) {   
+        if (e.detail > 1 || this.props.doubleSelectOnSingleClick) {
+            // Double click, or parent has set that items should be double-selected on a single click
+            this.props.onItemDoubleSelected(id);
+        } else {
+            // Single click
+            this.props.onItemSelected(id);
+        }
     }
 
     // When the maximise/minimise button has been clicked
@@ -45,7 +53,6 @@ export default class GenericList extends React.Component {
 
     // When a column filter dropdown has changed
     onFilterChange(column, value) {
-        console.log("Filter:", column, value);
         this.setState({
             columnFilters: {
                 ...this.state.columnFilters,
@@ -92,7 +99,6 @@ export default class GenericList extends React.Component {
 
     // When a column header is clicked
     onSortChange(column) {
-        console.log('Set sort:', column)
         // Sort toggle order: ascending -> descending -> none
         if (this.state.sortBy.column === column) {
 
@@ -127,10 +133,12 @@ export default class GenericList extends React.Component {
 
     render() {
 
-        let dataToRender = this.props.data.map((value, index) => {
+        let dataToRender = this.props.data.map((value) => {
             const item = {
                 id: value.id
             };
+
+            // Translate paths (e.g. 'setters/level' into top-level attributes)
             for (const i in this.props.columnLocations) {
                 item[this.props.columnNames[i]] = getWithPath(value, this.props.columnLocations[i]) || '';
             }
@@ -179,7 +187,6 @@ export default class GenericList extends React.Component {
                 </select>
             )
 
-            console.log(colName, possibleValues, dropdowns[colName])
         }
 
         // Apply given filters
@@ -289,7 +296,7 @@ export default class GenericList extends React.Component {
                         <tbody>
                             {dataToRender.map((value) => {
                                 return (
-                                    <tr key={value.id} onClick={() => { this.handleItemClick(value.id) }} className={(value.id === this.props.selectedItemID ? 'selected' : '')}>
+                                    <tr key={value.id} onClick={(e) => { this.handleItemClick(e, value.id) }} className={(value.id === this.props.selectedItemID ? 'selected ' : ' ') + (this.props.doubleSelectedItems.includes(value.id) ? 'doubleSelected' : '')}>
                                         {this.props.shownColumns.map((colName) => {
                                             return <td key={colName}>{value[colName].toString()}</td>
                                         })}
@@ -304,6 +311,10 @@ export default class GenericList extends React.Component {
     }
 }
 
+// Takes a string path e.g. setters/level and returns the value at that point in the given object,
+// {
+//   setters: { level: value }
+// }
 function getWithPath(object, path) {
     const pathSplit = path.split('/');
     let value = object;
