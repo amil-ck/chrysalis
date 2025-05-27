@@ -15,7 +15,9 @@ export default class GenericList extends React.Component {
             sortBy: {
                 column: undefined,
                 direction: undefined
-            }
+            },
+            showSearch: false,
+            searchValue: ''
         }
 
         // PROPS: 
@@ -27,14 +29,19 @@ export default class GenericList extends React.Component {
         this.handleItemClick = this.handleItemClick.bind(this);
         this.toggleMinimised = this.toggleMinimised.bind(this);
         this.onAddFilterButtonClick = this.onAddFilterButtonClick.bind(this);
+        this.onCancelFilterButtonClick = this.onCancelFilterButtonClick.bind(this);
         this.onNewFilterColumnChange = this.onNewFilterColumnChange.bind(this);
         this.onNewFilterValueChange = this.onNewFilterValueChange.bind(this);
         this.onRemoveFilter = this.onRemoveFilter.bind(this);
         this.onSortChange = this.onSortChange.bind(this);
+        this.toggleSearch = this.toggleSearch.bind(this);
+        this.onSearchChange = this.onSearchChange.bind(this);
     }
 
     // When a list item has been clicked
-    handleItemClick(e, id) {   
+    handleItemClick(e, id) {
+        e.preventDefault();
+        e.stopPropagation();
         if (e.detail > 1 || this.props.doubleSelectOnSingleClick) {
             // Double click, or parent has set that items should be double-selected on a single click
             this.props.onItemDoubleSelected(id);
@@ -65,6 +72,12 @@ export default class GenericList extends React.Component {
     onAddFilterButtonClick() {
         this.setState({
             addingFilter: true
+        })
+    }
+
+    onCancelFilterButtonClick() {
+        this.setState({
+            addingFilter: false
         })
     }
 
@@ -131,6 +144,26 @@ export default class GenericList extends React.Component {
         }
     }
 
+    // When search button clicked, hide or show the search bar
+    toggleSearch() {
+        if (this.state.showSearch) {
+            this.setState({
+                showSearch: false,
+                searchValue: ''
+            })
+        } else {
+            this.setState({
+                showSearch: true
+            })
+        }
+    }
+
+    onSearchChange(e) {
+        this.setState({
+            searchValue: e.target.value
+        })
+    }
+
     render() {
 
         let dataToRender = this.props.data.map((value) => {
@@ -140,7 +173,10 @@ export default class GenericList extends React.Component {
 
             // Translate paths (e.g. 'setters/level' into top-level attributes)
             for (const i in this.props.columnLocations) {
-                item[this.props.columnNames[i]] = getWithPath(value, this.props.columnLocations[i]) || '';
+                const accessed = getWithPath(value, this.props.columnLocations[i]);
+                if (accessed !== undefined) {
+                    item[this.props.columnNames[i]] = getWithPath(value, this.props.columnLocations[i]) || '';
+                }
             }
             return item;
         });
@@ -182,7 +218,7 @@ export default class GenericList extends React.Component {
                 <select value={this.state.columnFilters[colName]} onChange={(e) => this.onFilterChange(colName, e.target.value)}>
                     <option value={"remove"}>No filter selected</option>
                     {possibleValues.toSorted().map((value) => {
-                        return <option key={value} value={value}>{value}</option>
+                        return <option key={value} value={value}>{value.toString()}</option>
                     })}
                 </select>
             )
@@ -193,7 +229,7 @@ export default class GenericList extends React.Component {
         for (const colName in this.state.columnFilters) {
             const filter = this.state.columnFilters[colName];
 
-            if (filter) {
+            if (filter !== undefined) {
 
                 if (this.props.multiValueColumns.includes(colName)) {
                     // Column's fields contain multiple values:
@@ -232,18 +268,52 @@ export default class GenericList extends React.Component {
                     } else if (a[this.state.sortBy.column] === b[this.state.sortBy.column]) {
                         return 0;
                     } else {
-                        return -1
+                        return -1;
                     }
                 })
             }
+        }
+
+        // Apply search filters
+        if (this.state.searchValue !== '') {
+            dataToRender = dataToRender.filter((value) => {
+
+                // Check for each column to search
+                let show = false;
+                outer: for (const colName of this.props.allowSearch) {
+                    if (this.props.multiValueColumns.includes(colName)) {
+                        // Column's cells contain multiple values
+                        for (const o of value[colName]) {
+                            if (o.toLowerCase().includes(this.state.searchValue)) {
+                                show = true;
+                                break outer;
+                            }
+                        }
+                    } else {
+                        if (value[colName].toLowerCase().includes(this.state.searchValue)) {
+                            show = true;
+                            break outer;
+                        }
+                    }
+                }
+
+                return show;
+
+            })
         }
 
         return (
             <div className="listWrapper">
                 <div className='titleWrapper'>
                     <span className='title'>{this.props.title}</span>
+                    <button type='button' className='searchBtn' onClick={this.toggleSearch}>Search</button>
                     <button type='button' className='minimiseBtn' onClick={this.toggleMinimised}>{this.state.minimised ? "+" : "-"}</button>
                 </div>
+                {this.state.showSearch &&
+                    <div className='search'>
+                        <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
+                    </div>
+                }
                 <div className='filters'>
                     Filters:
                     {Object.entries(this.state.columnFilters).map(([key, value]) => {
@@ -266,9 +336,13 @@ export default class GenericList extends React.Component {
                             <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
                                 <option value={"remove"}>Select value</option>
                                 {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
-                                    return <option key={value} value={value}>{value}</option>
+                                    return <option key={value} value={value}>{value.toString()}</option>
                                 })}
                             </select>
+
+                            <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
+                                x
+                            </button>
                         </>
 
                     }
@@ -298,7 +372,7 @@ export default class GenericList extends React.Component {
                                 return (
                                     <tr key={value.id} onClick={(e) => { this.handleItemClick(e, value.id) }} className={(value.id === this.props.selectedItemID ? 'selected ' : ' ') + (this.props.doubleSelectedItems.includes(value.id) ? 'doubleSelected' : '')}>
                                         {this.props.shownColumns.map((colName) => {
-                                            return <td key={colName}>{value[colName].toString()}</td>
+                                            return <td key={colName}>{value[colName]?.toString()}</td>
                                         })}
                                     </tr>
                                 )
@@ -319,10 +393,10 @@ function getWithPath(object, path) {
     const pathSplit = path.split('/');
     let value = object;
     for (const o of pathSplit) {
-        if (value && value[o]) {
+        if (value && value[o] !== undefined) {
             value = value[o];
         } else {
-            value = null;
+            value = undefined;
         }
     }
     return value;

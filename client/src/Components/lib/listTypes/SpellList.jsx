@@ -35,8 +35,10 @@ export default class SpellList extends React.Component {
             const newSpell = {...spell};
             newSpell.combinedComponents = this.stringFromComponents(spell);
             if (newSpell.setters?.level === "0") {
-                newSpell.setters.level = "Cantrip";
+                newSpell.setters.level = " Cantrip";
             }
+            // Convert concentration values to string
+            newSpell.concentration = spell.setters.isConcentration.toString();
             return newSpell;
         });
 
@@ -44,14 +46,14 @@ export default class SpellList extends React.Component {
         const propsToPass = {
             title: 'Spells',
             data: spellData,
-            columnNames: ["Name", "Level", "School", "Components", "Source", "Supports"],
-            shownColumns: ["Name", "School", "Components", "Supports", "Source"],
-            allowFilter: ["Level", "School", "Source", "Components", "Supports"],
+            columnNames: ["Name", "Level", "School", "Components", "Source", "Supports", "Concentration?"],
+            shownColumns: ["Name", "Level", "School", "Components", "Source"],
+            allowFilter: ["Level", "School", "Source", "Supports", "Concentration?"],
             allowSearch: ["Name"],
             presetFilters: {
-                Level: "Cantrip"
+                Level: " Cantrip"
             },
-            columnLocations: ["name", "setters/level", "setters/school", "combinedComponents", "source", "supports"],
+            columnLocations: ["name", "setters/level", "setters/school", "combinedComponents", "source", "supports", "concentration"],
             multiValueColumns: ["Supports"],
             ...this.props
         }

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import GenericList from '../lib/GenericList.jsx';
 import FeatList from '../lib/listTypes/FeatList.jsx';
 import SpellList from '../lib/listTypes/SpellList.jsx';
 import InfoPane from '../lib/InfoPane.jsx';
@@ -28,7 +27,6 @@ export default class CreationTab extends React.Component {
     }
 
     onFeatDoubleSelected(id) {
-        
         if (!this.state.doubleSelectedFeats.includes(id)) {
             console.log('feat added: ' + id);
             this.setState({
@@ -49,7 +47,17 @@ export default class CreationTab extends React.Component {
     }
 
     onSpellDoubleSelected(id) {
-        console.log('Spell double selected:' + id)
+        if (!this.state.doubleSelectedSpells.includes(id)) {
+            console.log('spell added: ' + id);
+            this.setState({
+                doubleSelectedSpells: [...this.state.doubleSelectedSpells, id]
+            });
+        } else {
+            console.log('spell removed: ' + id)
+            this.setState({
+                doubleSelectedSpells: this.state.doubleSelectedSpells.filter((o) => o !== id)
+            });
+        }
     }
 
     render() {
