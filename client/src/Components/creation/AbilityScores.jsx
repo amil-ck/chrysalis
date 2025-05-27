@@ -1,4 +1,5 @@
 import * as React from 'react';
+import diceRoll from '../lib/diceRoll';
 
 export default class AbilityScores extends React.Component {
     constructor(props) {
@@ -10,21 +11,31 @@ export default class AbilityScores extends React.Component {
             choice: "Standard Array",
             std_array: [8, 10, 12, 13, 14, 15],
             std_dict: {
-                "strength": null,
-                "dexterity": null,
-                "constituion": null,
-                "intelligence": null,
-                "wisdom": null,
-                "charisma": null
+                "strength": undefined,
+                "dexterity": undefined,
+                "constitution": undefined,
+                "intelligence": undefined,
+                "wisdom": undefined,
+                "charisma": undefined
             },
             avail_array: [8, 10, 12, 13, 14, 15],
+
+
+            manualArray: {
+                "strength": undefined,
+                "dexterity": undefined,
+                "constitution": undefined,
+                "intelligence": undefined,
+                "wisdom": undefined,
+                "charisma": undefined
+            },
             
             
             points: 27,
             buyArray: {
                 "strength": 8,
                 "dexterity": 8,
-                "constituion": 8,
+                "constitution": 8,
                 "intelligence": 8,
                 "wisdom": 8,
                 "charisma": 8
@@ -65,7 +76,7 @@ export default class AbilityScores extends React.Component {
 
     stdDropdown(stat) {
         var avail_array2 = [...this.state.avail_array];
-        if (!(this.state.std_dict[stat] === null)) avail_array2.push(this.state.std_dict[stat]);
+        if (!(this.state.std_dict[stat] === undefined)) avail_array2.push(this.state.std_dict[stat]);
         avail_array2.sort(function(a, b){return a-b});
 
         var options = avail_array2.map(
@@ -82,7 +93,7 @@ export default class AbilityScores extends React.Component {
 
     assign(stat, value) {
         if (value === "-") {
-            value = null
+            value = undefined
         }
         else {
             value = parseInt(value)
@@ -104,15 +115,33 @@ export default class AbilityScores extends React.Component {
     }
 
     manualEntry() {
-        var manualArray = [];
-        for (var stat in this.state.std_dict) {
-            manualArray.push(
+        var manualList = [];
+        for (let stat in this.state.std_dict) {
+            manualList.push(
                 <div>
-                {stat} <input type='number' max={18}></input>
+                {stat} 
+                
+                <input type='number' max={18} value={this.state.manualArray[stat]} onBlur={e => {
+                    if (e.target.value > 18) {
+                        e.target.value = 18;
+                    } else if (e.target.value < 3) {
+                        e.target.value = 3;
+                    }
+                    
+                    this.state.manualArray[stat] = e.target.value;
+                    this.setState();
+
+                    }}></input>
+                
+                <button onClick={e => 
+                    {this.state.manualArray[stat] = diceRoll(6, 3, 0, "advantage").value;
+                    this.setState({manualArray: this.state.manualArray});}
+                }>Roll!</button>
+
                 </div>
             );
         }
-        return manualArray;
+        return manualList;
     }
 
     pointBuy() {
