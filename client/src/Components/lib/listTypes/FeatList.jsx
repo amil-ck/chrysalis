@@ -23,6 +23,7 @@ export default class FeatList extends React.Component {
             shownColumns: ["Name", "Prerequisite", "Source"],
             allowFilter: ["Source"],
             columnLocations: ["name", "prerequisite", "source"],
+            multiValueColumns: [],
             presetFilters: {
                 Source: "Player’s Handbook"
             },

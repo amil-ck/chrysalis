@@ -21,9 +21,10 @@ export default class SpellList extends React.Component {
         const s = spell.setters?.hasSomaticComponent;
         const m = spell.setters?.hasMaterialComponent;
         let str = " ";
-        str += (v ? "V, " : "");
+        str += (v ? "V," : "");
         str += (s ? " S," : "");
         str += (m ? " M," : "");
+        
         return str.substring(0, str.length - 1).trim();
     }
 
@@ -43,13 +44,15 @@ export default class SpellList extends React.Component {
         const propsToPass = {
             title: 'Spells',
             data: spellData,
-            columnNames: ["Name", "Level", "School", "Components", "Source"],
-            shownColumns: ["Name", "School", "Components", "Source"],
-            allowFilter: ["Level", "School", "Source"],
+            columnNames: ["Name", "Level", "School", "Components", "Source", "Supports"],
+            shownColumns: ["Name", "School", "Components", "Supports", "Source"],
+            allowFilter: ["Level", "School", "Source", "Components", "Supports"],
+            allowSearch: ["Name"],
             presetFilters: {
                 Level: "Cantrip"
             },
-            columnLocations: ["name", "setters/level", "setters/school", "combinedComponents", "source"],
+            columnLocations: ["name", "setters/level", "setters/school", "combinedComponents", "source", "supports"],
+            multiValueColumns: ["Supports"],
             ...this.props
         }
 

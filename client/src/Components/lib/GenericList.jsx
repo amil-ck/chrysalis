@@ -11,10 +11,14 @@ export default class GenericList extends React.Component {
             columnFilters: props.presetFilters || {},
             addingFilter: false,
             newFilterColumn: undefined,
-            newFilterValue: undefined
+            newFilterValue: undefined,
+            sortBy: {
+                column: undefined,
+                direction: undefined
+            }
         }
 
-        // props: title, data, columnNames, columnLocations, shownColumns, onItemSelected, selectedItemID, startMinimised, allowFilter, presetFilters
+        // props: title, data, columnNames, columnLocations, shownColumns, onItemSelected, selectedItemID, startMinimised, allowFilter, presetFilters, multiValueColumns
 
         this.onItemSelected = props.onItemSelected;
 
@@ -24,18 +28,22 @@ export default class GenericList extends React.Component {
         this.onNewFilterColumnChange = this.onNewFilterColumnChange.bind(this);
         this.onNewFilterValueChange = this.onNewFilterValueChange.bind(this);
         this.onRemoveFilter = this.onRemoveFilter.bind(this);
+        this.onSortChange = this.onSortChange.bind(this);
     }
 
+    // When a list item has been clicked once
     handleItemClick(id) {
         this.onItemSelected(id);
     }
 
+    // When the maximise/minimise button has been clicked
     toggleMinimised() {
         this.setState({
             minimised: !this.state.minimised
         });
     }
 
+    // When a column filter dropdown has changed
     onFilterChange(column, value) {
         console.log("Filter:", column, value);
         this.setState({
@@ -46,6 +54,7 @@ export default class GenericList extends React.Component {
         })
     }
 
+    // When a user has clicked to add a custom filter
     onAddFilterButtonClick() {
         this.setState({
             addingFilter: true
@@ -81,6 +90,41 @@ export default class GenericList extends React.Component {
         })
     }
 
+    // When a column header is clicked
+    onSortChange(column) {
+        console.log('Set sort:', column)
+        // Sort toggle order: ascending -> descending -> none
+        if (this.state.sortBy.column === column) {
+
+            if (this.state.sortBy.direction === 'asc') {
+                // Currently sorting by the column in ascending order, switch to ascending
+                this.setState({
+                    sortBy: {
+                        column: column,
+                        direction: 'desc'
+                    }
+                })
+            } else {
+                // Currently sorting by the column in descending order, remove sort entirely
+                this.setState({
+                    sortBy: {
+                        column: undefined,
+                        direction: undefined
+                    }
+                })
+            }
+
+        } else {
+            // Currently not sorting by anything, or sorting by a different column, add ascending sort
+            this.setState({
+                sortBy: {
+                    column: column,
+                    direction: 'asc'
+                }
+            });
+        }
+    }
+
     render() {
 
         let dataToRender = this.props.data.map((value, index) => {
@@ -100,13 +144,30 @@ export default class GenericList extends React.Component {
 
             // Collate all possible values of the current column
             let possibleValues = [];
-            for (const item of dataToRender) {
-                const value = item[colName];
-                if (!possibleValues.includes(value)) {
-                    possibleValues.push(value);
+
+            if (this.props.multiValueColumns.includes(colName)) {
+                // Column's fields contain multiple values (e.g. 'supports')
+                // each value needs to be added to the possible values
+
+                for (const item of dataToRender) {
+                    const values = item[colName];
+                    for (const value of values) {
+                        if (!possibleValues.includes(value)) {
+                            possibleValues.push(value)
+                        }
+                    }
+                }
+
+            } else {
+                for (const item of dataToRender) {
+                    const value = item[colName];
+                    if (!possibleValues.includes(value)) {
+                        possibleValues.push(value);
+                    }
                 }
             }
-            possibleColumnValues[colName] = possibleValues;
+
+            possibleColumnValues[colName] = possibleValues.sort();
 
 
             dropdowns[colName] = (
@@ -126,11 +187,47 @@ export default class GenericList extends React.Component {
             const filter = this.state.columnFilters[colName];
 
             if (filter) {
-                dataToRender = dataToRender.filter((value) => {
 
-                    return value[colName] == filter;
-                });
+                if (this.props.multiValueColumns.includes(colName)) {
+                    // Column's fields contain multiple values:
+                    // if any of them match the filter, the item should be shown
 
+                    dataToRender = dataToRender.filter((value) => {
+                        return value[colName].includes(filter);
+                    });
+
+                } else {
+                    dataToRender = dataToRender.filter((value) => {
+                        return value[colName] == filter;
+                    });
+                }
+
+            }
+        }
+
+        // Apply sorting
+        // (worst sorting function i've ever written please make this nicer to look at)
+        if (this.state.sortBy.column) {
+            if (this.state.sortBy.direction === 'desc') {
+                dataToRender.sort((a, b) => {
+                    if (a[this.state.sortBy.column] > b[this.state.sortBy.column]) {
+                        return -1;
+                    } else if (a[this.state.sortBy.column] === b[this.state.sortBy.column]) {
+                        return 0;
+                    } else {
+                        return 1
+                    }
+                })
+            } else {
+                dataToRender.sort((a, b) => {
+                    if (a[this.state.sortBy.column] > b[this.state.sortBy.column]) {
+                        return 1;
+                    } else if (a[this.state.sortBy.column] === b[this.state.sortBy.column]) {
+                        return 0;
+                    } else {
+                        return -1
+                    }
+                })
             }
         }
 
@@ -141,7 +238,7 @@ export default class GenericList extends React.Component {
                     <button type='button' className='minimiseBtn' onClick={this.toggleMinimised}>{this.state.minimised ? "+" : "-"}</button>
                 </div>
                 <div className='filters'>
-                    Filters: 
+                    Filters:
                     {Object.entries(this.state.columnFilters).map(([key, value]) => {
                         if (value) {
                             return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
@@ -149,24 +246,24 @@ export default class GenericList extends React.Component {
                     })}
 
                     {this.state.addingFilter &&
-                    <>
-                    <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
-                        <option value={"remove"}>Select column</option>
-                        {this.props.allowFilter.map((value) => {
-                            if (!this.state.columnFilters[value]) {
-                                return <option key={value} value={value}>{value}</option>
-                            }
-                        })}
-                    </select>
+                        <>
+                            <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
+                                <option value={"remove"}>Select column</option>
+                                {this.props.allowFilter.map((value) => {
+                                    if (!this.state.columnFilters[value]) {
+                                        return <option key={value} value={value}>{value}</option>
+                                    }
+                                })}
+                            </select>
 
-                    <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
-                        <option value={"remove"}>Select value</option>
-                        {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
-                            return <option key={value} value={value}>{value}</option>
-                        })}
-                    </select>
-                    </>
-                        
+                            <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
+                                <option value={"remove"}>Select value</option>
+                                {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
+                                    return <option key={value} value={value}>{value}</option>
+                                })}
+                            </select>
+                        </>
+
                     }
 
                     {!this.state.addingFilter && <button className='addFilterBtn' onClick={this.onAddFilterButtonClick}>+ Add</button>}
@@ -176,7 +273,7 @@ export default class GenericList extends React.Component {
                         <thead>
                             <tr>
                                 {this.props.shownColumns.map((name) => {
-                                    return <th key={name}>{name}</th>
+                                    return <th key={name} onClick={(e) => this.onSortChange(name)} >{name}  {this.state.sortBy.column === name && (this.state.sortBy.direction === 'asc' ? "^" : "v")}</th>
                                 })}
                             </tr>
                             <tr className='filterRow'>
@@ -194,7 +291,7 @@ export default class GenericList extends React.Component {
                                 return (
                                     <tr key={value.id} onClick={() => { this.handleItemClick(value.id) }} className={(value.id === this.props.selectedItemID ? 'selected' : '')}>
                                         {this.props.shownColumns.map((colName) => {
-                                            return <td key={colName}>{value[colName]}</td>
+                                            return <td key={colName}>{value[colName].toString()}</td>
                                         })}
                                     </tr>
                                 )
