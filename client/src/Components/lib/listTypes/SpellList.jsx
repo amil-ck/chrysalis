@@ -1,6 +1,6 @@
 import * as React from 'react';
-import spells from '../../../data/spells';
 import GenericList from '../GenericList.jsx';
+import { SPELLS } from '../indexData.js';
 
 export default class SpellList extends React.Component {
     constructor(props) {
@@ -8,10 +8,8 @@ export default class SpellList extends React.Component {
 
         this.props = props;
 
-        console.log(spells[0])
-
         this.state = {
-            spellData: spells
+            spellData: SPELLS
         }
 
     }

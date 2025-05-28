@@ -1,6 +1,6 @@
 import * as React from 'react';
-import feats from '../../../data/feats';
 import GenericList from '../GenericList.jsx';
+import { FEATS } from '../indexData.js';
 
 export default class FeatList extends React.Component {
     constructor(props) {
@@ -9,7 +9,7 @@ export default class FeatList extends React.Component {
         this.props = props;
 
         this.state = {
-            featData: feats
+            featData: FEATS
         }
 
     }
