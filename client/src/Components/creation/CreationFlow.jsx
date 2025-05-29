@@ -7,14 +7,16 @@ export default class CreationFlow extends React.Component {
         super();
         this.props = props;
 
-        this.state = {}
+        this.state = {
+            navigationTab: 'test'
+        }
     }
 
     render() {
         return (
-            <div className='creationFlow'>
-                <CreationNavbar />
-                <CreationTab />
+            <div className='creationFlow fullPane'>
+                <CreationNavbar navigationTab={this.state.navigationTab} />
+                <CreationTab tab={this.state.navigationTab} />
             </div>
         )
     }
