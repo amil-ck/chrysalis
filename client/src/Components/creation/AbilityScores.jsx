@@ -1,5 +1,6 @@
 import * as React from 'react';
 import diceRoll from '../lib/diceRoll';
+import DiceRollAnim from '../lib/DiceRollAnim.jsx';
 
 export default class AbilityScores extends React.Component {
     constructor(props) {
@@ -39,7 +40,9 @@ export default class AbilityScores extends React.Component {
                 "intelligence": 8,
                 "wisdom": 8,
                 "charisma": 8
-            }
+            },
+
+            dice: []
 
         }
 
@@ -62,6 +65,7 @@ export default class AbilityScores extends React.Component {
             {(this.state.choice === "Standard Array") && this.standardArray()}
             {(this.state.choice === "Roll / Manual Entry") && this.manualEntry()}
             {(this.state.choice === "Point Buy") && this.pointBuy()}
+            <DiceRollAnim rolls={[4, 5, 6, 5, 3]} advantage={"advantage"}/>
             </>
         );
     }
