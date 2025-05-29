@@ -41,13 +41,8 @@ export default class DiceRollAnim extends React.Component {
             }
         )
 
-        setTimeout(() => {
-            this.setState({visible: false});
-        }, 3000);
-
-
         return (
-            this.state.visible && <div className="flex-container">
+            <div className="flex-container">
                 {dice}
             </div>
         )

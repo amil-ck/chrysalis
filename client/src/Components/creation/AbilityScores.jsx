@@ -42,7 +42,8 @@ export default class AbilityScores extends React.Component {
                 "charisma": 8
             },
 
-            dice: []
+            dice: [],
+            diceVisible: false
 
         }
 
@@ -65,7 +66,7 @@ export default class AbilityScores extends React.Component {
             {(this.state.choice === "Standard Array") && this.standardArray()}
             {(this.state.choice === "Roll / Manual Entry") && this.manualEntry()}
             {(this.state.choice === "Point Buy") && this.pointBuy()}
-            <DiceRollAnim rolls={[4, 5, 6, 5, 3]} advantage={"advantage"}/>
+            {this.state.diceVisible && <DiceRollAnim rolls={this.state.rolls} advantage={"advantage"}/>}
             </>
         );
     }
@@ -138,9 +139,16 @@ export default class AbilityScores extends React.Component {
                     }}></input>
                 
                 <button onClick={e => 
-                    {this.state.manualArray[stat] = diceRoll(6, 3, 0, "advantage").value;
-                    this.setState({manualArray: this.state.manualArray});}
-                }>Roll!</button>
+                    {let results = diceRoll(6, 3, 0, "advantage");
+                    this.state.manualArray[stat] = results.value;
+                    this.setState({rolls: results.rolls});
+                    this.setState({manualArray: this.state.manualArray});
+                    this.setState({diceVisible: true});
+                    clearTimeout(this.state.timeoutID);
+                    this.setState({timeoutID: setTimeout(() => {
+                        this.setState({diceVisible: false});
+                    }, 3000)});
+                }}>Roll!</button>
 
                 </div>
             );

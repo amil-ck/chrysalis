@@ -10,10 +10,10 @@ export default function diceRoll(diceSides=20, noDice=1, modifier=0, advantage="
     let s_rolls = [...rolls];
 
     if (advantage === "advantage") {
-        s_rolls.sort((a, b) => (a - b));
+        s_rolls.sort((a, b) => (b - a));
         s_rolls.pop();
     } else if (advantage === "disadvantage") {
-        s_rolls.sort((a, b) => (b - a));
+        s_rolls.sort((a, b) => (a - b));
         s_rolls.pop();
     } else {
         //removing the extra dice only used for (dis)advantaged rolls from history
