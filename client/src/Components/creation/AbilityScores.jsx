@@ -16,7 +16,7 @@ export default class AbilityScores extends React.Component {
                 "dexterity": undefined,
                 "constitution": undefined,
                 "intelligence": undefined,
-                "wisdom": undefined,
+                "wisdom": undefined,    
                 "charisma": undefined
             },
             avail_array: [8, 10, 12, 13, 14, 15],
@@ -66,7 +66,7 @@ export default class AbilityScores extends React.Component {
             {(this.state.choice === "Standard Array") && this.standardArray()}
             {(this.state.choice === "Roll / Manual Entry") && this.manualEntry()}
             {(this.state.choice === "Point Buy") && this.pointBuy()}
-            {this.state.diceVisible && <DiceRollAnim rolls={this.state.rolls} advantage={"advantage"}/>}
+            {this.state.diceVisible && <DiceRollAnim rolls={this.state.rolls} advantage={"advantage"} modifier={3}/>}
             </>
         );
     }
@@ -124,7 +124,7 @@ export default class AbilityScores extends React.Component {
         for (let stat in this.state.std_dict) {
             manualList.push(
                 <div>
-                {stat} 
+                {stat}
                 
                 <input type='number' max={18} value={this.state.manualArray[stat]} onBlur={e => {
                     if (e.target.value > 18) {
@@ -136,7 +136,12 @@ export default class AbilityScores extends React.Component {
                     this.state.manualArray[stat] = e.target.value;
                     this.setState();
 
-                    }}></input>
+                    }}
+                onChange={e => {
+                    // let dict = {...this.state.manualArray}
+                    // dict[stat] = e.target.value;
+                    this.state.manualArray[stat] = e.target.value;
+                    this.setState({manualArray: this.state.manualArray});}}></input>
                 
                 <button onClick={e => 
                     {let results = diceRoll(6, 3, 0, "advantage");

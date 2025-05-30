@@ -11,10 +11,14 @@ export default function diceRoll(diceSides=20, noDice=1, modifier=0, advantage="
 
     if (advantage === "advantage") {
         s_rolls.sort((a, b) => (b - a));
-        s_rolls.pop();
+        let removed = s_rolls.pop();
+        s_rolls = [...rolls];
+        s_rolls.splice(s_rolls.lastIndexOf(removed), 1);
     } else if (advantage === "disadvantage") {
         s_rolls.sort((a, b) => (a - b));
-        s_rolls.pop();
+        let removed = s_rolls.pop();
+        s_rolls = [...rolls];
+        s_rolls.splice(s_rolls.lastIndexOf(removed), 1);
     } else {
         //removing the extra dice only used for (dis)advantaged rolls from history
         rolls.pop();
@@ -26,6 +30,7 @@ export default function diceRoll(diceSides=20, noDice=1, modifier=0, advantage="
 
     return {
         "value": total,
-        "rolls": rolls
+        "rolls": rolls,
+        "validRolls": s_rolls
     };
 }

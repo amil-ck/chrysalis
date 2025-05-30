@@ -3,6 +3,7 @@ import FeatList from '../../lib/listTypes/FeatList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
 import InfoPane from '../../lib/InfoPane.jsx';
 import { SPELLS, FEATS } from '../../lib/indexData.js';
+import ClassList from '../../lib/listTypes/ClassList.jsx';
 
 export default class TestCreationTab extends React.Component {
     constructor(props) {

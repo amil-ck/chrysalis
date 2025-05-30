@@ -1,5 +1,6 @@
 import * as React from "react";
 import diceRoll from "./diceRoll";
+import Dice from "./Dice.jsx";
 
 export default class DiceRollAnim extends React.Component {
     constructor(props) {
@@ -28,23 +29,42 @@ export default class DiceRollAnim extends React.Component {
     render() {
         const highest = Math.max(...this.props.rolls);
         const lowest = Math.min(...this.props.rolls);
+        let alreadyColour = false;
 
-        const dice = this.props.rolls.map(
+        let rolls = [...this.props.rolls];
+        rolls.reverse();
+
+        let dice = rolls.map(
             e => {
-                if (this.props.advantage == "advantage" && e !== lowest) {
-                    return this.dice(e, "green");
-                } else if (this.props.advantage == "disadvantage" && e !== highest) {
-                    return this.dice(e, "red");
+                if (this.props.advantage == "advantage" && (e !== lowest || alreadyColour)) {
+                    return <Dice number={e} colour={"green"}/>
+                } else if (this.props.advantage == "disadvantage" && (e !== highest || alreadyColour)) {
+                    return <Dice number={e} colour={"red"}/>
                 } else {
-                    return this.dice(e);
+                    alreadyColour = true;
+                    return <Dice number={e}/>
                 }
             }
         )
 
+        dice.reverse();
+        rolls.reverse();
+        rolls.splice(rolls.lastIndexOf(lowest), 1);
+
+        let expression = rolls.map(e => {return [e, " + "]});
+        expression[expression.length - 1].splice(1, 1);
+
+        if (this.props.modifier !== undefined) {
+            expression.push(<span style={{color: "green", fontSize: "24px"}}> + {this.props.modifier}</span>)
+        }
+
         return (
-            <div className="flex-container">
+            <>
+            <div style={{display: "flex", flexDirection: "row"}}>
                 {dice}
             </div>
+            <span style={{alignItems: true}}>{expression}</span>
+            </>
         )
     }
 }
