@@ -68,7 +68,7 @@ export default class ClassSelection extends React.Component {
         return (
             <>
                 <div className='tab'>
-                    <div className='lists'>
+                    <div className='main'>
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
