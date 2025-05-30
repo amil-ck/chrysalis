@@ -1,5 +1,7 @@
 import * as React from 'react';
 import TestCreationTab from './creationTabs/TestCreationTab.jsx';
+import AbilityScores from './AbilityScores.jsx';
+import ClassSelection from "../creation/creationTabs/ClassSelection.jsx"
 
 export default class CreationTab extends React.Component {
     constructor(props) {
