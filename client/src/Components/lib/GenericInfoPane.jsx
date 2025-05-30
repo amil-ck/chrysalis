@@ -1,10 +1,11 @@
 import * as React from 'react';
+import DOMPurify from 'dompurify';
 
 export default class GenericInfoPane extends React.Component {
     constructor(props) {
         super();
         this.props = props;
-        // Props: data: {title: string, subtitle: string, attributes: {string: string}, description: god knows, source: string }
+        // Props: data: {title: string, subtitle: string, attributes: {string: string}, description: html string, source: string }
         // onClose: function()
 
     }
@@ -14,6 +15,9 @@ export default class GenericInfoPane extends React.Component {
         if (this.props.data?.title === undefined) {
             return <div className='infoPane hidden'></div>
         }
+
+        const sanitisedDescription = DOMPurify.sanitize(this.props.data.description, {USE_PROFILES: {html: true}});
+        console.log(this.props.data.description, sanitisedDescription);
 
         return (
             <div className='infoPane'>
@@ -29,8 +33,8 @@ export default class GenericInfoPane extends React.Component {
                         return <span className='attribute' key={key}><b>{key}:</b> {value}</span>
                     })}
                 </div>
-                <div className='description'>
-                    {JSON.stringify(this.props.data.description)}
+                <div className='description' dangerouslySetInnerHTML={{__html: sanitisedDescription}}>
+                    
                 </div>
                 <div className='footer'>
                     <b>Source:</b> {this.props.data.source}

@@ -90,7 +90,7 @@ export default class TestCreationTab extends React.Component {
 
         return (
             <div className='tab'>
-                <div className='lists'>
+                <div className='main'>
                     <FeatList onItemSelected={this.onFeatSelected} selectedItemID={this.state.selectedFeatID} onItemDoubleSelected={this.onFeatDoubleSelected} doubleSelectedItems={this.state.doubleSelectedFeats} />
                     <SpellList onItemSelected={this.onSpellSelected} selectedItemID={this.state.selectedSpellID} onItemDoubleSelected={this.onSpellDoubleSelected} doubleSelectedItems={this.state.doubleSelectedSpells} />
                 </div>

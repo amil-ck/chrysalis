@@ -7,13 +7,18 @@ export default class CreationTab extends React.Component {
         this.props = props;
         
         this.tabs = {
-            test: TestCreationTab
+            Test: TestCreationTab
         }
     }
 
 
     render() {
         const Tab = this.tabs[this.props.tab];
-        return <Tab {...this.props} />
+
+        if (Tab) {
+            return <Tab {...this.props} />
+        } else {
+            return <div>Tab does not exist</div>
+        }
     }
 }
