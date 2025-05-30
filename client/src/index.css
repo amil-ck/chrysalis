@@ -113,6 +113,69 @@ div.navbar {
 /* END LIST STYLING */
 
 
+/* INFO PANE STYLING */
+
+.infoPane {
+    width: 30%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    padding: 20px;
+}
+
+.infoPane.hidden {
+    width: 0;
+}
+
+.infoPane .header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+.infoPane .header .titleWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+}
+
+.infoPane .header .title {
+    font-size: 18pt;
+}
+
+.infoPane .header .subtitle {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #a1a1a1;
+}
+
+.infoPane .header .closeButton {
+
+}
+
+.infoPane .attributes {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.infoPane .attributes .attribute {
+    margin: 2px 4px;
+}
+
+.infoPane .description {
+    margin-bottom: 20px;
+}
+
+/* END INFO PANE STYLING */
+
+
 /* TAB STYLING */
 
 .tab {
