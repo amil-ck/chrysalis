@@ -12,53 +12,115 @@ export default class ClassSelection extends React.Component {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
             level: 3,
-            listsNeeded: []
+            grants: [],
+            listsNeeded: [],
+            listsData: {}
         }
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
 
     }
 
-    filterData(supports) {
-        return CLASSES.filter(e => e.rules.select.supports)
-    }
-    
-    onFeatureSelected(id) {
-        
+    // filterData(supports) {
+    //     return CLASSES.filter(e => e.rules.select.supports)
+    // }
+
+    filterData(array, type, value) {
+        return array.filter(e => e[type] === value)
     }
 
-    onFeatureDoubleSelected(id) {
-        if (!this.state.doubleSelectedFeatures.includes(id)) {
+    access = (path, object) => {
+        return path.split('.').reduce((o, i) => o[i], object)
+    }
+
+    
+    onFeatureSelected(id) {
+    
+    }
+
+    onFeatureDoubleSelected(id, array) {
+        let actualArray = this.access(array, this.state)
+        console.log(actualArray)
+
+
+        // if (this.state[array] === undefined) {
+        //     this.setState({
+        //         [array]: []
+        //     }, () => {this.onFeatureDoubleSelected(id, array)});
+        //     return;
+        // }
+
+
+        if (!actualArray.includes(id)) {
             console.log('feat added: ' + id);
-            this.setState({
-                doubleSelectedFeatures: [...this.state.doubleSelectedFeatures, id]
-            });
+
+            actualArray.push(id)
             
-            const select = CLASSES.find(e => e.id === id).rules.select
-            if (select !== undefined) {
-                const newList = [];
-                select.forEach(
+            // this.setState({
+            //     [array]: [...actualArray, id]
+            // });
+
+            const idList = [];
+            const grant = CLASSES.find(e => e.id === id).rules?.grant
+            if (grant !== undefined) {
+                grant.forEach(
                     e => {
                         if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                             if (e.number === undefined) {
-                                newList.push(e.supports[0])
+                                idList.push(e.id)
                             } else {
                                 for (let i = 0; i < parseInt(e.number); i++) {
-                                    newList.push(e.supports[0])
+                                    idList.push(e.id)
                                 }
                             }
                         }
                     }
                 )
-
-                this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
-                // console.log(this.state.listsNeeded);
             }
+
+            idList.push(id);
+            console.log(idList);
+
+            let newList = [];
+
+            for (const eId of idList) {
+                const select = CLASSES.find(e => e.id === eId)?.rules?.select
+                if (select !== undefined) {
+                    select.forEach(
+                        e => {
+                            //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
+                            if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
+                                if (e.number === undefined) {
+                                    console.log(e);
+                                    newList.push(e.supports[0])
+                                } else {
+                                    for (let i = 0; i < parseInt(e.number); i++) {
+                                        newList.push(e.supports[0])
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+
+            // newList = newList.filter(
+            //     x => CLASSES.some(y => {
+            //         if (y.supports !== undefined) {
+            //             return y.supports[0] === x;
+            //         }
+            //         return false;
+            //     })
+            // )
+
+            console.log(newList)
+            this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
+
 
         } else {
             console.log('feat removed: ' + id)
             this.setState({
-                doubleSelectedFeatures: this.state.doubleSelectedFeatures.filter((o) => o !== id)
+                array: this.state[array].filter((o) => o !== id)
             });
         }
     }
@@ -68,26 +130,46 @@ export default class ClassSelection extends React.Component {
         return (
             <>
                 <div className='tab'>
-                    <div className='lists'>
+                    <div className='main'>
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
-                        onItemDoubleSelected={this.onFeatureDoubleSelected}
-                        doubleSelectedItems={this.state.doubleSelectedFeatures} 
+                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "doubleSelectedFeatures")}
+                        doubleSelectedItems={this.state.doubleSelectedFeatures}
                         // shownColumns={["Name", "Supports"]}
-                        // presetFilters={{Supports: "Metamagic"}}
+                        data={this.filterData(CLASSES, "type", "Class")}
+                        // presetFilters={{Supports: "Primal Path"}}
                         />
 
                         {/* {console.log(this.state.listsNeeded)} */}
-                        {this.state.listsNeeded.map(
-                            e => <ClassList
+                        
+
+
+                        {this.state.listsNeeded.filter(
+                            x => CLASSES.some(y => {
+                                if (y.supports !== undefined) {
+                                    return y.supports[0] === x;
+                                }
+                                return false;
+                                })
+                            ).map(
+                            e => {
+                                if (this.state.listsData[e] === undefined) {
+                                    this.state.listsData[e] = [];
+                                    this.setState({
+                                        listsData: {...this.state.listsData}
+                                    })
+                                }
+
+                                return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={this.onFeatureDoubleSelected}
-                                    doubleSelectedItems={this.state.doubleSelectedFeatures}
-                                    presetFilters={{Supports: e}} 
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
+                                    doubleSelectedItems={this.state.listsData[e]}
+                                    presetFilters={{Supports: e}}
+                                    title={e}
                                 />
-                        )}
+                            })}
 
 
 

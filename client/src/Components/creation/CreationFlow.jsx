@@ -8,15 +8,31 @@ export default class CreationFlow extends React.Component {
         this.props = props;
 
         this.state = {
-            navigationTab: 'test'
+            navigationTab: 'Test',
+            characterData: {},
+            creationData: {}
         }
+
+        this.onNavigate = this.onNavigate.bind(this);
+    }
+
+    onNavigate(tab) {
+        this.setState({
+            navigationTab: tab
+        });
+    }
+
+    updateCharacterData(data) {
+        this.setState({
+            characterData: data
+        })
     }
 
     render() {
         return (
             <div className='creationFlow fullPane'>
-                <CreationNavbar navigationTab={this.state.navigationTab} />
-                <CreationTab tab={this.state.navigationTab} />
+                <CreationNavbar navigationTab={this.state.navigationTab} onNavigate={this.onNavigate} />
+                <CreationTab tab={this.state.navigationTab} characterData={this.state.characterData} creationData={this.state.creationData} />
             </div>
         )
     }

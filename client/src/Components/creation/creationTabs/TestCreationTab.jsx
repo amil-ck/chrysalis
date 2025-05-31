@@ -1,15 +1,16 @@
 import * as React from 'react';
 import FeatList from '../../lib/listTypes/FeatList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
-import InfoPane from '../../lib/InfoPane.jsx';
+import GenericInfoPane from '../../lib/GenericInfoPane.jsx';
 import { SPELLS, FEATS } from '../../lib/indexData.js';
-import ClassList from '../../lib/listTypes/ClassList.jsx';
+import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
 export default class TestCreationTab extends React.Component {
     constructor(props) {
         super();
         this.props = props;
         this.state = {
+            selectedItemData: undefined,
             selectedFeatID: null,
             selectedSpellID: null,
             doubleSelectedFeats: [],
@@ -20,11 +21,13 @@ export default class TestCreationTab extends React.Component {
         this.onSpellSelected = this.onSpellSelected.bind(this);
         this.onFeatDoubleSelected = this.onFeatDoubleSelected.bind(this);
         this.onSpellDoubleSelected = this.onSpellDoubleSelected.bind(this);
+        this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
     }
 
     onFeatSelected(id) {
         this.setState({
-            selectedFeatID: id
+            selectedFeatID: id,
+            selectedItemData: FEATS.find(value => value.id === id)
         })
     }
 
@@ -44,7 +47,8 @@ export default class TestCreationTab extends React.Component {
     
     onSpellSelected(id) {
         this.setState({
-            selectedSpellID: id
+            selectedSpellID: id,
+            selectedItemData: SPELLS.find(value => value.id === id)
         })
     }
 
@@ -62,27 +66,35 @@ export default class TestCreationTab extends React.Component {
         }
     }
 
+    onInfoPaneClose() {
+        this.setState({
+            selectedItemData: undefined,
+            selectedFeatID: null,
+            selectedSpellID: null
+        })
+    }
+
     render() {
-        const currentSpell = SPELLS.find(value => value.id === this.state.selectedSpellID);
-        console.log(currentSpell, this.state.selectedSpellID);
-        const tempInfoData = (currentSpell !== undefined ? {
-            title: currentSpell.name,
-            subtitle: currentSpell.setters.school,
-            attributes: {
-                Duration: currentSpell.setters.duration,
-                Level: currentSpell.setters.level
-            },
-            description: currentSpell.description,
-            source: currentSpell.source
-        } : {});
+        // const currentSpell = SPELLS.find(value => value.id === this.state.selectedSpellID);
+        // console.log(currentSpell, this.state.selectedSpellID);
+        // const tempInfoData = (currentSpell !== undefined ? {
+        //     title: currentSpell.name,
+        //     subtitle: currentSpell.setters.school,
+        //     attributes: {
+        //         Duration: currentSpell.setters.duration,
+        //         Level: currentSpell.setters.level
+        //     },
+        //     description: currentSpell.description,
+        //     source: currentSpell.source
+        // } : {});
 
         return (
             <div className='tab'>
-                <div className='lists'>
-                    <FeatList onItemSelected={this.onFeatSelected} selectedItemID={this.state.selectedFeatID} onItemDoubleSelected={this.onFeatDoubleSelected} doubleSelectedItems={this.state.doubleSelectedFeats} />
+                <div className='main'>
+                    <FeatList maxDoubleSelected={1} onItemSelected={this.onFeatSelected} selectedItemID={this.state.selectedFeatID} onItemDoubleSelected={this.onFeatDoubleSelected} doubleSelectedItems={this.state.doubleSelectedFeats} />
                     <SpellList onItemSelected={this.onSpellSelected} selectedItemID={this.state.selectedSpellID} onItemDoubleSelected={this.onSpellDoubleSelected} doubleSelectedItems={this.state.doubleSelectedSpells} />
                 </div>
-                <InfoPane data={tempInfoData} />
+                <ChrysalisInfoPane data={this.state.selectedItemData} onClose={this.onInfoPaneClose} />
             </div>
         )
     }
