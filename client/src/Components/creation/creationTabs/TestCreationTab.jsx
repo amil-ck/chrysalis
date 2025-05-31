@@ -1,7 +1,6 @@
 import * as React from 'react';
 import FeatList from '../../lib/listTypes/FeatList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
-import GenericInfoPane from '../../lib/GenericInfoPane.jsx';
 import { SPELLS, FEATS } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
@@ -92,7 +91,7 @@ export default class TestCreationTab extends React.Component {
             <div className='tab'>
                 <div className='main'>
                     <FeatList maxDoubleSelected={1} onItemSelected={this.onFeatSelected} selectedItemID={this.state.selectedFeatID} onItemDoubleSelected={this.onFeatDoubleSelected} doubleSelectedItems={this.state.doubleSelectedFeats} />
-                    <SpellList onItemSelected={this.onSpellSelected} selectedItemID={this.state.selectedSpellID} onItemDoubleSelected={this.onSpellDoubleSelected} doubleSelectedItems={this.state.doubleSelectedSpells} />
+                    <SpellList maxDoubleSelected={3} onItemSelected={this.onSpellSelected} selectedItemID={this.state.selectedSpellID} onItemDoubleSelected={this.onSpellDoubleSelected} doubleSelectedItems={this.state.doubleSelectedSpells} />
                 </div>
                 <ChrysalisInfoPane data={this.state.selectedItemData} onClose={this.onInfoPaneClose} />
             </div>

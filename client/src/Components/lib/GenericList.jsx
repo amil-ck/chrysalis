@@ -17,7 +17,8 @@ export default class GenericList extends React.Component {
                 direction: undefined
             },
             showSearch: false,
-            searchValue: ''
+            searchValue: '',
+            oldDoubleSelected: []
         }
 
         // PROPS: 
@@ -168,9 +169,28 @@ export default class GenericList extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         console.log('update')
         if (prevProps !== this.props) {
-            console.log('props changed', this.props.maxDoubleSelected, this.props.doubleSelectedItems.length)
-            if (this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length === this.props.maxDoubleSelected) {
-                this.state.minimised = true;
+            // Props have changed
+
+            if (this.props.doubleSelectedItems !== this.state.oldDoubleSelected) {
+                // Selected items have changed
+
+                if (this.props.maxDoubleSelected > 0) {
+                    // There is a maximum number of selected items allowed
+
+                    if (this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected) {
+                        // The number of selected items meets (or exceeds) the maximum allowed
+                        this.setState({
+                            minimised: true,
+                            oldDoubleSelected: this.props.doubleSelectedItems
+                        })
+                    } else {
+                        // The number of selected items is below the maximum
+                        this.setState({
+                            minimised: false,
+                            oldDoubleSelected: this.props.doubleSelectedItems
+                        })
+                    }
+                }
             }
         }
     }
@@ -329,7 +349,7 @@ export default class GenericList extends React.Component {
                 {this.props.doubleSelectedItems.length > 0 &&
 
                     <span className='selectedItems'>
-                        Selected:
+                        Selected {this.props.maxDoubleSelected > 0 && <>({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
                         {this.props.doubleSelectedItems.map((value) => {
                             return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
                         })}
