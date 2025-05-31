@@ -352,7 +352,7 @@ export default class GenericList extends React.Component {
 
 
                 <span className='selectedItems'>
-                    Selected {this.props.maxDoubleSelected > 0 && <>({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
+                    Selected{this.props.maxDoubleSelected > 0 && <> ({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
                     {this.props.doubleSelectedItems.map((value) => {
                         return <Chip onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={(this.props.data.find(i => i.id === value) ? this.props.data.find(i => i.id === value).name : 'error')} />
                     })}
