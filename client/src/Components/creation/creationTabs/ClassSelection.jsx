@@ -11,7 +11,7 @@ export default class ClassSelection extends React.Component {
         this.state = {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
-            level: 3,
+            level: 20,
             listsNeeded: []
         }
 
@@ -19,8 +19,12 @@ export default class ClassSelection extends React.Component {
 
     }
 
-    filterData(supports) {
-        return CLASSES.filter(e => e.rules.select.supports)
+    // filterData(supports) {
+    //     return CLASSES.filter(e => e.rules.select.supports)
+    // }
+
+    filterData(array, type, value) {
+        return array.filter(e => e[type] === value)
     }
     
     onFeatureSelected(id) {
@@ -33,27 +37,61 @@ export default class ClassSelection extends React.Component {
             this.setState({
                 doubleSelectedFeatures: [...this.state.doubleSelectedFeatures, id]
             });
-            
-            const select = CLASSES.find(e => e.id === id).rules.select
-            if (select !== undefined) {
-                const newList = [];
-                select.forEach(
+
+            const idList = [];
+            const grant = CLASSES.find(e => e.id === id).rules?.grant
+            if (grant !== undefined) {
+                grant.forEach(
                     e => {
                         if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                             if (e.number === undefined) {
-                                newList.push(e.supports[0])
+                                idList.push(e.id)
                             } else {
                                 for (let i = 0; i < parseInt(e.number); i++) {
-                                    newList.push(e.supports[0])
+                                    idList.push(e.id)
                                 }
                             }
                         }
                     }
                 )
-
-                this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
-                // console.log(this.state.listsNeeded);
             }
+
+            idList.push(id);
+            console.log(idList);
+
+            let newList = [];
+
+            for (const eId of idList) {
+                const select = CLASSES.find(e => e.id === eId)?.rules?.select
+                if (select !== undefined) {
+                    select.forEach(
+                        e => {
+                            if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                                if (e.number === undefined) {
+                                    newList.push(e.supports[0])
+                                } else {
+                                    for (let i = 0; i < parseInt(e.number); i++) {
+                                        newList.push(e.supports[0])
+                                    }
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+
+            newList = newList.filter(
+                x => CLASSES.some(y => {
+                    if (y.supports !== undefined) {
+                        console.log(y.supports[0]);
+                        return y.supports[0] === x;
+                    }
+                    return false;
+                })
+            )
+
+            this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
+
 
         } else {
             console.log('feat removed: ' + id)
@@ -73,9 +111,9 @@ export default class ClassSelection extends React.Component {
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
                         onItemDoubleSelected={this.onFeatureDoubleSelected}
-                        doubleSelectedItems={this.state.doubleSelectedFeatures} 
+                        doubleSelectedItems={this.state.doubleSelectedFeatures}
                         // shownColumns={["Name", "Supports"]}
-                        // presetFilters={{Supports: "Metamagic"}}
+                        data={this.filterData(CLASSES, "type", "Class")}
                         />
 
                         {/* {console.log(this.state.listsNeeded)} */}
@@ -85,7 +123,8 @@ export default class ClassSelection extends React.Component {
                                     selectedItemID={this.state.selectedFeatureID}
                                     onItemDoubleSelected={this.onFeatureDoubleSelected}
                                     doubleSelectedItems={this.state.doubleSelectedFeatures}
-                                    presetFilters={{Supports: e}} 
+                                    presetFilters={{Supports: e}}
+                                    title={e}
                                 />
                         )}
 
