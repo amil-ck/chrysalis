@@ -11,11 +11,16 @@ export default class ClassSelection extends React.Component {
         this.state = {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
-            level: 20,
-            listsNeeded: []
+            level: 3,
+            grants: [],
+            listsNeeded: [],
+            listsData: {},
+            choices: [],
+            choiceDict: {}
         }
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
+        this.updateStuff = this.updateStuff.bind(this)
 
     }
 
@@ -26,78 +31,150 @@ export default class ClassSelection extends React.Component {
     filterData(array, type, value) {
         return array.filter(e => e[type] === value)
     }
-    
-    onFeatureSelected(id) {
-        
+
+    getFromId(id) {
+        return CLASSES.find(e => e.id === id)
     }
 
-    onFeatureDoubleSelected(id) {
-        if (!this.state.doubleSelectedFeatures.includes(id)) {
-            console.log('feat added: ' + id);
-            this.setState({
-                doubleSelectedFeatures: [...this.state.doubleSelectedFeatures, id]
-            });
+    checkChoices(choices) {
+        if (choices.length > 1) {
+            console.log(choices);
+            console.log(this.getChoices(choices[0]));
+        }
 
-            const idList = [];
-            const grant = CLASSES.find(e => e.id === id).rules?.grant
-            if (grant !== undefined) {
-                grant.forEach(
-                    e => {
-                        if (e.level === undefined || parseInt(e.level) <= this.state.level) {
-                            if (e.number === undefined) {
+        const newChoices = choices.filter(x => {
+            const slice = choices.slice(0, choices.indexOf(x));
+            return (slice.some(y => {
+                const xElement = this.getFromId(x); 
+                if (xElement?.supports !== undefined) {
+                    return this.getChoices(y).includes(xElement.supports[0]);
+                };
+                return false;
+            }) || this.getFromId(x).type === "Class");
+        })
+
+        const filteredChoice = choices.filter(x => !newChoices.includes(x));
+
+        return {
+            "choices": newChoices,
+            "invalidList": filteredChoice
+        }
+    }
+
+
+    access = (path, object) => {
+        return path.split('.').reduce((o, i) => o[i], object)
+    }
+
+    updateStuff() {
+        let choiceData = this.checkChoices([...this.state.choices]);
+        let choices = choiceData.choices;
+
+        for (const invalid of choiceData.invalidList) {
+            const choiceArray = this.access(this.getFromId(invalid).supports[0], this.state.listsData);
+            choiceArray.splice(0, choiceArray.length);
+        }
+
+
+        // let choices = [...this.state.choices];
+        let newList = [];
+        console.log(choices);
+        for (const id of choices) {
+            newList.push(...this.getChoices(id));
+        }
+        this.setState({listsNeeded: [...newList]});
+        this.setState({choices: [...choices]});
+    }
+
+    getChoices(id) {
+        let newList = [];
+        const idList = [];
+        const grant = CLASSES.find(e => e.id === id).rules?.grant
+        if (grant !== undefined) {
+            grant.forEach(
+                e => {
+                    if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                        if (e.number === undefined) {
+                            idList.push(e.id)
+                        } else {
+                            for (let i = 0; i < parseInt(e.number); i++) {
                                 idList.push(e.id)
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        idList.push(id);
+        console.log(idList);
+
+        for (const eId of idList) {
+            const select = CLASSES.find(e => e.id === eId)?.rules?.select
+            if (select !== undefined) {
+                select.forEach(
+                    e => {
+                        //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
+                        if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
+                            if (e.number === undefined) {
+                                console.log(e);
+                                newList.push(e.supports[0])
                             } else {
                                 for (let i = 0; i < parseInt(e.number); i++) {
-                                    idList.push(e.id)
+                                    newList.push(e.supports[0])
                                 }
                             }
                         }
                     }
                 )
             }
+        }
 
-            idList.push(id);
-            console.log(idList);
+        return newList;
 
-            let newList = [];
+    }
 
-            for (const eId of idList) {
-                const select = CLASSES.find(e => e.id === eId)?.rules?.select
-                if (select !== undefined) {
-                    select.forEach(
-                        e => {
-                            if (e.level === undefined || parseInt(e.level) <= this.state.level) {
-                                if (e.number === undefined) {
-                                    newList.push(e.supports[0])
-                                } else {
-                                    for (let i = 0; i < parseInt(e.number); i++) {
-                                        newList.push(e.supports[0])
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
-            }
+    
+    onFeatureSelected(id) {
+    
+    }
 
-            newList = newList.filter(
-                x => CLASSES.some(y => {
-                    if (y.supports !== undefined) {
-                        console.log(y.supports[0]);
-                        return y.supports[0] === x;
-                    }
-                    return false;
-                })
-            )
+    onFeatureDoubleSelected(id, array) {
+        let actualArray = this.access(array, this.state)
+        // if (this.state[array] === undefined) {
+        //     this.setState({
+        //         [array]: []
+        //     }, () => {this.onFeatureDoubleSelected(id, array)});
+        //     return;
+        // }
 
-            this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
+
+        if (!actualArray.includes(id)) {
+            console.log('feat added: ' + id);
+            this.state.choices.push(id)
+            actualArray.push(id)
+            
+            this.updateStuff()
+
+            // console.log(newList)
+            // this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
 
 
         } else {
             console.log('feat removed: ' + id)
-            this.setState({
-                doubleSelectedFeatures: this.state.doubleSelectedFeatures.filter((o) => o !== id)
-            });
+
+            actualArray.splice(actualArray.findIndex(e => e === id), 1);
+            
+            //technically this won't be a necessary check when i fix some other stuff
+            if (this.state.choices.includes(id)) {
+                this.state.choices.splice(this.state.choices.findIndex(e => e === id), 1);
+                this.setState({
+                    choices: this.state.choices
+                })
+            }
+
+            this.updateStuff();
+
         }
     }
 
@@ -110,23 +187,42 @@ export default class ClassSelection extends React.Component {
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
-                        onItemDoubleSelected={this.onFeatureDoubleSelected}
+                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "doubleSelectedFeatures")}
                         doubleSelectedItems={this.state.doubleSelectedFeatures}
                         // shownColumns={["Name", "Supports"]}
                         data={this.filterData(CLASSES, "type", "Class")}
+                        // presetFilters={{Supports: "Primal Path"}}
                         />
 
                         {/* {console.log(this.state.listsNeeded)} */}
-                        {this.state.listsNeeded.map(
-                            e => <ClassList
+                        
+
+
+                        {this.state.listsNeeded.filter(
+                            x => CLASSES.some(y => {
+                                if (y.supports !== undefined) {
+                                    return y.supports[0] === x;
+                                }
+                                return false;
+                                })
+                            ).map(
+                            e => {
+                                if (this.state.listsData[e] === undefined) {
+                                    this.state.listsData[e] = [];
+                                    this.setState({
+                                        listsData: {...this.state.listsData}
+                                    })
+                                }
+
+                                return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={this.onFeatureDoubleSelected}
-                                    doubleSelectedItems={this.state.doubleSelectedFeatures}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
+                                    doubleSelectedItems={this.state.listsData[e]}
                                     presetFilters={{Supports: e}}
                                     title={e}
                                 />
-                        )}
+                            })}
 
 
 
