@@ -14,7 +14,8 @@ export default class ClassSelection extends React.Component {
             level: 3,
             grants: [],
             listsNeeded: [],
-            listsData: {}
+            listsData: {},
+            choices: []
         }
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
@@ -42,6 +43,7 @@ export default class ClassSelection extends React.Component {
         let actualArray = this.access(array, this.state)
         console.log(actualArray)
 
+        this.state.choices.push(id)
 
         // if (this.state[array] === undefined) {
         //     this.setState({
@@ -104,24 +106,19 @@ export default class ClassSelection extends React.Component {
                 }
             }
 
-            // newList = newList.filter(
-            //     x => CLASSES.some(y => {
-            //         if (y.supports !== undefined) {
-            //             return y.supports[0] === x;
-            //         }
-            //         return false;
-            //     })
-            // )
-
             console.log(newList)
             this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
 
 
         } else {
             console.log('feat removed: ' + id)
+
+            actualArray.splice(actualArray.findIndex(e => e === id), 1);
+
+            this.state.choices.splice(this.state.choices.findIndex(e => e === id), 1);
             this.setState({
-                array: this.state[array].filter((o) => o !== id)
-            });
+                choices: this.state.choices
+            })
         }
     }
 
