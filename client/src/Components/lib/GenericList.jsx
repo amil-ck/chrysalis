@@ -314,11 +314,62 @@ export default class GenericList extends React.Component {
                         <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
                     </div>
                 }
+<<<<<<< Updated upstream
                 <div className='filters'>
                     Filters:
                     {Object.entries(this.state.columnFilters).map(([key, value]) => {
                         if (value) {
                             return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
+=======
+
+                {this.props.doubleSelectedItems.length > 0 &&
+
+                    <span className='selectedItems'>
+                        Selected:
+                        {this.props.doubleSelectedItems.map((value) => {
+                            // return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
+                            return <span>placeholder</span>
+                        })}
+                    </span>
+
+                }
+
+                {!this.state.minimised &&
+
+
+
+                    <div className='filters'>
+                        Filters:
+                        {Object.entries(this.state.columnFilters).map(([key, value]) => {
+                            if (value) {
+                                return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
+                            }
+                        })}
+
+                        {this.state.addingFilter &&
+                            <>
+                                <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
+                                    <option value={"remove"}>Select column</option>
+                                    {this.props.allowFilter.map((value) => {
+                                        if (!this.state.columnFilters[value]) {
+                                            return <option key={value} value={value}>{value}</option>
+                                        }
+                                    })}
+                                </select>
+
+                                <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
+                                    <option value={"remove"}>Select value</option>
+                                    {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
+                                        return <option key={value} value={value}>{value.toString()}</option>
+                                    })}
+                                </select>
+
+                                <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
+                                    x
+                                </button>
+                            </>
+
+>>>>>>> Stashed changes
                         }
                     })}
 
