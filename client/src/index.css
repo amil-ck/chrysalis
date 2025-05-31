@@ -1,8 +1,10 @@
-*, *::after {
+*,
+*::after {
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     margin: 0;
     overflow-y: hidden;
     height: 100vh;
@@ -14,14 +16,120 @@ div#root {
     font-family: sans-serif;
     overflow-y: hidden;
     height: 100%;
+
+    display: flex;
+    flex-direction: column;
 }
 
-div.fullPane {
+.fullPane {
     height: 100%;
     width: 100%;
+    max-height: 100svh;
 
     overflow-y: hidden;
 }
+
+.appNavbar {
+    width: 100%;
+
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 20px;
+
+
+}
+
+.appNavbar .navButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: end;
+    height: 100%;
+
+}
+
+.appNavbar .navButtons button {
+    background-color: transparent;
+    border: none;
+
+    font-size: 12pt;
+    color: #a1a1a1;
+
+    padding: 10px 28px;
+
+    border-radius: 8px 8px 0 0;
+}
+
+.appNavbar .navButtons button:hover {
+    cursor: pointer;
+    background-color: #282828;
+}
+
+.appNavbar .navButtons button.current {
+    background-color: #2c2c2c;
+    
+}
+
+.appNavbar .characterDisplay {
+    display: flex;
+    flex-direction: row;
+
+    border-radius: 8px;
+    margin: 6px;
+}
+
+.appNavbar .characterDisplay:hover {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    background-color: #2c2c2c;
+}
+
+.appNavbar .characterDisplay .info {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    margin: 6px;
+}
+
+.characterDisplay .info .name {
+    font-size: 14pt;
+    color: #e9e9e9;
+}
+
+.characterDisplay .info .details {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #a1a1a1;
+}
+
+/* CHIP STYLING */
+
+.chip {
+    background-color: #404040;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 0 3px;
+
+    cursor: pointer;
+    
+    white-space: nowrap;
+
+
+}
+
+.chip.disabled {
+    background-color: #1e1e1e;
+    color: #a1a1a1;
+    font-style: italic;
+    cursor: default;
+}
+
+
+/* END CHIP STYLING */
 
 
 /* LIST STYLING */
@@ -40,7 +148,7 @@ div.fullPane {
 
 .listWrapper .titleWrapper .title {
     font-weight: bold;
-    
+
 }
 
 .listWrapper table {
@@ -86,20 +194,11 @@ div.fullPane {
 
 .listWrapper table td {
     padding: 4px 2px;
-    
+
 }
 
 .listWrapper .filters {
     margin: 12px 0;
-}
-
-.listWrapper .filters .filterChip {
-    background-color: #404040;
-    border-radius: 4px;
-    padding: 2px 6px;
-    margin: 0 3px;
-
-    cursor: pointer;
 }
 
 .listWrapper .filters .filterChip:hover {
@@ -119,16 +218,15 @@ div.fullPane {
 
 .listWrapper .selectedItems .selectedChip {
     background-color: red;
-    border-radius: 4px;
-    padding: 2px 6px;
 
-    white-space: nowrap;
-
-    cursor: pointer;
 }
 
 .listWrapper .selectedItems .selectedChip:hover {
     text-decoration: line-through;
+}
+
+.listWrapper .selectedItems .selectedChip.disabled:hover {
+    text-decoration: none;
 }
 
 /* END LIST STYLING */
@@ -160,6 +258,17 @@ div.fullPane {
 }
 
 .infoPane .header {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    position: sticky;
+    background-color: inherit;
+    top: 0;
+}
+
+.infoPane .header .top {
     padding-top: 20px;
     padding-bottom: 10px;
     width: 100%;
@@ -171,9 +280,7 @@ div.fullPane {
 
     height: fit-content;
 
-    position: sticky;
-    background-color: inherit;
-    top: 0;
+
 
 }
 
@@ -194,9 +301,7 @@ div.fullPane {
     color: #a1a1a1;
 }
 
-.infoPane .header .closeButton {
-
-}
+.infoPane .header .closeButton {}
 
 .infoPane .attributes {
     display: flex;
@@ -232,6 +337,8 @@ div.fullPane {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
+
+    height: 60px;
 }
 
 .creationNavbar button {
@@ -265,8 +372,8 @@ div.fullPane {
 
 .tab {
     display: flex;
-    height: 100%;
     flex-direction: row;
+    height: calc(99% - 60px);
 }
 
 .tab .main {
@@ -274,11 +381,10 @@ div.fullPane {
     overflow: auto;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 0 20px;
+    height: 100%;
 }
 
-.tab .main > .listWrapper {
-
-}
+.tab .main>.listWrapper {}
 
 /* END TAB STYLING */

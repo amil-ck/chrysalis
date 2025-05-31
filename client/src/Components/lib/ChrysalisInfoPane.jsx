@@ -35,7 +35,8 @@ export default class ChrysalisInfoPane extends React.Component {
             subtitle: '',
             attributes: {},
             description: this.props.data.description,
-            source: this.props.data.source
+            source: this.props.data.source,
+            type: this.props.data.type
         }
         const type = this.props.data.type;
         if (type === 'Spell') {

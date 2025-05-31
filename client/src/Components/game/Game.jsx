@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export default class Home extends React.Component {
+export default class Game extends React.Component {
     constructor(props) {
         super();
         this.props = props;
@@ -9,6 +9,6 @@ export default class Home extends React.Component {
     }
 
     render() {
-        return <>home</>
+        return <>game</>
     }
 }

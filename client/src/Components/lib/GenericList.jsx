@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Chip from './Chip.jsx';
 
 export default class GenericList extends React.Component {
     constructor(props) {
@@ -350,11 +351,11 @@ export default class GenericList extends React.Component {
                 <span className='selectedItems'>
                     Selected {this.props.maxDoubleSelected > 0 && <>({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
                     {this.props.doubleSelectedItems.map((value) => {
-                        return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
+                        return <Chip onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]} />
                     })}
-                    {this.props.maxDoubleSelected > 0 &&
+                    {this.props.maxDoubleSelected > 0 && this.props.maxDoubleSelected > this.props.doubleSelectedItems.length &&
                         [...Array(this.props.maxDoubleSelected - this.props.doubleSelectedItems.length)].map(() => {
-                            return <span className='selectedChip disabled'>Empty slot</span>
+                            return <Chip text={"Empty slot"} className={"disabled"} />
                         })
                     }
                 </span>
@@ -365,7 +366,7 @@ export default class GenericList extends React.Component {
                         Filters:
                         {Object.entries(this.state.columnFilters).map(([key, value]) => {
                             if (value) {
-                                return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
+                                return <Chip key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
                             }
                         })}
 
