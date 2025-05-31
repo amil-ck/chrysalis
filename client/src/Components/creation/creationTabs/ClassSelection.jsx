@@ -19,6 +19,7 @@ export default class ClassSelection extends React.Component {
         }
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
+        this.updateStuff = this.updateStuff.bind(this)
 
     }
 
@@ -34,34 +35,9 @@ export default class ClassSelection extends React.Component {
         return path.split('.').reduce((o, i) => o[i], object)
     }
 
-    
-    onFeatureSelected(id) {
-    
-    }
-
-    onFeatureDoubleSelected(id, array) {
-        let actualArray = this.access(array, this.state)
-        console.log(actualArray)
-
-        this.state.choices.push(id)
-
-        // if (this.state[array] === undefined) {
-        //     this.setState({
-        //         [array]: []
-        //     }, () => {this.onFeatureDoubleSelected(id, array)});
-        //     return;
-        // }
-
-
-        if (!actualArray.includes(id)) {
-            console.log('feat added: ' + id);
-
-            actualArray.push(id)
-            
-            // this.setState({
-            //     [array]: [...actualArray, id]
-            // });
-
+    updateStuff() {
+        let newList = [];
+        for (const id of this.state.choices) {
             const idList = [];
             const grant = CLASSES.find(e => e.id === id).rules?.grant
             if (grant !== undefined) {
@@ -83,8 +59,6 @@ export default class ClassSelection extends React.Component {
             idList.push(id);
             console.log(idList);
 
-            let newList = [];
-
             for (const eId of idList) {
                 const select = CLASSES.find(e => e.id === eId)?.rules?.select
                 if (select !== undefined) {
@@ -105,9 +79,36 @@ export default class ClassSelection extends React.Component {
                     )
                 }
             }
+        }
+        this.setState({listsNeeded: [...newList]});
+    }
 
-            console.log(newList)
-            this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
+
+    
+    onFeatureSelected(id) {
+    
+    }
+
+    onFeatureDoubleSelected(id, array) {
+        let actualArray = this.access(array, this.state)
+        console.log(actualArray)
+        // if (this.state[array] === undefined) {
+        //     this.setState({
+        //         [array]: []
+        //     }, () => {this.onFeatureDoubleSelected(id, array)});
+        //     return;
+        // }
+
+
+        if (!actualArray.includes(id)) {
+            console.log('feat added: ' + id);
+            this.state.choices.push(id)
+            actualArray.push(id)
+            
+            this.updateStuff()
+
+            // console.log(newList)
+            // this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
 
 
         } else {
@@ -119,6 +120,9 @@ export default class ClassSelection extends React.Component {
             this.setState({
                 choices: this.state.choices
             })
+
+            this.updateStuff();
+
         }
     }
 
