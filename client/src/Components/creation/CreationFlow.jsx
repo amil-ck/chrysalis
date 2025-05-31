@@ -9,7 +9,8 @@ export default class CreationFlow extends React.Component {
 
         this.state = {
             navigationTab: 'Test',
-            characterData: {}
+            characterData: {},
+            creationData: {}
         }
 
         this.onNavigate = this.onNavigate.bind(this);
@@ -31,7 +32,7 @@ export default class CreationFlow extends React.Component {
         return (
             <div className='creationFlow fullPane'>
                 <CreationNavbar navigationTab={this.state.navigationTab} onNavigate={this.onNavigate} />
-                <CreationTab tab={this.state.navigationTab} characterData={this.state.characterData} />
+                <CreationTab tab={this.state.navigationTab} characterData={this.state.characterData} creationData={this.state.creationData} />
             </div>
         )
     }

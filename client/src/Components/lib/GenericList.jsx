@@ -25,6 +25,7 @@ export default class GenericList extends React.Component {
         // onItemSelected (function(string id)), onItemDoubleSelected (function(string id)), 
         // selectedItemID (string), doubleSelectedItems (string[]), startMinimised (bool), 
         // allowFilter (string[]), presetFilters (obj), multiValueColumns (string[]), doubleSelectOnSingleClick (bool)
+        // maxDoubleSelected: number
 
         this.handleItemClick = this.handleItemClick.bind(this);
         this.toggleMinimised = this.toggleMinimised.bind(this);
@@ -162,6 +163,16 @@ export default class GenericList extends React.Component {
         this.setState({
             searchValue: e.target.value
         })
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        console.log('update')
+        if (prevProps !== this.props) {
+            console.log('props changed', this.props.maxDoubleSelected, this.props.doubleSelectedItems.length)
+            if (this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length === this.props.maxDoubleSelected) {
+                this.state.minimised = true;
+            }
+        }
     }
 
     render() {
@@ -314,41 +325,58 @@ export default class GenericList extends React.Component {
                         <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
                     </div>
                 }
-                <div className='filters'>
-                    Filters:
-                    {Object.entries(this.state.columnFilters).map(([key, value]) => {
-                        if (value) {
-                            return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
+
+                {this.props.doubleSelectedItems.length > 0 &&
+
+                    <span className='selectedItems'>
+                        Selected:
+                        {this.props.doubleSelectedItems.map((value) => {
+                            return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
+                        })}
+                    </span>
+
+                }
+
+                {!this.state.minimised &&
+
+
+
+                    <div className='filters'>
+                        Filters:
+                        {Object.entries(this.state.columnFilters).map(([key, value]) => {
+                            if (value) {
+                                return <span key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)}><b>{key}</b>: {value}</span>
+                            }
+                        })}
+
+                        {this.state.addingFilter &&
+                            <>
+                                <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
+                                    <option value={"remove"}>Select column</option>
+                                    {this.props.allowFilter.map((value) => {
+                                        if (!this.state.columnFilters[value]) {
+                                            return <option key={value} value={value}>{value}</option>
+                                        }
+                                    })}
+                                </select>
+
+                                <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
+                                    <option value={"remove"}>Select value</option>
+                                    {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
+                                        return <option key={value} value={value}>{value.toString()}</option>
+                                    })}
+                                </select>
+
+                                <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
+                                    x
+                                </button>
+                            </>
+
                         }
-                    })}
 
-                    {this.state.addingFilter &&
-                        <>
-                            <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
-                                <option value={"remove"}>Select column</option>
-                                {this.props.allowFilter.map((value) => {
-                                    if (!this.state.columnFilters[value]) {
-                                        return <option key={value} value={value}>{value}</option>
-                                    }
-                                })}
-                            </select>
-
-                            <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
-                                <option value={"remove"}>Select value</option>
-                                {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
-                                    return <option key={value} value={value}>{value.toString()}</option>
-                                })}
-                            </select>
-
-                            <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
-                                x
-                            </button>
-                        </>
-
-                    }
-
-                    {!this.state.addingFilter && <button className='addFilterBtn' onClick={this.onAddFilterButtonClick}>+ Add</button>}
-                </div>
+                        {!this.state.addingFilter && <button className='addFilterBtn' onClick={this.onAddFilterButtonClick}>+ Add</button>}
+                    </div>
+                }
                 {!this.state.minimised &&
                     <table>
                         <thead>
