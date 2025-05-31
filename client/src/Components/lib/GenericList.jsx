@@ -346,20 +346,20 @@ export default class GenericList extends React.Component {
                     </div>
                 }
 
-                {this.props.doubleSelectedItems.length > 0 &&
 
-                    <span className='selectedItems'>
-                        Selected {this.props.maxDoubleSelected > 0 && <>({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
-                        {this.props.doubleSelectedItems.map((value) => {
-                            return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
-                        })}
-                    </span>
-
-                }
+                <span className='selectedItems'>
+                    Selected {this.props.maxDoubleSelected > 0 && <>({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
+                    {this.props.doubleSelectedItems.map((value) => {
+                        return <span onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value}>{this.props.data.find(i => i.id === value)[this.props.columnLocations[this.props.columnNames.indexOf('Name')]]}</span>
+                    })}
+                    {this.props.maxDoubleSelected > 0 &&
+                        [...Array(this.props.maxDoubleSelected - this.props.doubleSelectedItems.length)].map(() => {
+                            return <span className='selectedChip disabled'>Empty slot</span>
+                        })
+                    }
+                </span>
 
                 {!this.state.minimised &&
-
-
 
                     <div className='filters'>
                         Filters:
