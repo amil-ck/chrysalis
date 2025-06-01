@@ -19,11 +19,11 @@ export default class ClassList extends React.Component {
         const propsToPass = {
             data: this.state.classData,
             title: 'Class Features',
-            columnNames: ["Name", "Supports", "Rules", "Type"],
-            shownColumns: ["Name", "Supports", "Rules"],
+            columnNames: ["Name", "Source", "Supports", "Rules", "Type"],
+            shownColumns: ["Name", "Source", "Supports", "Rules"],
             allowFilter: [],
             allowSearch: [],
-            columnLocations: ["name", "supports", "rules/select/supports", "type"],
+            columnLocations: ["name", "source", "supports", "rules/select/supports", "type"],
             multiValueColumns: [],
             presetFilters: {
                 // Source: "Player’s Handbook"

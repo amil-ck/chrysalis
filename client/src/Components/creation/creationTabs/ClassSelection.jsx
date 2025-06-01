@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { CLASSES } from '../../lib/indexData.js';
+import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
 export default class ClassSelection extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ export default class ClassSelection extends React.Component {
         this.state = {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
+            selectedItemData: undefined,
             level: 3,
             grants: [],
             listsNeeded: [],
@@ -20,7 +22,9 @@ export default class ClassSelection extends React.Component {
         }
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
-        this.updateStuff = this.updateStuff.bind(this)
+        this.updateStuff = this.updateStuff.bind(this);
+        this.onFeatureSelected = this.onFeatureSelected.bind(this);
+        this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
 
     }
 
@@ -135,7 +139,17 @@ export default class ClassSelection extends React.Component {
 
     
     onFeatureSelected(id) {
-    
+        this.setState({
+            selectedFeatID: id,
+            selectedItemData: CLASSES.find(value => value.id === id)
+        })
+    }
+
+    onInfoPaneClose() {
+        this.setState({
+            selectedItemData: undefined,
+            selectedFeatureID: null
+        })
     }
 
     onFeatureDoubleSelected(id, array) {
@@ -225,6 +239,7 @@ export default class ClassSelection extends React.Component {
                                 />
                             })}
                     </div>
+                    <ChrysalisInfoPane data={this.state.selectedItemData} onClose={this.onInfoPaneClose} />
                 </div>
             </>
         )
