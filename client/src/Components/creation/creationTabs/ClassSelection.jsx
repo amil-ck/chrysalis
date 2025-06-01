@@ -28,8 +28,12 @@ export default class ClassSelection extends React.Component {
     //     return CLASSES.filter(e => e.rules.select.supports)
     // }
 
+    access = (path, object) => {
+        return path.split('.').reduce((o, i) => o?.[i], object)
+    }
+
     filterData(array, type, value) {
-        return array.filter(e => e[type] === value)
+        return array.filter(e => this.access(type, e) === value)
     }
 
     getFromId(id) {
@@ -59,11 +63,6 @@ export default class ClassSelection extends React.Component {
             "choices": newChoices,
             "invalidList": filteredChoice
         }
-    }
-
-
-    access = (path, object) => {
-        return path.split('.').reduce((o, i) => o[i], object)
     }
 
     updateStuff() {
@@ -189,6 +188,7 @@ export default class ClassSelection extends React.Component {
                         selectedItemID={this.state.selectedFeatureID}
                         onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "doubleSelectedFeatures")}
                         doubleSelectedItems={this.state.doubleSelectedFeatures}
+                        maxDoubleSelected={1}
                         // shownColumns={["Name", "Supports"]}
                         data={this.filterData(CLASSES, "type", "Class")}
                         // presetFilters={{Supports: "Primal Path"}}
@@ -219,14 +219,11 @@ export default class ClassSelection extends React.Component {
                                     selectedItemID={this.state.selectedFeatureID}
                                     onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
                                     doubleSelectedItems={this.state.listsData[e]}
-                                    presetFilters={{Supports: e}}
+                                    // presetFilters={{Supports: e}}
                                     title={e}
+                                    data={this.filterData(CLASSES, "supports.0", e)}
                                 />
                             })}
-
-
-
-
                     </div>
                 </div>
             </>
