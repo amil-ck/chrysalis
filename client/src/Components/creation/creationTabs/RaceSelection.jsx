@@ -1,8 +1,8 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
-import { CLASSES } from '../../lib/indexData.js';
+import { RACES } from '../../lib/indexData.js';
 
-export default class ClassSelection extends React.Component {
+export default class RaceSelection extends React.Component {
     constructor(props) {
         super();
 
@@ -25,7 +25,7 @@ export default class ClassSelection extends React.Component {
     }
 
     // filterData(supports) {
-    //     return CLASSES.filter(e => e.rules.select.supports)
+    //     return RACES.filter(e => e.rules.select.supports)
     // }
 
     access = (path, object) => {
@@ -37,7 +37,7 @@ export default class ClassSelection extends React.Component {
     }
 
     getFromId(id) {
-        return CLASSES.find(e => e.id === id)
+        return RACES.find(e => e.id === id)
     }
 
     checkChoices(choices) {
@@ -54,7 +54,7 @@ export default class ClassSelection extends React.Component {
                     return this.getChoices(y).includes(xElement.supports[0]);
                 };
                 return false;
-            }) || this.getFromId(x).type === "Class");
+            }) || this.getFromId(x).type === "Race");
         })
 
         const filteredChoice = choices.filter(x => !newChoices.includes(x));
@@ -88,7 +88,7 @@ export default class ClassSelection extends React.Component {
     getChoices(id) {
         let newList = [];
         const idList = [];
-        const grant = CLASSES.find(e => e.id === id).rules?.grant
+        const grant = RACES.find(e => e.id === id).rules?.grant
         if (grant !== undefined) {
             grant.forEach(
                 e => {
@@ -109,7 +109,7 @@ export default class ClassSelection extends React.Component {
         console.log(idList);
 
         for (const eId of idList) {
-            const select = CLASSES.find(e => e.id === eId)?.rules?.select
+            const select = RACES.find(e => e.id === eId)?.rules?.select
             if (select !== undefined) {
                 select.forEach(
                     e => {
@@ -190,7 +190,7 @@ export default class ClassSelection extends React.Component {
                         doubleSelectedItems={this.state.doubleSelectedFeatures}
                         maxDoubleSelected={1}
                         // shownColumns={["Name", "Supports"]}
-                        data={this.filterData(CLASSES, "type", "Class")}
+                        data={this.filterData(RACES, "type", "Race")}
                         // presetFilters={{Supports: "Primal Path"}}
                         />
 
@@ -199,7 +199,7 @@ export default class ClassSelection extends React.Component {
 
 
                         {this.state.listsNeeded.filter(
-                            x => CLASSES.some(y => {
+                            x => RACES.some(y => {
                                 if (y.supports !== undefined) {
                                     return y.supports[0] === x;
                                 }
@@ -221,7 +221,7 @@ export default class ClassSelection extends React.Component {
                                     doubleSelectedItems={this.state.listsData[e]}
                                     // presetFilters={{Supports: e}}
                                     title={e}
-                                    data={this.filterData(CLASSES, "supports.0", e)}
+                                    data={this.filterData(RACES, "supports.0", e)}
                                 />
                             })}
                     </div>
