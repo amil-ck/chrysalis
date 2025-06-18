@@ -316,13 +316,13 @@ export default class GenericList extends React.Component {
                     if (this.props.multiValueColumns.includes(colName)) {
                         // Column's cells contain multiple values
                         for (const o of value[colName]) {
-                            if (o.toLowerCase().includes(this.state.searchValue)) {
+                            if (o.toLowerCase().includes(this.state.searchValue.toLowerCase())) {
                                 show = true;
                                 break outer;
                             }
                         }
                     } else {
-                        if (value[colName].toLowerCase().includes(this.state.searchValue)) {
+                        if (value[colName].toLowerCase().includes(this.state.searchValue.toLowerCase())) {
                             show = true;
                             break outer;
                         }
