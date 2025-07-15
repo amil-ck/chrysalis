@@ -3,6 +3,8 @@ import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { CLASSES } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
+const TYPE = "Class";
+
 export default class ClassSelection extends React.Component {
     constructor(props) {
         super();
@@ -13,19 +15,22 @@ export default class ClassSelection extends React.Component {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
             selectedItemData: undefined,
-            level: 3,
-            grants: [],
+            level: 5,
             listsNeeded: [],
-            listsData: {},
-            choices: [],
-            choiceDict: {}
+            listsData: this.props.creationData.listsData,
+            choices: this.props.creationData.choices[TYPE],
+            grants: []
         }
+
+        console.log(this.props.creationData.choices);
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
         this.updateStuff = this.updateStuff.bind(this);
         this.onFeatureSelected = this.onFeatureSelected.bind(this);
         this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
 
+        //probably shouldn't have something on a timer like this
+        setTimeout(this.updateStuff, 1);
     }
 
     // filterData(supports) {
@@ -58,7 +63,7 @@ export default class ClassSelection extends React.Component {
                     return this.getChoices(y).includes(xElement.supports[0]);
                 };
                 return false;
-            }) || this.getFromId(x).type === "Class");
+            }) || this.getFromId(x).type === TYPE);
         })
 
         const filteredChoice = choices.filter(x => !newChoices.includes(x));
@@ -81,27 +86,38 @@ export default class ClassSelection extends React.Component {
 
         // let choices = [...this.state.choices];
         let newList = [];
+        let grantList = [];
         console.log(choices);
         for (const id of choices) {
             newList.push(...this.getChoices(id));
+            grantList.push(...this.getGrants(id));
         }
+
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
+        this.setState({grants: [...grantList]});
+
+        const creationData = {...this.props.creationData}
+        creationData.choices[TYPE] = choices;
+        creationData.listsData = this.state.listsData;
+        this.props.updateCreationData(creationData);    
     }
 
-    getChoices(id) {
-        let newList = [];
-        const idList = [];
-        const grant = CLASSES.find(e => e.id === id).rules?.grant
+    getGrants(id) {
+        let idList = [id];
+        const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
         if (grant !== undefined) {
             grant.forEach(
                 e => {
+                    console.log(e);
                     if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                         if (e.number === undefined) {
-                            idList.push(e.id)
+                            // idList.push(e.id)
+                            idList = idList.concat(this.getGrants(e.id));
                         } else {
                             for (let i = 0; i < parseInt(e.number); i++) {
-                                idList.push(e.id)
+                                // idList.push(e.id)
+                                idList = idList.concat(this.getGrants(e.id));
                             }
                         }
                     }
@@ -109,7 +125,25 @@ export default class ClassSelection extends React.Component {
             )
         }
 
-        idList.push(id);
+        // 13
+        
+        // idList.push(id);
+        // const newList = [];
+        // while (set(idList) === set(newList)) {
+
+        // }
+
+        return idList;
+    }
+
+    setAllGrants() {
+        
+    }
+
+    getChoices(id) {
+        let newList = [];
+
+        let idList = this.getGrants(id);
         console.log(idList);
 
         for (const eId of idList) {
@@ -197,14 +231,16 @@ export default class ClassSelection extends React.Component {
             <>
                 <div className='tab'>
                     <div className='main'>
+                        <button onClick={() => {console.log(this.state.choices); console.log(this.state.grants)}}>export n stuff</button>
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
-                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "doubleSelectedFeatures")}
-                        doubleSelectedItems={this.state.doubleSelectedFeatures}
+                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData."+TYPE)}
+                        doubleSelectedItems={this.state.listsData[TYPE]}
                         maxDoubleSelected={1}
                         // shownColumns={["Name", "Supports"]}
-                        data={this.filterData(CLASSES, "type", "Class")}
+                        data={this.filterData(CLASSES, "type", TYPE)}
+                        title={TYPE}
                         // presetFilters={{Supports: "Primal Path"}}
                         />
 

@@ -10,10 +10,22 @@ export default class CreationFlow extends React.Component {
         this.state = {
             navigationTab: 'Test',
             characterData: {},
-            creationData: {}
+            creationData: {
+                choices: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                },
+                listsData: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                }
+            }
         }
 
         this.onNavigate = this.onNavigate.bind(this);
+        this.updateCreationData = this.updateCreationData.bind(this);
     }
 
     onNavigate(tab) {
@@ -28,11 +40,17 @@ export default class CreationFlow extends React.Component {
         })
     }
 
+    updateCreationData(data) {
+        this.setState({
+            creationData: data
+        })
+    }
+
     render() {
         return (
             <div className='creationFlow fullPane'>
                 <CreationNavbar navigationTab={this.state.navigationTab} onNavigate={this.onNavigate} />
-                <CreationTab tab={this.state.navigationTab} characterData={this.state.characterData} creationData={this.state.creationData} />
+                <CreationTab tab={this.state.navigationTab} characterData={this.state.characterData} creationData={this.state.creationData} updateCreationData={this.updateCreationData}/>
             </div>
         )
     }

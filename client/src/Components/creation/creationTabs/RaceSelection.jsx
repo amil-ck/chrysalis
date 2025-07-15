@@ -1,8 +1,11 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
-import { RACES } from '../../lib/indexData.js';
+import { CLASSES } from '../../lib/indexData.js';
+import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
-export default class RaceSelection extends React.Component {
+const TYPE = "Race";
+
+export default class ClassSelection extends React.Component {
     constructor(props) {
         super();
 
@@ -11,21 +14,27 @@ export default class RaceSelection extends React.Component {
         this.state = {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
-            level: 3,
-            grants: [],
+            selectedItemData: undefined,
+            level: 20,
             listsNeeded: [],
-            listsData: {},
-            choices: [],
-            choiceDict: {}
+            listsData: this.props.creationData.listsData,
+            choices: this.props.creationData.choices[TYPE],
+            grants: []
         }
 
-        this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
-        this.updateStuff = this.updateStuff.bind(this)
+        console.log(this.props.creationData.choices);
 
+        this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
+        this.updateStuff = this.updateStuff.bind(this);
+        this.onFeatureSelected = this.onFeatureSelected.bind(this);
+        this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
+
+        //probably shouldn't have something on a timer like this
+        setTimeout(this.updateStuff, 1);
     }
 
     // filterData(supports) {
-    //     return RACES.filter(e => e.rules.select.supports)
+    //     return CLASSES.filter(e => e.rules.select.supports)
     // }
 
     access = (path, object) => {
@@ -37,7 +46,7 @@ export default class RaceSelection extends React.Component {
     }
 
     getFromId(id) {
-        return RACES.find(e => e.id === id)
+        return CLASSES.find(e => e.id === id)
     }
 
     checkChoices(choices) {
@@ -54,7 +63,7 @@ export default class RaceSelection extends React.Component {
                     return this.getChoices(y).includes(xElement.supports[0]);
                 };
                 return false;
-            }) || this.getFromId(x).type === "Race");
+            }) || this.getFromId(x).type === TYPE);
         })
 
         const filteredChoice = choices.filter(x => !newChoices.includes(x));
@@ -77,18 +86,26 @@ export default class RaceSelection extends React.Component {
 
         // let choices = [...this.state.choices];
         let newList = [];
+        let grantList = [];
         console.log(choices);
         for (const id of choices) {
             newList.push(...this.getChoices(id));
+            grantList.push(...this.getGrants(id));
         }
+
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
+        this.setState({grants: [...grantList]});
+
+        const creationData = {...this.props.creationData}
+        creationData.choices[TYPE] = choices;
+        creationData.listsData = this.state.listsData;
+        this.props.updateCreationData(creationData);    
     }
 
-    getChoices(id) {
-        let newList = [];
+    getGrants(id) {
         const idList = [];
-        const grant = RACES.find(e => e.id === id).rules?.grant
+        const grant = CLASSES.find(e => e.id === id).rules?.grant
         if (grant !== undefined) {
             grant.forEach(
                 e => {
@@ -106,10 +123,18 @@ export default class RaceSelection extends React.Component {
         }
 
         idList.push(id);
+
+        return idList;
+    }
+
+    getChoices(id) {
+        let newList = [];
+
+        let idList = this.getGrants(id);
         console.log(idList);
 
         for (const eId of idList) {
-            const select = RACES.find(e => e.id === eId)?.rules?.select
+            const select = CLASSES.find(e => e.id === eId)?.rules?.select
             if (select !== undefined) {
                 select.forEach(
                     e => {
@@ -135,7 +160,17 @@ export default class RaceSelection extends React.Component {
 
     
     onFeatureSelected(id) {
-    
+        this.setState({
+            selectedFeatID: id,
+            selectedItemData: CLASSES.find(value => value.id === id)
+        })
+    }
+
+    onInfoPaneClose() {
+        this.setState({
+            selectedItemData: undefined,
+            selectedFeatureID: null
+        })
     }
 
     onFeatureDoubleSelected(id, array) {
@@ -183,14 +218,16 @@ export default class RaceSelection extends React.Component {
             <>
                 <div className='tab'>
                     <div className='main'>
+                        <button onClick={() => {console.log(this.state.choices); console.log(this.state.grants)}}>export n stuff</button>
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
-                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "doubleSelectedFeatures")}
-                        doubleSelectedItems={this.state.doubleSelectedFeatures}
+                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData."+TYPE)}
+                        doubleSelectedItems={this.state.listsData[TYPE]}
                         maxDoubleSelected={1}
                         // shownColumns={["Name", "Supports"]}
-                        data={this.filterData(RACES, "type", "Race")}
+                        data={this.filterData(CLASSES, "type", TYPE)}
+                        title={TYPE}
                         // presetFilters={{Supports: "Primal Path"}}
                         />
 
@@ -199,7 +236,7 @@ export default class RaceSelection extends React.Component {
 
 
                         {this.state.listsNeeded.filter(
-                            x => RACES.some(y => {
+                            x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
                                     return y.supports[0] === x;
                                 }
@@ -221,10 +258,11 @@ export default class RaceSelection extends React.Component {
                                     doubleSelectedItems={this.state.listsData[e]}
                                     // presetFilters={{Supports: e}}
                                     title={e}
-                                    data={this.filterData(RACES, "supports.0", e)}
+                                    data={this.filterData(CLASSES, "supports.0", e)}
                                 />
                             })}
                     </div>
+                    <ChrysalisInfoPane data={this.state.selectedItemData} onClose={this.onInfoPaneClose} />
                 </div>
             </>
         )

@@ -5,7 +5,7 @@ import races from '../../data/races.json';
 import everything from '../../data/everything.json';
 
 const SPELLS = spells;
-const FEATS = feats;
+const FEATS = everything.filter(e => e.type === "Feat");
 const CLASSES = everything;
 const RACES = everything;
 
