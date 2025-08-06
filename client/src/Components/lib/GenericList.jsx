@@ -108,7 +108,7 @@ export default class GenericList extends React.Component {
         this.setState({
             columnFilters: {
                 ...this.state.columnFilters,
-                [column]: undefined
+                [column]: 'remove'
             }
         })
     }
@@ -168,7 +168,6 @@ export default class GenericList extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log('update')
         if (prevProps !== this.props) {
             // Props have changed
 
@@ -261,7 +260,7 @@ export default class GenericList extends React.Component {
         for (const colName in this.state.columnFilters) {
             const filter = this.state.columnFilters[colName];
 
-            if (filter !== undefined) {
+            if (filter !== undefined && filter !== 'remove') {
 
                 if (this.props.multiValueColumns.includes(colName)) {
                     // Column's fields contain multiple values:
@@ -334,8 +333,6 @@ export default class GenericList extends React.Component {
             })
         }
 
-        console.log(this.props.title, this.props.data)
-
 
         return (
             <div className="listWrapper">
@@ -373,7 +370,7 @@ export default class GenericList extends React.Component {
                     <div className='filters'>
                         Filters:
                         {Object.entries(this.state.columnFilters).map(([key, value]) => {
-                            if (value) {
+                            if (value && value !== 'remove') {
                                 return <Chip key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
                             }
                         })}
@@ -383,7 +380,7 @@ export default class GenericList extends React.Component {
                                 <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
                                     <option value={"remove"}>Select column</option>
                                     {this.props.allowFilter.map((value) => {
-                                        if (!this.state.columnFilters[value]) {
+                                        if (!this.state.columnFilters[value] || this.state.columnFilters[value] === 'remove') {
                                             return <option key={value} value={value}>{value}</option>
                                         }
                                     })}

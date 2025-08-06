@@ -17,7 +17,6 @@ export default class GenericInfoPane extends React.Component {
         }
 
         const sanitisedDescription = DOMPurify.sanitize(this.props.data.description, { USE_PROFILES: { html: true } });
-        console.log(this.props.data.description, sanitisedDescription);
 
         return (
             <div className='infoPane'>

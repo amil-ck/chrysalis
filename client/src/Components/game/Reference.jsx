@@ -5,6 +5,9 @@ import GenericList from '../lib/GenericList.jsx';
 import FeatList from '../lib/listTypes/FeatList.jsx';
 import { BACKGROUNDS, CLASSES, FEATS, LANGUAGES, RACES, SPELLS } from '../lib/indexData.js';
 import SpellList from '../lib/listTypes/SpellList.jsx';
+import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
+import RaceList from '../lib/listTypes/RaceList.jsx';
+import LanguageList from '../lib/listTypes/LanguageList.jsx';
 
 export default class Reference extends React.Component {
     constructor(props) {
@@ -15,56 +18,98 @@ export default class Reference extends React.Component {
             characterData: {},
             currentCategory: 'Spells',
             searchValue: '',
-            searchCategory: undefined
-        }
-    }
-
-    render() {
-        const categories = ['Races', 'Classes', 'Subclasses', 'Class Features', 'Archetypes', 'Archetype Features'];
-
-        const lists = {
-            "Classes": ClassList,
-            "Feats": FeatList,
-            "Spells": SpellList
+            searchCategory: undefined,
+            selectedItemData: undefined,
+            selectedItemID: ''
         }
 
-        const data = {
+        this.categoryData = {
             "Races": RACES,
+            "Classes": CLASSES,
+            "Archetypes": CLASSES,
+            "Class Features": CLASSES,
+            "Subclasses": CLASSES,
+            "Feats": FEATS,
+            "Spells": SPELLS,
             "Backgrounds": BACKGROUNDS,
             "Languages": LANGUAGES,
         }
 
-        let CurrentList = lists[this.state.currentCategory];
-        let listData;
-        if (!CurrentList) {
-            CurrentList = GenericList;
-            listData = data[CurrentList]
+        this.onItemSelected = this.onItemSelected.bind(this);
+        this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
+    }
+
+    onItemSelected(id) {
+        const itemData = this.categoryData[this.state.currentCategory].find(i => i.id === id);
+        this.setState({
+            selectedItemData: itemData,
+            selectedItemID: id
+        });
+    }
+
+    onInfoPaneClose() {
+        this.setState({
+            selectedItemData: undefined,
+            selectedItemID: ''
+        })
+    }
+
+    render() {
+        const categories = ['Races', 'Classes', 'Archetypes', 'Class Features', 'Backgrounds', 'Feats', 'Languages'];
+
+        const lists = {
+            "Classes": (props) => <ClassList data={CLASSES.filter(i => i.type === "Class")} {...props} />,
+            "Archetypes": (props) => <ClassList data={CLASSES.filter(i => i.type === "Archetype")} {...props} />,
+            "Class Features": (props) => <ClassList data={CLASSES.filter(i => i.type === "Class Feature" || i.type === "Archetype Feature")} {...props} />,
+            "Feats": FeatList,
+            "Spells": SpellList,
+            "Races": RaceList,
+            "Languages": LanguageList
         }
 
+        let CurrentList = lists[this.state.currentCategory];
+        const listProps = {
+            title: '',
+            allowSearch: ["Name"],
+            onItemSelected: this.onItemSelected,
+            onItemDoubleSelected: () => { },
+            selectedItemID: this.state.selectedItemID
+        };
+        if (!CurrentList) {
+            CurrentList = GenericList;
+            listProps.data = this.categoryData[this.state.currentCategory]
+            listProps.allowFilter = [];
+        }
 
         return (
             <div className="tab reference">
                 <div className="main">
                     <div className="searchRow">
-                        <label htmlFor="search">Search</label>
+                        <label htmlFor="search">Search all</label>
                         <div className="searchWrapper">
                             {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />}
 
-                            <input type='search' name='search' value={this.state.searchValue} onChange={(e) => this.setState({searchValue: e.target.value})} />
+                            <input type='search' name='search' value={this.state.searchValue} onChange={(e) => this.setState({ searchValue: e.target.value })} />
                         </div>
                     </div>
                     <div className="categoryRow">
-                        <button className={this.state.currentCategory === 'Spells' ? 'current' : ''} type="button" onClick={() => this.setState({currentCategory: 'Spells'})}>Spells</button>
-                        <button className={this.state.currentCategory === 'Equipment' ? 'current' : ''} type="button" onClick={() => this.setState({currentCategory: 'Equipment'})}>Equipment</button>
-                        <select value={this.state.currentCategory} onChange={(e) => this.setState({currentCategory: e.target.value})}>
-                            <option value={undefined}>Other</option>
+                        <button className={this.state.currentCategory === 'Spells' ? 'current' : ''} type="button" onClick={() => this.setState({ currentCategory: 'Spells' })}>Spells</button>
+                        <button className={this.state.currentCategory === 'Equipment' ? 'current' : ''} type="button" onClick={() => this.setState({ currentCategory: 'Equipment' })}>Equipment</button>
+                        <select value={this.state.currentCategory} onChange={(e) => this.setState({ currentCategory: e.target.value !== 'none' ? e.target.value : 'Spells' })}>
+                            <option value={'none'}>Select other</option>
+                            {categories.map((e) => {
+                                return <option value={e}>{e}</option>
+                            })}
                         </select>
                     </div>
-                    <div className="compatibleRow"></div>
+                    <div className="compatibleRow">
+                        Only show options compatible with [character]?
+                    </div>
                     <div className="listWrapper">
-                        <CurrentList title={''} allowSearch={[]}  onItemSelected={() => {}} />
+                        <CurrentList {...listProps} />
                     </div>
                 </div>
+                <ChrysalisInfoPane data={this.state.selectedItemData} onClose={this.onInfoPaneClose} />
             </div>
         )
     }
