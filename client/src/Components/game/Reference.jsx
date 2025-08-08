@@ -8,6 +8,7 @@ import SpellList from '../lib/listTypes/SpellList.jsx';
 import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import RaceList from '../lib/listTypes/RaceList.jsx';
 import LanguageList from '../lib/listTypes/LanguageList.jsx';
+import FloatingSearchResults from '../lib/FloatingSearchResults.jsx';
 
 export default class Reference extends React.Component {
     constructor(props) {
@@ -18,7 +19,9 @@ export default class Reference extends React.Component {
             characterData: {},
             currentCategory: 'Spells',
             searchValue: '',
-            searchCategory: undefined,
+            searchCategory: 'Search all',
+            searchResults: [{title: "Barbarian", subtitle: "Class", id: "123"}],
+            showSearchResults: true,
             selectedItemData: undefined,
             selectedItemID: ''
         }
@@ -35,8 +38,17 @@ export default class Reference extends React.Component {
             "Languages": LANGUAGES,
         }
 
+        // Collate all data for searching
+        this.allData = [];
+        for (const data of Object.values(this.categoryData)) {
+            this.allData = this.allData.concat(data);
+        }
+
         this.onItemSelected = this.onItemSelected.bind(this);
         this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
+        this.onSearchChange = this.onSearchChange.bind(this);
+        this.onSearchResultClick = this.onSearchResultClick.bind(this);
+        this.onSearchBlur = this.onSearchBlur.bind(this);
     }
 
     onItemSelected(id) {
@@ -52,6 +64,63 @@ export default class Reference extends React.Component {
             selectedItemData: undefined,
             selectedItemID: ''
         })
+    }
+
+    onSearchChange(e) {
+        const value = e.target.value;
+
+        if (value.length === 0) {
+            return this.setState({
+                searchValue: value,
+                searchResults: [],
+                showSearchResults: false
+            });
+        }
+
+        // SEARCH EVERYTHING?!
+        const filtered = this.allData.filter(i => {
+            return i && i.name && i.name.toLowerCase().includes(value.toLowerCase().trim());
+        })
+
+        const results = [];
+        const ids = []; // to prevent duplicates
+        for (const o of filtered) {
+            if (!ids.includes(o.id)) {
+                results.push({
+                    title: o.name,
+                    id: o.id,
+                    subtitle: o.type
+                });
+                ids.push(o.id);
+            }
+        }
+        
+        this.setState({
+            searchValue: value,
+            searchResults: results,
+            showSearchResults: true
+        });
+    }
+
+    onSearchResultClick(e, id) {
+        e.preventDefault();
+        console.log('runs')
+        const itemData = this.allData.find(i => i.id === id);
+        this.setState({
+            selectedItemData: itemData,
+            selectedItemID: id,
+            showSearchResults: false
+        });
+    }
+
+    onSearchBlur(e) {
+        if (e.relatedTarget && e.relatedTarget.classList.contains("result")) {
+
+        } else {
+            this.setState({
+                showSearchResults: false
+            })
+        }
     }
 
     render() {
@@ -89,7 +158,10 @@ export default class Reference extends React.Component {
                         <div className="searchWrapper">
                             {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />}
 
-                            <input type='search' name='search' value={this.state.searchValue} onChange={(e) => this.setState({ searchValue: e.target.value })} />
+                            <input type='search' name='search' value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
+
+                            <FloatingSearchResults showResults={this.state.showSearchResults} results={this.state.searchResults} onResultClick={this.onSearchResultClick} />
+                        
                         </div>
                     </div>
                     <div className="categoryRow">

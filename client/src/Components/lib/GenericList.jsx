@@ -335,7 +335,7 @@ export default class GenericList extends React.Component {
 
 
         return (
-            <div className="listWrapper">
+            <div className={this.state.minimised ? "listWrapper minimised" : "listWrapper"}>
                 <div className='titleWrapper'>
                     <span className='title'>{this.props.title}</span>
                     {this.props.allowSearch.length > 0 &&
