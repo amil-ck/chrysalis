@@ -56,9 +56,9 @@ export default class ChrysalisInfoPane extends React.Component {
             }
             
         } else if (type === 'Feat') {
-            if (this.props.data.prerequisite) {
-                dataToRender.attributes.Prerequisite = this.props.data.prerequisite;
-            }
+            // if (this.props.data.prerequisite) {
+            //     dataToRender.attributes.Prerequisite = this.props.data.prerequisite;
+            // }
         } else if (type === 'Language') {
             dataToRender.attributes = {
                 Speakers: this.props.data.setters.speakers,

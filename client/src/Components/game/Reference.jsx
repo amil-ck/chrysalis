@@ -20,7 +20,7 @@ export default class Reference extends React.Component {
             currentCategory: 'Spells',
             searchValue: '',
             searchCategory: 'Search all',
-            searchResults: [{title: "Barbarian", subtitle: "Class", id: "123"}],
+            searchResults: [],
             showSearchResults: true,
             selectedItemData: undefined,
             selectedItemID: ''
@@ -154,7 +154,7 @@ export default class Reference extends React.Component {
             <div className="tab reference">
                 <div className="main">
                     <div className="searchRow">
-                        <label htmlFor="search">Search all</label>
+                        {/* <label htmlFor="search">Search all</label> */}
                         <div className="searchWrapper">
                             {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />}
 
