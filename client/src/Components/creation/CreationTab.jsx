@@ -2,6 +2,7 @@ import * as React from 'react';
 import TestCreationTab from './creationTabs/TestCreationTab.jsx';
 import AbilityScores from './AbilityScores.jsx';
 import ClassSelection from "../creation/creationTabs/ClassSelection.jsx"
+import DetailsTab from './creationTabs/DetailsTab.jsx';
 
 export default class CreationTab extends React.Component {
     constructor(props) {
@@ -11,7 +12,8 @@ export default class CreationTab extends React.Component {
         this.tabs = {
             Test: TestCreationTab,
             "Ability Scores": AbilityScores,
-            "Class":  ClassSelection
+            "Class":  ClassSelection,
+            "Details": DetailsTab
         }
     }
 
