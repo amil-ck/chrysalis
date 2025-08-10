@@ -7,7 +7,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getUserPath: () => ipcRenderer.invoke("getUserPath"),
   writeFile: (path, content) => ipcRenderer.invoke("writeFile", path, content),
   readFile: (path) => ipcRenderer.invoke("readFile", path),
-  getDataPath: () => ipcRenderer.invoke("getDataPath")
+  getDataPath: () => ipcRenderer.invoke("getDataPath"),
+  openExternal: (url) => ipcRenderer.invoke("openExternal", url)
 });
 
 contextBridge.exposeInMainWorld('appSettings', {

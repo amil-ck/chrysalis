@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('node:path');
 const settings = require('electron-settings');
 const fs = require('node:fs/promises');
@@ -63,6 +63,10 @@ function getDataPath() {
     return path.join(app.getPath("userData"), "chrysalis_data");
 }
 
+function openExternal(_e, url) {
+    shell.openExternal(url);
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -73,6 +77,8 @@ app.whenReady().then(() => {
     ipcMain.handle("writeFile", writeFile);
     ipcMain.handle("readFile", readFile);
     ipcMain.handle("getDataPath", getDataPath);
+    ipcMain.handle("openExternal", openExternal);
+
     createWindow();
 
     // On OS X it's common to re-create a window in the app when the
