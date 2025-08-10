@@ -154,29 +154,31 @@ export default class Reference extends React.Component {
             <div className="tab reference">
                 <div className="main">
                     <div className="searchRow">
-                        {/* <label htmlFor="search">Search all</label> */}
+                        
                         <div className="searchWrapper">
-                            {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />}
+                            {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */}
 
-                            <input type='search' name='search' value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
+                            <label htmlFor="search">Search everything</label>
+                            <input type='search' name='search' placeholder='e.g. Druid, Spare the Dying...' value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
 
                             <FloatingSearchResults showResults={this.state.showSearchResults} results={this.state.searchResults} onResultClick={this.onSearchResultClick} />
                         
                         </div>
+                        <span className="or">Or, browse by category:</span>
                     </div>
                     <div className="categoryRow">
                         <button className={this.state.currentCategory === 'Spells' ? 'current' : ''} type="button" onClick={() => this.setState({ currentCategory: 'Spells' })}>Spells</button>
                         <button className={this.state.currentCategory === 'Equipment' ? 'current' : ''} type="button" onClick={() => this.setState({ currentCategory: 'Equipment' })}>Equipment</button>
-                        <select value={this.state.currentCategory} onChange={(e) => this.setState({ currentCategory: e.target.value !== 'none' ? e.target.value : 'Spells' })}>
-                            <option value={'none'}>Select other</option>
+                        <select className={['Spells', 'Equipment'].includes(this.state.currentCategory) ? '' : 'current'} value={this.state.currentCategory} onChange={(e) => this.setState({ currentCategory: e.target.value !== 'none' ? e.target.value : 'Spells' })}>
+                            <option value={'none'}>More categories</option>
                             {categories.map((e) => {
                                 return <option value={e}>{e}</option>
                             })}
                         </select>
                     </div>
-                    <div className="compatibleRow">
+                    {/* <div className="compatibleRow">
                         Only show options compatible with [character]?
-                    </div>
+                    </div> */}
                     <div className="listWrapper">
                         <CurrentList {...listProps} />
                     </div>
