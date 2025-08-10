@@ -6,9 +6,9 @@ export default class DetailsTab extends React.Component {
         this.props = props;
 
         this.state = {
-            name: '',
-            backstory: '',
-            description: '',
+            name: this.props.characterData.details?.name || '',
+            backstory: this.props.characterData.details?.backstory || '',
+            description: this.props.characterData.details?.description || '',
             namePlaceholder: this.placeholderName()
         }
 
@@ -28,14 +28,14 @@ export default class DetailsTab extends React.Component {
     }
 
     handleInputBlur(e) {
-        const updatedCharacterData = this.props.characterData;
-        updatedCharacterData.details = {
+        const updatedData = this.props.characterData;
+        updatedData.details = {
             name: this.state.name,
             backstory: this.state.backstory,
             description: this.state.description
         }
 
-        this.props.updateCharacterData(updatedCharacterData);
+        this.props.updateCharacterData(updatedData);
     }
 
     render() {
