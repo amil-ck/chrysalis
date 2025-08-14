@@ -35,7 +35,7 @@ export default class ChrysalisInfoPane extends React.Component {
             subtitle: this.props.data.type,
             attributes: {},
             description: this.props.data.description,
-            source: this.props.data.source,
+            footerAttributes: {Source: this.props.data.source},
             type: this.props.data.type
         }
         const type = this.props.data.type;
