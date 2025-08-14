@@ -6,7 +6,7 @@ export default class DetailsTab extends React.Component {
         this.props = props;
 
         this.state = {
-            name: this.props.characterData.details?.name || '',
+            name: this.props.characterData.name || '',
             backstory: this.props.characterData.details?.backstory || '',
             description: this.props.characterData.details?.description || '',
             namePlaceholder: this.placeholderName()
@@ -29,8 +29,8 @@ export default class DetailsTab extends React.Component {
 
     handleInputBlur(e) {
         const updatedData = this.props.characterData;
+        updatedData.name = this.state.name
         updatedData.details = {
-            name: this.state.name,
             backstory: this.state.backstory,
             description: this.state.description
         }
@@ -42,17 +42,21 @@ export default class DetailsTab extends React.Component {
 
         return (
             <div className="tab">
-                <div className="inputWrapper">
-                    <label htmlFor="name">Character name</label>
-                    <input type="text" name='name' placeholder={"e.g. " + this.state.namePlaceholder} value={this.state.name} onChange={this.handleChange} onBlur={this.handleInputBlur} />
-                </div>
-                <div className="inputWrapper">
-                    <label htmlFor="description">Description</label>
-                    <textarea name="description" placeholder='Describe your character: appearance, personality, etc.' rows={5} value={this.state.description} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
-                </div>
-                <div className="inputWrapper">
-                    <label htmlFor="backstory">Backstory</label>
-                    <textarea name="backstory" placeholder='What events made your character who they are?' rows={5} value={this.state.backstory} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                <div className="main">
+                    <div className="inputList">
+                        <div className="inputWrapper">
+                            <label htmlFor="name">Character name</label>
+                            <input type="text" name='name' placeholder={"e.g. " + this.state.namePlaceholder} value={this.state.name} onChange={this.handleChange} onBlur={this.handleInputBlur} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="description">Description</label>
+                            <textarea name="description" placeholder='Describe your character: appearance, personality, etc.' rows={5} value={this.state.description} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="backstory">Backstory</label>
+                            <textarea name="backstory" placeholder='What events made your character who they are?' rows={5} value={this.state.backstory} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         )

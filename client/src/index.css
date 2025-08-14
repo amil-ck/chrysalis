@@ -28,7 +28,8 @@ div#root {
 }
 
 button,
-select {
+select,
+textarea {
     font-family: inherit;
 
 }
@@ -45,7 +46,7 @@ input {
 
     &:hover {
         background-color: #393939;
-    }   
+    }
 
     &:active {
         background-color: #303030;
@@ -71,6 +72,10 @@ button {
         background-color: #393939;
     }
 
+    &:active {
+        color: #a1a1a1;
+    }
+
     &.square {
         aspect-ratio: 1 / 1;
         height: auto;
@@ -94,6 +99,30 @@ select {
 
     &:focus {
         outline: none;
+    }
+}
+
+textarea {
+    background-color: #404040;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 14px;
+    color: inherit;
+    font-size: 12pt;
+
+    resize: vertical;
+
+    &:hover {
+        background-color: #393939;
+    }
+
+    &:active {
+        background-color: #303030;
+    }
+
+    &:focus {
+        outline: none;
+        background-color: #1e1e1e;
     }
 }
 
@@ -267,7 +296,8 @@ select {
                     text-decoration: line-through;
                 }
 
-                .addFilterBtn, select {
+                .addFilterBtn,
+                select {
                     margin-left: 6px;
                 }
             }
@@ -790,7 +820,78 @@ select {
 
     .mainPanel {
         flex-grow: 1;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0 24px;
+
+        .titleWrapper {
+            margin: 12px 0;
+
+            .title {
+                font-size: 20pt;
+                font-variation-settings: "wght" 350;
+                color: #c9c9c9;
+            }
+        }
+
+        .characterList {
+            display: flex;
+            flex-direction: column;
+
+            .character {
+                margin-bottom: 6px;
+                padding: 6px 12px;
+
+                display: flex;
+                flex-direction: column;
+                align-items: start;
+
+                &.current {
+                    background-color: #303030;
+                }
+
+                .id {
+                    font-size: 8pt;
+                    color: #a1a1a1;
+                }
+            }
+        }
     }
 }
 
 /* END HOME PAGE STYLING */
+
+/* INPUT LIST STYLING */
+
+.inputWrapper {
+    display: flex;
+    flex-direction: column;
+
+    label {
+        font-variation-settings: "wght" 500;
+        color: #c9c9c9;
+        margin: 6px 0;
+    }
+
+    input {
+        padding: 8px 14px;
+    }
+}
+
+.inputList {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    background-color: #2c2c2c;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    height: fit-content;
+
+    .inputWrapper {
+        margin: 8px 16px;
+    }
+}
+
+/* END INPUT LIST STYLING */
