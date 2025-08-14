@@ -5,7 +5,7 @@ export default class GenericInfoPane extends React.Component {
     constructor(props) {
         super();
         this.props = props;
-        // Props: data: {title: string, subtitle: string, attributes: {string: string}, description: html string, source: string, added: bool, type: string }
+        // Props: data: {title: string, subtitle: string, attributes: {string: string}, description: html string, footerAttributes: {string: string}, added: bool, type: string }
         // onClose: function(), showAddButton: bool, onAddButtonClick: function
 
     }
@@ -47,7 +47,9 @@ export default class GenericInfoPane extends React.Component {
 
                 </div>
                 <div className='footer'>
-                    <b>Source:</b> {this.props.data.source}
+                    {Object.entries(this.props.data.footerAttributes).map(([key, value]) => {
+                        return <span className='attribute' key={key}><b>{key}:</b> {value}</span>
+                    })}
                 </div>
             </div>
         )
