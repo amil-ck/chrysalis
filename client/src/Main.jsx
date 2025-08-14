@@ -3,7 +3,7 @@ import CreationFlow from './Components/creation/CreationFlow.jsx';
 import Home from './Components/home/Home.jsx';
 import Game from './Components/game/Game.jsx';
 import Reference from './Components/game/Reference.jsx';
-import { loadCharacter } from './Components/lib/fileUtils.js';
+import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -19,10 +19,14 @@ export default class Main extends React.Component {
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
+        this.handlePageNavigate = this.handlePageNavigate.bind(this);
     }
 
-    handlePageNavigate(page) {
+    async handlePageNavigate(page) {
         // save data
+        if (this.state.characterData.id !== undefined) {
+            await saveCharacter(this.state.characterData.id, this.state.characterData);
+        }
 
         this.setState({
             page: page
@@ -71,10 +75,22 @@ export default class Main extends React.Component {
                         <button className={this.state.page === 'reference' ? 'current standalone' : 'standalone'} type="button" onClick={() => this.handlePageNavigate('reference')}>Reference</button>
                     </div>
                     <div className="characterDisplay">
-                        <div className="info" onClick={() => this.setState({page: 'game'})}>
-                            <span className="name">(Dead) Sophie</span>
-                            <span className="details">Level 7 Barbarian</span>
+                        {this.state.characterData.id !== undefined && 
+                        
+                        <div className="info">
+                            <span className="name">{this.state.characterData.name || "Unnamed"}</span>
+                            <span className="details">Level {this.state.characterData.level || "unknown"} {this.state.characterData.class || "Class unknown"}</span>
                         </div>
+
+                        }
+                        {this.state.characterData.id === undefined && 
+                            
+                        <div className="info">
+                            <span className="name">No character selected</span>
+                            <span className="details">Create or select from the home page</span>
+                        </div>
+                        
+                        }
                         <div className="characterImg"></div>
                     </div>
                 </div>

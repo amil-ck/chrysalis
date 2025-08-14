@@ -67,6 +67,12 @@ function openExternal(_e, url) {
     shell.openExternal(url);
 }
 
+async function readdir(_e, path) {
+    return await fs.readdir(path);
+}
+
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -78,6 +84,7 @@ app.whenReady().then(() => {
     ipcMain.handle("readFile", readFile);
     ipcMain.handle("getDataPath", getDataPath);
     ipcMain.handle("openExternal", openExternal);
+    ipcMain.handle("readdir", readdir);
 
     createWindow();
 

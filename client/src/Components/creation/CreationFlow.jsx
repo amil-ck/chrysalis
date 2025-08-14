@@ -9,7 +9,7 @@ export default class CreationFlow extends React.Component {
         this.props = props;
 
         this.state = {
-            navigationTab: 'Class'
+            navigationTab: 'Details'
         }
 
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;
@@ -27,6 +27,8 @@ export default class CreationFlow extends React.Component {
 
         // console.log(await loadCharacter("anid"));
 
+        await saveCharacter(this.props.characterData.id, this.props.characterData);
+
         this.setState({
             navigationTab: tab
         });
@@ -40,6 +42,10 @@ export default class CreationFlow extends React.Component {
     // }
 
     render() {
+        if (this.props.characterData.id === undefined) {
+            return (<>No character selected</>)
+        }
+
         return (
             <div className='creationFlow fullPane'>
                 <CreationNavbar navigationTab={this.state.navigationTab} onNavigate={this.onNavigate} />

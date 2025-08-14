@@ -1,14 +1,53 @@
 import * as React from 'react';
+import { createCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
+import GenericInfoPane from '../lib/GenericInfoPane.jsx';
 
 export default class Home extends React.Component {
     constructor(props) {
         super();
         this.props = props;
 
-        this.state = {}
+        this.state = {
+            characters: [],
+            currentInfoPaneData: undefined
+        }
+
+        this.onNewCharacterClick = this.onNewCharacterClick.bind(this);
+        this.onCharacterClick = this.onCharacterClick.bind(this);
     }
 
+    async componentDidMount() {
+        const characters = await loadAllCharacters();
+        this.setState({ characters: characters });
+    }
+
+    async componentDidUpdate(prevProps) {
+        if (this.props === prevProps) {
+            return;
+        }
+
+        // Props have changed
+        // Load characters
+        const characters = await loadAllCharacters();
+        this.setState({ characters: characters });
+    }
+
+    async onNewCharacterClick() {
+        // Create character
+        const id = await createCharacter();
+
+        // Update current character data
+        this.props.updateCharacterData({ id: id });
+    }
+
+    async onCharacterClick(id) {
+        const characterData = await loadCharacter(id);
+        this.props.updateCharacterData(characterData);
+    } 
+
     render() {
+        // Load all characters from save folder
+
         return (
             <div className="home fullPane">
                 <div className="leftPanel">
@@ -18,7 +57,7 @@ export default class Home extends React.Component {
                     </div>
                     <hr />
                     <div className="buttonList">
-                        <button type='button'>New Character</button>
+                        <button type='button' onClick={this.onNewCharacterClick}>New Character</button>
                         <button type="button">Import Character</button>
                         <button type="button">Exit</button>
                     </div>
@@ -32,7 +71,21 @@ export default class Home extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className="mainPanel"></div>
+                <div className="mainPanel">
+                    <div className="titleWrapper">
+                        <span className="title">Your characters</span>
+                    </div>
+                    <div className="characterList">
+                        {this.state.characters.map(char => {
+                            return (
+                                <button className={char.id === this.props.characterData.id ? "character current" : "character"} onClick={() => this.onCharacterClick(char.id)}>
+                                    <span className="name">{char.name || "Unnamed character"}</span>
+                                    <span className="id">{char.id}</span>
+                                </button>)
+                        })}
+                    </div>
+                </div>
+                <GenericInfoPane data={this.state.currentInfoPaneData} />
             </div>
         )
     }
