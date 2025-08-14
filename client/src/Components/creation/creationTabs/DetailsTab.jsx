@@ -28,14 +28,13 @@ export default class DetailsTab extends React.Component {
     }
 
     handleInputBlur(e) {
-        const updatedData = this.props.characterData;
-        updatedData.name = this.state.name
-        updatedData.details = {
-            backstory: this.state.backstory,
-            description: this.state.description
-        }
-
-        this.props.updateCharacterData(updatedData);
+        this.props.updateCharacterData({
+            name: this.state.name,
+            details: {
+                backstory: this.state.backstory,
+                description: this.state.description
+            }
+        });
     }
 
     render() {
