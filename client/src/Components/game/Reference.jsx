@@ -26,6 +26,8 @@ export default class Reference extends React.Component {
             selectedItemID: ''
         }
 
+        this.globalSearchRef = React.createRef();
+
         this.categoryData = {
             "Races": RACES,
             "Classes": CLASSES,
@@ -49,6 +51,10 @@ export default class Reference extends React.Component {
         this.onSearchChange = this.onSearchChange.bind(this);
         this.onSearchResultClick = this.onSearchResultClick.bind(this);
         this.onSearchBlur = this.onSearchBlur.bind(this);
+    }
+
+    componentDidMount() {
+        this.globalSearchRef.current.focus();
     }
 
     onItemSelected(id) {
@@ -159,7 +165,7 @@ export default class Reference extends React.Component {
                             {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */}
 
                             <label htmlFor="search">Search everything</label>
-                            <input type='search' name='search' placeholder='e.g. Druid, Spare the Dying...' value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
+                            <input type='search' name='search' placeholder='e.g. Druid, Spare the Dying...' ref={this.globalSearchRef} value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
 
                             <FloatingSearchResults showResults={this.state.showSearchResults} results={this.state.searchResults} onResultClick={this.onSearchResultClick} />
                         
