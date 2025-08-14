@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('node:path');
 const settings = require('electron-settings');
 const fs = require('node:fs/promises');
@@ -71,6 +71,9 @@ async function readdir(_e, path) {
     return await fs.readdir(path);
 }
 
+async function showOpenDialog(_e, options) {
+    return await dialog.showOpenDialog(options);
+}
 
 
 // This method will be called when Electron has finished
@@ -85,6 +88,7 @@ app.whenReady().then(() => {
     ipcMain.handle("getDataPath", getDataPath);
     ipcMain.handle("openExternal", openExternal);
     ipcMain.handle("readdir", readdir);
+    ipcMain.handle("showOpenDialog", showOpenDialog);
 
     createWindow();
 

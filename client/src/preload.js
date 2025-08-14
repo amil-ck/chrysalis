@@ -9,7 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readFile: (path) => ipcRenderer.invoke("readFile", path),
   getDataPath: () => ipcRenderer.invoke("getDataPath"),
   openExternal: (url) => ipcRenderer.invoke("openExternal", url),
-  readdir: (path) => ipcRenderer.invoke("readdir", path)
+  readdir: (path) => ipcRenderer.invoke("readdir", path),
+  showOpenDialog: (options) => ipcRenderer.invoke("showOpenDialog", options)
 });
 
 contextBridge.exposeInMainWorld('appSettings', {

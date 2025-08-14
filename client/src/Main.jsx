@@ -20,6 +20,7 @@ export default class Main extends React.Component {
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
         this.handlePageNavigate = this.handlePageNavigate.bind(this);
+        this.setCharacterData = this.setCharacterData.bind(this);
     }
 
     async handlePageNavigate(page) {
@@ -45,6 +46,12 @@ export default class Main extends React.Component {
         const newData = {...this.state.characterData, ...data};
         this.setState({
             characterData: newData
+        })
+    }
+
+    setCharacterData(data) {
+        this.setState({
+            characterData: data
         })
     }
 
@@ -95,7 +102,7 @@ export default class Main extends React.Component {
                         <div className="characterImg"></div>
                     </div>
                 </div>
-                <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} />
+                <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} setCharacterData={this.setCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} />
             </div>
         )
     }

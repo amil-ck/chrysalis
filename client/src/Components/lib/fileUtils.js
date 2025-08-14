@@ -10,7 +10,7 @@ export async function saveCharacter(id, data) {
 export async function createCharacter() {
     const id = crypto.randomUUID();
 
-    await saveCharacter(id, {id: id});
+    await saveCharacter(id, { id: id });
     return id;
 }
 
@@ -39,24 +39,49 @@ export async function loadAllCharacters() {
     return characters;
 }
 
-// function readCharacters() {
-//     const characterPath = path.join(getDataPath(), "characters");
-//     const characters = [];
-//     const fileList = fsOld.readdirSync(characterPath);
-//     for (const fileName of fileList) {
-//         const divided = fileName.split('.');
-//         if (divided[divided.length - 1] === 'json') {
-//             // File extension is json, read file
-//             const data = fsOld.readFileSync(path.join(characterPath, fileName), { encoding: 'utf8' });
-//             const parsed = JSON.parse(data);
-//             console.log(parsed);
-//             if (parsed.name) {
-//                 characters.push(parsed);
-//             }
-//         }
-//     }
+export async function importCharacter() {
+    // 1. Show file picker dialog
+    const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
+        title: 'Import character',
+        buttonLabel: 'Import',
+        filters: [
+            {
+                name: 'JSON Character File',
+                extensions: ['character.json']
+            }
+        ],
+        properties: ['openFile']
+    });
 
-//     console.log(characters);
+    if (canceled) return;
 
-//     return characters;
-// }
+    // 2. Load data from given filepath
+    try {
+        const data = await window.electronAPI.readFile(filePaths[0]);
+        const parsed = JSON.parse(data);
+
+        // 3. Check for ID clashes with existing characters
+        if (!parsed.id) parsed.id = crypto.randomUUID();
+
+        const fileList = await window.electronAPI.readdir(`${await window.electronAPI.getDataPath()}/characters`);
+        let clash = false;
+        for (const fileName of fileList) {
+            if (fileName.endsWith('.character.json') && fileName.split('.character.')[0] === parsed.id) {
+                clash = true;
+                break;
+            }
+        }
+        if (clash) parsed.id = crypto.randomUUID();
+
+        // 4. Save character to new file
+        await saveCharacter(parsed.id, parsed);
+
+        return parsed;
+
+    } catch (e) {
+        console.warn("Error in importing:", e);
+        return;
+    }
+
+
+}
