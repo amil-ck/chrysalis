@@ -75,6 +75,10 @@ async function showOpenDialog(_e, options) {
     return await dialog.showOpenDialog(options);
 }
 
+async function deleteFile(_e, path) {
+    return await fs.unlink(path);
+}
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -89,6 +93,7 @@ app.whenReady().then(() => {
     ipcMain.handle("openExternal", openExternal);
     ipcMain.handle("readdir", readdir);
     ipcMain.handle("showOpenDialog", showOpenDialog);
+    ipcMain.handle("deleteFile", deleteFile)
 
     createWindow();
 

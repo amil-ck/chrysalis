@@ -82,6 +82,14 @@ export async function importCharacter() {
         console.warn("Error in importing:", e);
         return;
     }
+}
 
-
+export async function deleteCharacter(id) {
+    try {
+        await window.electronAPI.deleteFile(`${await window.electronAPI.getDataPath()}/characters/${id}.character.json`);
+        return true;
+    } catch (e) {
+        console.warn("Error in deleting file:", e);
+        return false;
+    }
 }

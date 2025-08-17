@@ -4,6 +4,7 @@ import Home from './Components/home/Home.jsx';
 import Game from './Components/game/Game.jsx';
 import Reference from './Components/game/Reference.jsx';
 import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
+import Modal from './Components/lib/Modal.jsx';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -15,23 +16,35 @@ export default class Main extends React.Component {
             page: 'home',
             characterData: {},
             creationData: {},
-            subTab: ''
+            subTab: '',
+            modalOptions: {
+                show: false
+            }
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
         this.handlePageNavigate = this.handlePageNavigate.bind(this);
         this.setCharacterData = this.setCharacterData.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
     }
 
-    async handlePageNavigate(page) {
+    async handlePageNavigate(page, subTab='') {
         // save data
         if (this.state.characterData.id !== undefined) {
             await saveCharacter(this.state.characterData.id, this.state.characterData);
         }
 
-        this.setState({
-            page: page
-        })
+        if (subTab.length > 0) {
+            this.setState({
+                page: page,
+                subTab: subTab
+            })
+        } else {
+            this.setState({
+                page: page
+            })
+        }
     }
 
     handleSubNavigate(tab) {
@@ -62,6 +75,29 @@ export default class Main extends React.Component {
         })
     }
 
+    openModal(type='default', title='Modal', body=<p>This is a modal</p>, positiveText='Okay', negativeText='Cancel', onPositive=()=>{}, onNegative=()=>{}) {
+        this.setState({
+            modalOptions: {
+                show: true,
+                title,
+                body,
+                positiveText,
+                negativeText,
+                onPositive,
+                onNegative,
+                close: this.closeModal
+            }
+        })
+    }
+
+    closeModal() {
+        this.setState({
+            modalOptions: {
+                show: false
+            }
+        })
+    }
+
     render() {
 
         const pages = {
@@ -75,6 +111,7 @@ export default class Main extends React.Component {
 
         return (
             <div id='root'>
+                <Modal {...this.state.modalOptions} />
                 <div className="appNavbar">
                     <div className="navButtons">
                         <button className={this.state.page === 'home' ? 'current' : ''} type="button" onClick={() => this.handlePageNavigate('home')}>Home</button>
@@ -102,7 +139,7 @@ export default class Main extends React.Component {
                         <div className="characterImg"></div>
                     </div>
                 </div>
-                <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} setCharacterData={this.setCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} />
+                <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} setCharacterData={this.setCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} openModal={this.openModal} navigateToPage={this.handlePageNavigate} />
             </div>
         )
     }
