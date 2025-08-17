@@ -42,7 +42,7 @@ export async function loadAllCharacters() {
 export async function importCharacter() {
     // 1. Show file picker dialog
     const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
-        title: 'Import character',
+        title: 'Import Character',
         buttonLabel: 'Import',
         filters: [
             {
@@ -82,6 +82,38 @@ export async function importCharacter() {
         console.warn("Error in importing:", e);
         return;
     }
+}
+
+export async function exportCharacter(id) {
+    try {
+        // 1. Get character data
+        const data = await window.electronAPI.readFile(`${await window.electronAPI.getDataPath()}/characters/${id}.character.json`);
+        const parsed = JSON.parse(data);
+
+        // 2. Show file picker dialog
+        const { filePath, canceled } = await window.electronAPI.showSaveDialog({
+            title: 'Export Character',
+            defaultPath: parsed.name ? `${parsed.name}.character.json` : 'unnamed.character.json',
+            buttonLabel: 'Export',
+            filters: [
+                {
+                    name: 'JSON Character File',
+                    extensions: ['character.json']
+                }
+            ],
+        });
+
+        if (canceled) return;
+
+        // 3. Write file to given path
+        await window.electronAPI.writeFile(filePath, data);
+        return true;
+
+    } catch (e) {
+        console.warn("Error in exporting:", e);
+        return false;
+    }
+
 }
 
 export async function deleteCharacter(id) {

@@ -75,6 +75,10 @@ async function showOpenDialog(_e, options) {
     return await dialog.showOpenDialog(options);
 }
 
+async function showSaveDialog(_e, options) {
+    return await dialog.showSaveDialog(options);
+}
+
 async function deleteFile(_e, path) {
     return await fs.unlink(path);
 }
@@ -93,7 +97,8 @@ app.whenReady().then(() => {
     ipcMain.handle("openExternal", openExternal);
     ipcMain.handle("readdir", readdir);
     ipcMain.handle("showOpenDialog", showOpenDialog);
-    ipcMain.handle("deleteFile", deleteFile)
+    ipcMain.handle("deleteFile", deleteFile);
+    ipcMain.handle("showSaveDialog", showSaveDialog);
 
     createWindow();
 

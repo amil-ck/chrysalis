@@ -11,7 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getDataPath: () => ipcRenderer.invoke("getDataPath"),
   openExternal: (url) => ipcRenderer.invoke("openExternal", url),
   readdir: (path) => ipcRenderer.invoke("readdir", path),
-  showOpenDialog: (options) => ipcRenderer.invoke("showOpenDialog", options)
+  showOpenDialog: (options) => ipcRenderer.invoke("showOpenDialog", options),
+  showSaveDialog: (options) => ipcRenderer.invoke("showSaveDialog", options)
 });
 
 contextBridge.exposeInMainWorld('appSettings', {

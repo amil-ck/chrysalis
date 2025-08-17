@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createCharacter, deleteCharacter, importCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
+import { createCharacter, deleteCharacter, exportCharacter, importCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
 import GenericInfoPane from '../lib/GenericInfoPane.jsx';
 
 export default class Home extends React.Component {
@@ -58,6 +58,8 @@ export default class Home extends React.Component {
 
     async onExportCharacterClick(e, id) {
         e.stopPropagation();
+
+        await exportCharacter(id);
     }
 
     onDeleteCharacterClick(e, id) {
