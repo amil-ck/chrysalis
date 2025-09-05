@@ -5,7 +5,7 @@ import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
 const TYPE = "Race";
 
-export default class ClassSelection extends React.Component {
+export default class RaceSelection extends React.Component {
     constructor(props) {
         super();
 
@@ -15,7 +15,7 @@ export default class ClassSelection extends React.Component {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
             selectedItemData: undefined,
-            level: 20,
+            level: 5,
             listsNeeded: [],
             listsData: this.props.creationData.listsData,
             choices: this.props.creationData.choices[TYPE],
@@ -45,6 +45,10 @@ export default class ClassSelection extends React.Component {
         return array.filter(e => this.access(type, e) === value)
     }
 
+    filterDataIncludes(array, type, value) {
+        return array.filter(e => this.access(type, e) !== undefined && this.access(type, e).includes(value))
+    }
+
     getFromId(id) {
         return CLASSES.find(e => e.id === id)
     }
@@ -60,7 +64,11 @@ export default class ClassSelection extends React.Component {
             return (slice.some(y => {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
-                    return this.getChoices(y).includes(xElement.supports[0]);
+                    return this.getChoices(y).some(support => xElement.supports.includes(support));
+
+                    // return this.getChoices(y).includes(xElement.supports[0]);
+                    // [3, 4].includes([4, 5])
+                    // [3,4].some(x => {return [4,5].includes(x)})
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -79,8 +87,13 @@ export default class ClassSelection extends React.Component {
         let choices = choiceData.choices;
 
         for (const invalid of choiceData.invalidList) {
-            const choiceArray = this.access(this.getFromId(invalid).supports[0], this.state.listsData);
-            choiceArray.splice(0, choiceArray.length);
+            console.log(this.getFromId(invalid));
+            for (const support of this.getFromId(invalid).supports) {
+                const choiceArray = this.access(support, this.state.listsData);
+                if (choiceArray !== undefined) {
+                    choiceArray.splice(0, choiceArray.length);
+                }
+            }
         }
 
 
@@ -97,24 +110,31 @@ export default class ClassSelection extends React.Component {
         this.setState({choices: [...choices]});
         this.setState({grants: [...grantList]});
 
-        const creationData = {...this.props.creationData}
+        const creationData = {...this.props.creationData};
         creationData.choices[TYPE] = choices;
         creationData.listsData = this.state.listsData;
+        creationData.grants[TYPE] = grantList;
+
+        creationData.allGrants = grantList;
+
         this.props.updateCreationData(creationData);    
     }
 
     getGrants(id) {
-        const idList = [];
-        const grant = CLASSES.find(e => e.id === id).rules?.grant
+        let idList = [id];
+        const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
         if (grant !== undefined) {
             grant.forEach(
                 e => {
+                    console.log(e);
                     if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                         if (e.number === undefined) {
-                            idList.push(e.id)
+                            // idList.push(e.id)
+                            idList = idList.concat(this.getGrants(e.id));
                         } else {
                             for (let i = 0; i < parseInt(e.number); i++) {
-                                idList.push(e.id)
+                                // idList.push(e.id)
+                                idList = idList.concat(this.getGrants(e.id));
                             }
                         }
                     }
@@ -122,9 +142,19 @@ export default class ClassSelection extends React.Component {
             )
         }
 
-        idList.push(id);
+        // 13
+        
+        // idList.push(id);
+        // const newList = [];
+        // while (set(idList) === set(newList)) {
+
+        // }
 
         return idList;
+    }
+
+    setAllGrants() {
+        
     }
 
     getChoices(id) {
@@ -138,6 +168,7 @@ export default class ClassSelection extends React.Component {
             if (select !== undefined) {
                 select.forEach(
                     e => {
+                        console.log(e);
                         //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
                         if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
                             if (e.number === undefined) {
@@ -154,8 +185,8 @@ export default class ClassSelection extends React.Component {
             }
         }
 
+        console.log(newList);
         return newList;
-
     }
 
     
@@ -232,13 +263,11 @@ export default class ClassSelection extends React.Component {
                         />
 
                         {/* {console.log(this.state.listsNeeded)} */}
-                        
-
 
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return y.supports[0] === x;
+                                    return y.supports.includes(x);
                                 }
                                 return false;
                                 })
@@ -258,7 +287,7 @@ export default class ClassSelection extends React.Component {
                                     doubleSelectedItems={this.state.listsData[e]}
                                     // presetFilters={{Supports: e}}
                                     title={e}
-                                    data={this.filterData(CLASSES, "supports.0", e)}
+                                    data={this.filterDataIncludes(CLASSES, "supports", e)}
                                 />
                             })}
                     </div>

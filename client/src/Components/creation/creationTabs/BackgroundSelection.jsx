@@ -3,9 +3,9 @@ import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { CLASSES } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
-const TYPE = "Class";
+const TYPE = "Background";
 
-export default class ClassSelection extends React.Component {
+export default class BackgroundSelection extends React.Component {
     constructor(props) {
         super();
 

@@ -20,7 +20,13 @@ export default class CreationFlow extends React.Component {
                     Class: [],
                     Race: [],
                     Background: []
-                }
+                },
+                grants: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                },
+                allGrants: []
             }
         }
 

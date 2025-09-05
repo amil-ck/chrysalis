@@ -3,6 +3,8 @@ import TestCreationTab from './creationTabs/TestCreationTab.jsx';
 import AbilityScores from './AbilityScores.jsx';
 import ClassSelection from "../creation/creationTabs/ClassSelection.jsx"
 import RaceSelection from './creationTabs/RaceSelection.jsx';
+import DescriptionTest from './creationTabs/DescriptionTest.jsx';
+import BackgroundSelection from './creationTabs/BackgroundSelection.jsx';
 
 export default class CreationTab extends React.Component {
     constructor(props) {
@@ -13,7 +15,9 @@ export default class CreationTab extends React.Component {
             Test: TestCreationTab,
             "Ability Scores": AbilityScores,
             "Class":  ClassSelection,
-            "Race": RaceSelection
+            "Race": RaceSelection,
+            "Background": BackgroundSelection,
+            "Equipment": DescriptionTest
         }
     }
 

@@ -3,13 +3,15 @@ import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { CLASSES } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
-const TYPE = "Class";
+let TYPE = "Background";
 
-export default class ClassSelection extends React.Component {
+export default class DefaultSelection extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
+
+        TYPE = this.props.tab;
 
         this.state = {
             selectedFeatureID: null,
@@ -64,11 +66,7 @@ export default class ClassSelection extends React.Component {
             return (slice.some(y => {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
-                    return this.getChoices(y).some(support => xElement.supports.includes(support));
-
-                    // return this.getChoices(y).includes(xElement.supports[0]);
-                    // [3, 4].includes([4, 5])
-                    // [3,4].some(x => {return [4,5].includes(x)})
+                    return this.getChoices(y).includes(xElement.supports[0]);
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -87,13 +85,8 @@ export default class ClassSelection extends React.Component {
         let choices = choiceData.choices;
 
         for (const invalid of choiceData.invalidList) {
-            console.log(this.getFromId(invalid));
-            for (const support of this.getFromId(invalid).supports) {
-                const choiceArray = this.access(support, this.state.listsData);
-                if (choiceArray !== undefined) {
-                    choiceArray.splice(0, choiceArray.length);
-                }
-            }
+            const choiceArray = this.access(this.getFromId(invalid).supports[0], this.state.listsData);
+            choiceArray.splice(0, choiceArray.length);
         }
 
 
