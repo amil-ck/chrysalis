@@ -9,12 +9,32 @@ export default class CreationFlow extends React.Component {
         this.props = props;
 
         this.state = {
-            navigationTab: 'Details'
+            navigationTab: 'Details',
+            characterData: {},
+            creationData: {
+                choices: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                },
+                listsData: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                },
+                grants: {
+                    Class: [],
+                    Race: [],
+                    Background: []
+                },
+                allGrants: []
+            }
         }
 
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;
 
         this.onNavigate = this.onNavigate.bind(this);
+        this.updateCreationData = this.updateCreationData.bind(this);
     }
 
     async onNavigate(tab) {
@@ -40,6 +60,12 @@ export default class CreationFlow extends React.Component {
     //         characterData: data
     //     })
     // }
+
+    updateCreationData(data) {
+        this.setState({
+            creationData: data
+        })
+    }
 
     render() {
         if (this.props.characterData.id === undefined) {
