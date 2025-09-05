@@ -9,6 +9,10 @@ export default class Game extends React.Component {
     }
 
     render() {
+        if (this.props.characterData.id === undefined) {
+            return (<>No character selected</>)
+        }
+
         return <>game</>
     }
 }

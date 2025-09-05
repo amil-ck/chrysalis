@@ -32,10 +32,10 @@ export default class ChrysalisInfoPane extends React.Component {
 
         const dataToRender = {
             title: this.props.data.name,
-            subtitle: '',
+            subtitle: this.props.data.type,
             attributes: {},
             description: this.props.data.description,
-            source: this.props.data.source,
+            footerAttributes: {Source: this.props.data.source},
             type: this.props.data.type
         }
         const type = this.props.data.type;
@@ -56,8 +56,13 @@ export default class ChrysalisInfoPane extends React.Component {
             }
             
         } else if (type === 'Feat') {
-            if (this.props.data.prerequisite) {
-                dataToRender.attributes.Prerequisite = this.props.data.prerequisite;
+            // if (this.props.data.prerequisite) {
+            //     dataToRender.attributes.Prerequisite = this.props.data.prerequisite;
+            // }
+        } else if (type === 'Language') {
+            dataToRender.attributes = {
+                Speakers: this.props.data.setters.speakers,
+                Script: this.props.data.setters.script
             }
         }
 

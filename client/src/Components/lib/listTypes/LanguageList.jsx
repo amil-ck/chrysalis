@@ -1,15 +1,15 @@
 import * as React from 'react';
 import GenericList from '../GenericList.jsx';
-import { CLASSES } from '../indexData.js';
+import { LANGUAGES } from '../indexData.js';
 
-export default class ClassList extends React.Component {
+export default class LanguageList extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
 
         this.state = {
-            classData: CLASSES
+            languageData: LANGUAGES
         }
 
     }
@@ -17,13 +17,13 @@ export default class ClassList extends React.Component {
     render() {
 
         const propsToPass = {
-            data: this.state.classData,
-            title: 'Class Features',
-            columnNames: ["Name", "Supports", "Rules", "Type", "Source"],
-            shownColumns: ["Name", "Supports", "Rules", "Source"],
+            data: this.state.languageData,
+            title: 'Languages',
+            columnNames: ["Name", "Source"],
+            shownColumns: ["Name", "Source"],
             allowFilter: ["Source"],
-            allowSearch: ["Name"],
-            columnLocations: ["name", "supports", "rules/select/supports", "type", "source"],
+            allowSearch: [],
+            columnLocations: ["name", "source"],
             multiValueColumns: [],
             presetFilters: {
                 // Source: "Player’s Handbook"

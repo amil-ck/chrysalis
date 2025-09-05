@@ -1,12 +1,15 @@
 import spells from '../../data/spells';
 import feats from '../../data/feats';
-import classes from '../../data/classes.json';
+import classes from '../../data/classes';
+import backgrounds from '../../data/backgrounds.json';
+import languages from '../../data/languages.json';
 import races from '../../data/races.json';
-import everything from '../../data/everything.json';
 
 const SPELLS = spells;
-const FEATS = everything.filter(e => e.type === "Feat");
-const CLASSES = everything;
-const RACES = everything;
+const FEATS = feats;
+const CLASSES = classes;
+const RACES = races;
+const LANGUAGES = languages;
+const BACKGROUNDS = backgrounds;
 
-export { SPELLS, FEATS, CLASSES, RACES};
+export { SPELLS, FEATS, CLASSES, RACES, BACKGROUNDS, LANGUAGES };

@@ -108,7 +108,7 @@ export default class GenericList extends React.Component {
         this.setState({
             columnFilters: {
                 ...this.state.columnFilters,
-                [column]: undefined
+                [column]: 'remove'
             }
         })
     }
@@ -168,7 +168,6 @@ export default class GenericList extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log('update')
         if (prevProps !== this.props) {
             // Props have changed
 
@@ -261,7 +260,7 @@ export default class GenericList extends React.Component {
         for (const colName in this.state.columnFilters) {
             const filter = this.state.columnFilters[colName];
 
-            if (filter !== undefined) {
+            if (filter !== undefined && filter !== 'remove') {
 
                 if (this.props.multiValueColumns.includes(colName)) {
                     // Column's fields contain multiple values:
@@ -316,13 +315,13 @@ export default class GenericList extends React.Component {
                     if (this.props.multiValueColumns.includes(colName)) {
                         // Column's cells contain multiple values
                         for (const o of value[colName]) {
-                            if (o.toLowerCase().includes(this.state.searchValue)) {
+                            if (o.toLowerCase().includes(this.state.searchValue.toLowerCase())) {
                                 show = true;
                                 break outer;
                             }
                         }
                     } else {
-                        if (value[colName].toLowerCase().includes(this.state.searchValue)) {
+                        if (value[colName].toLowerCase().includes(this.state.searchValue.toLowerCase())) {
                             show = true;
                             break outer;
                         }
@@ -334,73 +333,77 @@ export default class GenericList extends React.Component {
             })
         }
 
-        console.log(this.props.title, this.props.data)
-
 
         return (
-            <div className="listWrapper">
-                <div className='titleWrapper'>
-                    <span className='title'>{this.props.title}</span>
-                    <button type='button' className='searchBtn' onClick={this.toggleSearch}>Search</button>
-                    <button type='button' className='minimiseBtn' onClick={this.toggleMinimised}>{this.state.minimised ? "+" : "-"}</button>
-                </div>
-                {this.state.showSearch &&
-                    <div className='search'>
-                        <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
-                    </div>
-                }
+            <div className={this.state.minimised ? "listWrapper minimised" : "listWrapper"}>
+                <div className="preamble">
+                    <div className='leftWrapper'>
+                        <span className='title'>{this.props.title}</span>
 
-
-                <span className='selectedItems'>
-                    Selected{this.props.maxDoubleSelected > 0 && <> ({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
-                    {this.props.doubleSelectedItems.map((value) => {
-                        return <Chip onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={(this.props.data.find(i => i.id === value) ? this.props.data.find(i => i.id === value).name : 'error')} />
-                    })}
-                    {this.props.maxDoubleSelected > 0 && this.props.maxDoubleSelected > this.props.doubleSelectedItems.length &&
-                        [...Array(this.props.maxDoubleSelected - this.props.doubleSelectedItems.length)].map(() => {
-                            return <Chip text={"Empty slot"} className={"disabled"} />
-                        })
-                    }
-                </span>
-
-                {!this.state.minimised &&
-
-                    <div className='filters'>
-                        Filters:
-                        {Object.entries(this.state.columnFilters).map(([key, value]) => {
-                            if (value) {
-                                return <Chip key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
-                            }
-                        })}
-
-                        {this.state.addingFilter &&
-                            <>
-                                <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
-                                    <option value={"remove"}>Select column</option>
-                                    {this.props.allowFilter.map((value) => {
-                                        if (!this.state.columnFilters[value]) {
-                                            return <option key={value} value={value}>{value}</option>
-                                        }
-                                    })}
-                                </select>
-
-                                <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
-                                    <option value={"remove"}>Select value</option>
-                                    {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
-                                        return <option key={value} value={value}>{value.toString()}</option>
-                                    })}
-                                </select>
-
-                                <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
-                                    x
-                                </button>
-                            </>
-
+                        {this.props.doubleSelectedItems !== undefined &&
+                            <span className='selectedItems'>
+                                Selected{this.props.maxDoubleSelected > 0 && <> ({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
+                                {this.props.doubleSelectedItems.map((value) => {
+                                    return <Chip onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={(this.props.data.find(i => i.id === value) ? this.props.data.find(i => i.id === value).name : 'error')} />
+                                })}
+                                {this.props.maxDoubleSelected > 0 && this.props.maxDoubleSelected > this.props.doubleSelectedItems.length &&
+                                    [...Array(this.props.maxDoubleSelected - this.props.doubleSelectedItems.length)].map(() => {
+                                        return <Chip text={"Empty slot"} className={"disabled"} />
+                                    })
+                                }
+                            </span>
                         }
-
-                        {!this.state.addingFilter && <button className='addFilterBtn' onClick={this.onAddFilterButtonClick}>+ Add</button>}
+                        {!this.state.minimised &&
+                            <div className='filters'>
+                                Filters:
+                                {Object.entries(this.state.columnFilters).map(([key, value]) => {
+                                    if (value && value !== 'remove') {
+                                        return <Chip key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
+                                    }
+                                })}
+                                {this.state.addingFilter &&
+                                    <>
+                                        <select value={this.state.newFilterColumn} onChange={(e) => this.onNewFilterColumnChange(e.target.value)}>
+                                            <option value={"remove"}>Select column</option>
+                                            {this.props.allowFilter.map((value) => {
+                                                if (!this.state.columnFilters[value] || this.state.columnFilters[value] === 'remove') {
+                                                    return <option key={value} value={value}>{value}</option>
+                                                }
+                                            })}
+                                        </select>
+                                        <select value={this.state.newFilterValue} onChange={(e) => this.onNewFilterValueChange(e.target.value)}>
+                                            <option value={"remove"}>Select value</option>
+                                            {possibleColumnValues[this.state.newFilterColumn]?.map((value) => {
+                                                return <option key={value} value={value}>{value.toString()}</option>
+                                            })}
+                                        </select>
+                                        <button onClick={this.onCancelFilterButtonClick} className='cancelFilterBtn'>
+                                            x
+                                        </button>
+                                    </>
+                                }
+                                {!this.state.addingFilter && <button className='addFilterBtn' onClick={this.onAddFilterButtonClick}>+ Add</button>}
+                            </div>
+                        }
                     </div>
-                }
+                    <div className="rightWrapper">
+                        <div className="buttons">
+                            {this.props.allowSearch.length > 0 &&
+                                <button type='button' className='searchBtn' onClick={this.toggleSearch}>Search</button>
+                            }
+                            
+                            <button type='button' className='minimiseBtn' onClick={this.toggleMinimised}>{this.state.minimised ? "+" : "-"}</button>
+                        </div>
+                        
+                        
+                        {this.state.showSearch &&
+                            <div className='search'>
+                                <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 {!this.state.minimised &&
                     <table>
                         <thead>
@@ -422,7 +425,7 @@ export default class GenericList extends React.Component {
                         <tbody>
                             {dataToRender.map((value) => {
                                 return (
-                                    <tr key={value.id} onClick={(e) => { this.handleItemClick(e, value.id) }} className={(value.id === this.props.selectedItemID ? 'selected ' : ' ') + (this.props.doubleSelectedItems.includes(value.id) ? 'doubleSelected' : '')}>
+                                    <tr key={value.id} onClick={(e) => { this.handleItemClick(e, value.id) }} className={(value.id === this.props.selectedItemID ? 'selected ' : ' ') + ((this.props.doubleSelectedItems && this.props.doubleSelectedItems.includes(value.id)) ? 'doubleSelected' : '')}>
                                         {this.props.shownColumns.map((colName) => {
                                             return <td key={colName}>{value[colName]?.toString()}</td>
                                         })}

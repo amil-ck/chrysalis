@@ -9,7 +9,7 @@ export default class FeatList extends React.Component {
         this.props = props;
 
         this.state = {
-            featData: FEATS
+            featData: FEATS.filter(i => i.type === "Feat")
         }
 
     }
