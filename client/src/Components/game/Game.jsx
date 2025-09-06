@@ -18,7 +18,14 @@ export default class Game extends React.Component {
         return (
             <div className="play fullPane">
                 <div className="tab battle">
-                    <div className="header"></div>
+                    <div className="header">
+                        <div className="details card">
+                            <div className="body">
+                                <span className="name">{this.props.characterData.name}</span>
+                                <span className="details">Level {this.props.characterData.level || "unknown"} {this.props.characterData.class || "Class unknown"}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div className="main">
                         <div className="stats col card">
                             <span className="title">Stats</span>

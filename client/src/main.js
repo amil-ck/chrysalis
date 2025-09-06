@@ -19,6 +19,15 @@ const createWindow = async () => {
         }
     });
 
+    // Create chrysalis_data folder if it doesn't exist
+    try {
+        if (!fsOld.existsSync(path.join(app.getPath("userData"), "chrysalis_data"))) {
+            fsOld.mkdirSync(path.join(app.getPath("userData"), "chrysalis_data"));
+        }
+    } catch (err) {
+        console.error(err);
+    }
+
     settings.configure({
         dir: getDataPath()
     })
