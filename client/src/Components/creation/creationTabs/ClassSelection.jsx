@@ -19,12 +19,12 @@ export default class ClassSelection extends React.Component {
             selectedItemData: undefined,
             level: 5,
             listsNeeded: [],
-            listsData: this.props.creationData.listsData,
-            choices: this.props.creationData.choices[TYPE],
+            listsData: this.props.characterData.creationData.listsData,
+            choices: this.props.characterData.creationData.choices[TYPE],
             grants: []
         }
 
-        console.log(this.props.creationData.choices);
+        console.log(this.props.characterData.creationData.choices);
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
         this.updateStuff = this.updateStuff.bind(this);
@@ -137,7 +137,8 @@ export default class ClassSelection extends React.Component {
 
         creationData.allGrants = grantList;
 
-        this.props.updateCreationData(creationData);    
+        // this.props.updateCreationData(creationData);
+        this.props.updateCharacterData({"creationData": creationData})
     }
 
     getGrants(id) {
