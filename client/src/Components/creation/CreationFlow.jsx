@@ -75,7 +75,7 @@ export default class CreationFlow extends React.Component {
         return (
             <div className='creationFlow fullPane'>
                 <CreationNavbar navigationTab={this.state.navigationTab} onNavigate={this.onNavigate} />
-                <CreationTab tab={this.state.navigationTab} characterData={this.props.characterData} creationData={this.props.creationData} updateCharacterData={this.props.updateCharacterData} />
+                <CreationTab tab={this.state.navigationTab} characterData={this.props.characterData} creationData={this.state.creationData} updateCharacterData={this.props.updateCharacterData} updateCreationData={this.updateCreationData} />
             </div>
         )
     }

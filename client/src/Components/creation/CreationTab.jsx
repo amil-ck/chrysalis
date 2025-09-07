@@ -17,7 +17,7 @@ export default class CreationTab extends React.Component {
             Test: TestCreationTab,
             "Ability Scores": AbilityScores,
             "Class":  ClassSelection,
-            "Details": DetailsTab
+            "Details": DetailsTab,
             "Race": RaceSelection,
             "Background": BackgroundSelection,
             "Equipment": DescriptionTest

@@ -1,7 +1,9 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
-import { CLASSES } from '../../lib/indexData.js';
+import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
+
+const CLASSES = EVERYTHING;
 
 const TYPE = "Class";
 
@@ -36,6 +38,22 @@ export default class ClassSelection extends React.Component {
     // filterData(supports) {
     //     return CLASSES.filter(e => e.rules.select.supports)
     // }
+
+    choiceToChoiceCount(choices) {
+        const choiceCounts = []
+        const doneAlready = []
+        for (const id of choices) {
+            if (!doneAlready.includes(id)) {
+                choiceCounts.push({"name": id, "count": 1})
+            } else {
+                choiceCounts.find(e => e.name === id).count += 1
+            }
+            
+            doneAlready.push(id)
+        }
+
+        return choiceCounts;
+    }
 
     access = (path, object) => {
         return path.split('.').reduce((o, i) => o?.[i], object)
@@ -105,6 +123,8 @@ export default class ClassSelection extends React.Component {
             newList.push(...this.getChoices(id));
             grantList.push(...this.getGrants(id));
         }
+
+        newList = this.choiceToChoiceCount(newList);
 
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
@@ -267,14 +287,14 @@ export default class ClassSelection extends React.Component {
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return y.supports.includes(x);
+                                    return y.supports.includes(x.name);
                                 }
                                 return false;
                                 })
                             ).map(
                             e => {
-                                if (this.state.listsData[e] === undefined) {
-                                    this.state.listsData[e] = [];
+                                if (this.state.listsData[e.name] === undefined) {
+                                    this.state.listsData[e.name] = [];
                                     this.setState({
                                         listsData: {...this.state.listsData}
                                     })
@@ -283,11 +303,12 @@ export default class ClassSelection extends React.Component {
                                 return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
-                                    doubleSelectedItems={this.state.listsData[e]}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.name)}
+                                    doubleSelectedItems={this.state.listsData[e.name]}
+                                    maxDoubleSelected={e.count}
                                     // presetFilters={{Supports: e}}
-                                    title={e}
-                                    data={this.filterDataIncludes(CLASSES, "supports", e)}
+                                    title={e.name}
+                                    data={this.filterDataIncludes(CLASSES, "supports", e.name)}
                                 />
                             })}
                     </div>
