@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, Menu } = require('electron');
 const path = require('node:path');
 const settings = require('electron-settings');
 const fs = require('node:fs/promises');
@@ -18,6 +18,8 @@ const createWindow = async () => {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         }
     });
+
+    Menu.setApplicationMenu(null);
 
     settings.configure({
         dir: getDataPath()
