@@ -226,11 +226,14 @@ export default class GenericList extends React.Component {
 
                 for (const item of dataToRender) {
                     const values = item[colName];
-                    for (const value of values) {
-                        if (!possibleValues.includes(value)) {
-                            possibleValues.push(value)
+                    if (values) {
+                        for (const value of values) {
+                            if (!possibleValues.includes(value)) {
+                                possibleValues.push(value)
+                            }
                         }
                     }
+
                 }
 
             } else {
@@ -267,7 +270,7 @@ export default class GenericList extends React.Component {
                     // if any of them match the filter, the item should be shown
 
                     dataToRender = dataToRender.filter((value) => {
-                        return value[colName].includes(filter);
+                        return value[colName]?.includes(filter);
                     });
 
                 } else {
@@ -391,11 +394,11 @@ export default class GenericList extends React.Component {
                             {this.props.allowSearch.length > 0 &&
                                 <button type='button' className='searchBtn' onClick={this.toggleSearch}>Search</button>
                             }
-                            
+
                             <button type='button' className='minimiseBtn' onClick={this.toggleMinimised}>{this.state.minimised ? "+" : "-"}</button>
                         </div>
-                        
-                        
+
+
                         {this.state.showSearch &&
                             <div className='search'>
                                 <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />

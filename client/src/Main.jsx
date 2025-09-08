@@ -122,7 +122,7 @@ export default class Main extends React.Component {
                     <div className="characterDisplay">
                         {this.state.characterData.id !== undefined && 
                         
-                        <div className="info">
+                        <div className="info" onClick={() => console.log(this.state.characterData)}>
                             <span className="name">{this.state.characterData.name || "Unnamed"}</span>
                             <span className="details">Level {this.state.characterData.level || "unknown"} {this.state.characterData.class || "Class unknown"}</span>
                         </div>

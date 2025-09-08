@@ -36,7 +36,7 @@ export default class SpellList extends React.Component {
                 newSpell.setters.level = " Cantrip";
             }
             // Convert concentration values to string
-            newSpell.concentration = spell.setters.isConcentration.toString();
+            newSpell.concentration = spell.setters.isConcentration ? "true" : "false";
             return newSpell;
         });
 
