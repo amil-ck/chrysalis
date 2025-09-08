@@ -1,17 +1,17 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
-import { EVERYTHING } from '../../lib/indexData.js';
+import { CLASSES } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
-const CLASSES = EVERYTHING;
+let TYPE = "Background";
 
-const TYPE = "Class";
-
-export default class ClassSelection extends React.Component {
+export default class DefaultSelection extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
+
+        TYPE = this.props.tab;
 
         this.state = {
             selectedFeatureID: null,
@@ -19,12 +19,12 @@ export default class ClassSelection extends React.Component {
             selectedItemData: undefined,
             level: 5,
             listsNeeded: [],
-            listsData: this.props.characterData.creationData.listsData,
-            choices: this.props.characterData.creationData.choices[TYPE],
+            listsData: this.props.creationData.listsData,
+            choices: this.props.creationData.choices[TYPE],
             grants: []
         }
 
-        console.log(this.props.characterData.creationData.choices);
+        console.log(this.props.creationData.choices);
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
         this.updateStuff = this.updateStuff.bind(this);
@@ -38,22 +38,6 @@ export default class ClassSelection extends React.Component {
     // filterData(supports) {
     //     return CLASSES.filter(e => e.rules.select.supports)
     // }
-
-    choiceToChoiceCount(choices) {
-        const choiceCounts = []
-        const doneAlready = []
-        for (const id of choices) {
-            if (!doneAlready.includes(id)) {
-                choiceCounts.push({"name": id, "count": 1})
-            } else {
-                choiceCounts.find(e => e.name === id).count += 1
-            }
-            
-            doneAlready.push(id)
-        }
-
-        return choiceCounts;
-    }
 
     access = (path, object) => {
         return path.split('.').reduce((o, i) => o?.[i], object)
@@ -82,11 +66,7 @@ export default class ClassSelection extends React.Component {
             return (slice.some(y => {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
-                    return this.getChoices(y).some(support => xElement.supports.includes(support));
-
-                    // return this.getChoices(y).includes(xElement.supports[0]);
-                    // [3, 4].includes([4, 5])
-                    // [3,4].some(x => {return [4,5].includes(x)})
+                    return this.getChoices(y).includes(xElement.supports[0]);
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -105,13 +85,8 @@ export default class ClassSelection extends React.Component {
         let choices = choiceData.choices;
 
         for (const invalid of choiceData.invalidList) {
-            console.log(this.getFromId(invalid));
-            for (const support of this.getFromId(invalid).supports) {
-                const choiceArray = this.access(support, this.state.listsData);
-                if (choiceArray !== undefined) {
-                    choiceArray.splice(0, choiceArray.length);
-                }
-            }
+            const choiceArray = this.access(this.getFromId(invalid).supports[0], this.state.listsData);
+            choiceArray.splice(0, choiceArray.length);
         }
 
 
@@ -124,8 +99,6 @@ export default class ClassSelection extends React.Component {
             grantList.push(...this.getGrants(id));
         }
 
-        newList = this.choiceToChoiceCount(newList);
-
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
         this.setState({grants: [...grantList]});
@@ -137,8 +110,7 @@ export default class ClassSelection extends React.Component {
 
         creationData.allGrants = grantList;
 
-        // this.props.updateCreationData(creationData);
-        this.props.updateCharacterData({"creationData": creationData})
+        this.props.updateCreationData(creationData);    
     }
 
     getGrants(id) {
@@ -288,14 +260,14 @@ export default class ClassSelection extends React.Component {
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return y.supports.includes(x.name);
+                                    return y.supports.includes(x);
                                 }
                                 return false;
                                 })
                             ).map(
                             e => {
-                                if (this.state.listsData[e.name] === undefined) {
-                                    this.state.listsData[e.name] = [];
+                                if (this.state.listsData[e] === undefined) {
+                                    this.state.listsData[e] = [];
                                     this.setState({
                                         listsData: {...this.state.listsData}
                                     })
@@ -304,12 +276,11 @@ export default class ClassSelection extends React.Component {
                                 return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.name)}
-                                    doubleSelectedItems={this.state.listsData[e.name]}
-                                    maxDoubleSelected={e.count}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
+                                    doubleSelectedItems={this.state.listsData[e]}
                                     // presetFilters={{Supports: e}}
-                                    title={e.name}
-                                    data={this.filterDataIncludes(CLASSES, "supports", e.name)}
+                                    title={e}
+                                    data={this.filterDataIncludes(CLASSES, "supports", e)}
                                 />
                             })}
                     </div>

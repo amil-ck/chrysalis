@@ -10,7 +10,26 @@ export async function saveCharacter(id, data) {
 export async function createCharacter() {
     const id = crypto.randomUUID();
 
-    await saveCharacter(id, { id: id });
+    const creationData = {
+        choices: {
+            Class: [],
+            Race: [],
+            Background: []
+        },
+        listsData: {
+            Class: [],
+            Race: [],
+            Background: []
+        },
+        grants: {
+            Class: [],
+            Race: [],
+            Background: []
+        },
+        allGrants: []
+    }
+
+    await saveCharacter(id, { id: id, creationData: creationData });
     return id;
 }
 

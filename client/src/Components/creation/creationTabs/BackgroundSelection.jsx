@@ -5,7 +5,7 @@ import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
 const CLASSES = EVERYTHING;
 
-const TYPE = "Class";
+const TYPE = "Background";
 
 export default class ClassSelection extends React.Component {
     constructor(props) {
@@ -19,12 +19,12 @@ export default class ClassSelection extends React.Component {
             selectedItemData: undefined,
             level: 5,
             listsNeeded: [],
-            listsData: this.props.characterData.creationData.listsData,
-            choices: this.props.characterData.creationData.choices[TYPE],
+            listsData: this.props.creationData.listsData,
+            choices: this.props.creationData.choices[TYPE],
             grants: []
         }
 
-        console.log(this.props.characterData.creationData.choices);
+        console.log(this.props.creationData.choices);
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
         this.updateStuff = this.updateStuff.bind(this);
@@ -137,8 +137,7 @@ export default class ClassSelection extends React.Component {
 
         creationData.allGrants = grantList;
 
-        // this.props.updateCreationData(creationData);
-        this.props.updateCharacterData({"creationData": creationData})
+        this.props.updateCreationData(creationData);    
     }
 
     getGrants(id) {
