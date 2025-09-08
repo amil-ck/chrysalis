@@ -126,6 +126,31 @@ textarea {
     }
 }
 
+.radioGroup {
+    display: flex;
+    flex-direction: row;
+    width: min-content;
+
+    background-color: #1e1e1e;
+    border-radius: 4px;
+
+    button {
+        background-color: transparent;
+
+        &:hover {
+            background-color: #393939;
+        }
+
+        &:active {
+            color: #a1a1a1;
+        }
+
+        &.checked {
+            background-color: #404040;
+        }
+    }
+}
+
 .fullPane {
     height: 100%;
     width: 100%;
