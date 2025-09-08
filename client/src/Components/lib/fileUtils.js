@@ -25,8 +25,7 @@ export async function createCharacter() {
             Class: [],
             Race: [],
             Background: []
-        },
-        allGrants: []
+        }
     }
 
     await saveCharacter(id, { id: id, creationData: creationData });
