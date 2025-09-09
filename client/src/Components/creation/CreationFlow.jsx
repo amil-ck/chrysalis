@@ -10,25 +10,7 @@ export default class CreationFlow extends React.Component {
 
         this.state = {
             navigationTab: 'Details',
-            characterData: {},
-            creationData: {
-                choices: {
-                    Class: [],
-                    Race: [],
-                    Background: []
-                },
-                listsData: {
-                    Class: [],
-                    Race: [],
-                    Background: []
-                },
-                grants: {
-                    Class: [],
-                    Race: [],
-                    Background: []
-                },
-                allGrants: []
-            }
+            characterData: {}
         }
 
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;

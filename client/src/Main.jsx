@@ -43,9 +43,7 @@ export default class Main extends React.Component {
     }
 
     updateCharacterData(data) {
-        // console.log(data);
         const newData = {...this.state.characterData, ...data};
-        // console.log(newData);
         this.setState({
             characterData: newData
         })

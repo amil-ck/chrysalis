@@ -10,7 +10,7 @@ export default class DescriptionTest extends React.Component {
 
     render() {
         return (
-            this.props.creationData.allGrants.map(id => {
+            this.props.characterData.grants.map(id => {
                 const element = CLASSES.find(e => e.id === id);
                 console.log(id);
                 console.log(element);
