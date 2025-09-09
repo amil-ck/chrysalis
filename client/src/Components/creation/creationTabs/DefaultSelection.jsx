@@ -5,11 +5,13 @@ import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
 const CLASSES = EVERYTHING;
 
-const TYPE = "Class";
+let TYPE = "Race";
 
-export default class ClassSelection extends React.Component {
-    constructor(props) {
+export default class DefaultSelection extends React.Component {
+    constructor(props, type) {
         super();
+
+        TYPE = type;
 
         this.props = props;
 
