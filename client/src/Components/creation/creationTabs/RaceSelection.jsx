@@ -133,7 +133,14 @@ export default class ClassSelection extends React.Component {
         const creationData = {...this.props.characterData.creationData};
         creationData.choices[TYPE] = choices;
         creationData.listsData = this.state.listsData;
-        creationData.grants[TYPE] = grantList;
+
+        const exportGrantList = [];
+        for (const x of grantList) {
+            console.log(x);
+            exportGrantList.push({"id": x, "type": this.getFromId(x)?.type})
+        }
+
+        creationData.grants[TYPE] = exportGrantList;
 
         // console.log(creationData.grants);
         let allGrants = [];

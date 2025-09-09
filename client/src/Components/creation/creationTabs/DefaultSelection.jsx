@@ -1,17 +1,17 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
-import { CLASSES } from '../../lib/indexData.js';
+import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 
-let TYPE = "Background";
+const CLASSES = EVERYTHING;
 
-export default class DefaultSelection extends React.Component {
+const TYPE = "Class";
+
+export default class ClassSelection extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
-
-        TYPE = this.props.tab;
 
         this.state = {
             selectedFeatureID: null,
@@ -19,12 +19,12 @@ export default class DefaultSelection extends React.Component {
             selectedItemData: undefined,
             level: 5,
             listsNeeded: [],
-            listsData: this.props.creationData.listsData,
-            choices: this.props.creationData.choices[TYPE],
+            listsData: this.props.characterData.creationData.listsData,
+            choices: this.props.characterData.creationData.choices[TYPE],
             grants: []
         }
 
-        console.log(this.props.creationData.choices);
+        console.log(this.props.characterData.creationData.choices);
 
         this.onFeatureDoubleSelected = this.onFeatureDoubleSelected.bind(this);
         this.updateStuff = this.updateStuff.bind(this);
@@ -38,6 +38,22 @@ export default class DefaultSelection extends React.Component {
     // filterData(supports) {
     //     return CLASSES.filter(e => e.rules.select.supports)
     // }
+
+    choiceToChoiceCount(choices) {
+        const choiceCounts = []
+        const doneAlready = []
+        for (const id of choices) {
+            if (!doneAlready.includes(id)) {
+                choiceCounts.push({"name": id, "count": 1})
+            } else {
+                choiceCounts.find(e => e.name === id).count += 1
+            }
+            
+            doneAlready.push(id)
+        }
+
+        return choiceCounts;
+    }
 
     access = (path, object) => {
         return path.split('.').reduce((o, i) => o?.[i], object)
@@ -66,7 +82,11 @@ export default class DefaultSelection extends React.Component {
             return (slice.some(y => {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
-                    return this.getChoices(y).includes(xElement.supports[0]);
+                    return this.getChoices(y).some(support => xElement.supports.includes(support));
+
+                    // return this.getChoices(y).includes(xElement.supports[0]);
+                    // [3, 4].includes([4, 5])
+                    // [3,4].some(x => {return [4,5].includes(x)})
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -85,8 +105,13 @@ export default class DefaultSelection extends React.Component {
         let choices = choiceData.choices;
 
         for (const invalid of choiceData.invalidList) {
-            const choiceArray = this.access(this.getFromId(invalid).supports[0], this.state.listsData);
-            choiceArray.splice(0, choiceArray.length);
+            console.log(this.getFromId(invalid));
+            for (const support of this.getFromId(invalid).supports) {
+                const choiceArray = this.access(support, this.state.listsData);
+                if (choiceArray !== undefined) {
+                    choiceArray.splice(0, choiceArray.length);
+                }
+            }
         }
 
 
@@ -99,18 +124,32 @@ export default class DefaultSelection extends React.Component {
             grantList.push(...this.getGrants(id));
         }
 
+        newList = this.choiceToChoiceCount(newList);
+
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
         this.setState({grants: [...grantList]});
 
-        const creationData = {...this.props.creationData};
+        const creationData = {...this.props.characterData.creationData};
         creationData.choices[TYPE] = choices;
         creationData.listsData = this.state.listsData;
-        creationData.grants[TYPE] = grantList;
 
-        creationData.allGrants = grantList;
+        const exportGrantList = [];
+        for (const x of grantList) {
+            console.log(x);
+            exportGrantList.push({"id": x, "type": this.getFromId(x)?.type})
+        }
 
-        this.props.updateCreationData(creationData);    
+        creationData.grants[TYPE] = exportGrantList;
+
+        // console.log(creationData.grants);
+        let allGrants = [];
+        for (const x of Object.values(creationData.grants)) {
+            allGrants = [...allGrants, ...x]
+        }
+        console.log(allGrants);
+
+        this.props.updateCharacterData({"creationData": creationData, "grants": allGrants});
     }
 
     getGrants(id) {
@@ -260,14 +299,14 @@ export default class DefaultSelection extends React.Component {
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return y.supports.includes(x);
+                                    return y.supports.includes(x.name);
                                 }
                                 return false;
                                 })
                             ).map(
                             e => {
-                                if (this.state.listsData[e] === undefined) {
-                                    this.state.listsData[e] = [];
+                                if (this.state.listsData[e.name] === undefined) {
+                                    this.state.listsData[e.name] = [];
                                     this.setState({
                                         listsData: {...this.state.listsData}
                                     })
@@ -276,11 +315,12 @@ export default class DefaultSelection extends React.Component {
                                 return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e)}
-                                    doubleSelectedItems={this.state.listsData[e]}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.name)}
+                                    doubleSelectedItems={this.state.listsData[e.name]}
+                                    maxDoubleSelected={e.count}
                                     // presetFilters={{Supports: e}}
-                                    title={e}
-                                    data={this.filterDataIncludes(CLASSES, "supports", e)}
+                                    title={e.name}
+                                    data={this.filterDataIncludes(CLASSES, "supports", e.name)}
                                 />
                             })}
                     </div>
