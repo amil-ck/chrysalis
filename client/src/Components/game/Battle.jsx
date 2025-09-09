@@ -15,7 +15,7 @@ export default class Battle extends React.Component {
         const stats = [{ name: "STR", value: 16, modifier: 3 }, { name: "DEX", value: 9, modifier: -1 }, { name: "CON", value: 15, modifier: 2 }, { name: "INT", value: 11, modifier: 0 }, { name: "WIS", value: 13, modifier: +1 }, { name: "CHA", value: 14, modifier: +2 }];
 
         return (
-            <div className="play fullPane">
+           
                 <div className="tab battle">
                     <div className="header">
                         <div className="details card">
@@ -54,7 +54,7 @@ export default class Battle extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div>
+
         )
     }
 }

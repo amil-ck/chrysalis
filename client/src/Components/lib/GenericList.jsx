@@ -252,7 +252,7 @@ export default class GenericList extends React.Component {
                 <select value={this.state.columnFilters[colName]} onChange={(e) => this.onFilterChange(colName, e.target.value)}>
                     <option value={"remove"}>No filter selected</option>
                     {possibleValues.toSorted().map((value) => {
-                        return <option key={value} value={value}>{value.toString()}</option>
+                        return <option key={value} value={value}>{value?.toString()}</option>
                     })}
                 </select>
             )

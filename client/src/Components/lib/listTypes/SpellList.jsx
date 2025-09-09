@@ -9,7 +9,7 @@ export default class SpellList extends React.Component {
         this.props = props;
 
         this.state = {
-            spellData: SPELLS
+            spellData: props.data || SPELLS
         }
 
     }
@@ -43,17 +43,17 @@ export default class SpellList extends React.Component {
 
         const propsToPass = {
             title: 'Spells',
-            data: spellData,
             columnNames: ["Name", "Level", "School", "Components", "Source", "Supports", "Concentration?"],
             shownColumns: ["Name", "Level", "School", "Components", "Source"],
             allowFilter: ["Level", "School", "Source", "Supports", "Concentration?"],
             allowSearch: ["Name"],
             presetFilters: {
-                Level: " Cantrip"
+                
             },
             columnLocations: ["name", "setters/level", "setters/school", "combinedComponents", "source", "supports", "concentration"],
             multiValueColumns: ["Supports"],
-            ...this.props
+            ...this.props,
+            data: spellData,
         }
 
         return (

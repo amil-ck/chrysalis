@@ -14,9 +14,9 @@ export default class Game extends React.Component {
 
     render() {
         if (this.state.tab === 'battle') {
-            return <Battle {...this.props} />
+            return  <div className="play fullPane"><Battle {...this.props} /></div>
         } else if (this.state.tab === 'magic') {
-            return <Magic {...this.props} />
+            return <div className="play fullPane"><Magic {...this.props} /></div>
         } else {
             return <>beep boop</>
         }
