@@ -3,7 +3,7 @@ import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
-import { calculateGenericStat, calculateStat } from '../lib/statUtils.js';
+import { calculateStat } from '../lib/statUtils.js';
 
 export default class Magic extends React.Component {
     constructor(props) {
@@ -17,24 +17,46 @@ export default class Magic extends React.Component {
             selectedItemID: '',
             preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)),
             availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.filterBySupports(this.props.spellcasting.list.text, this.props.characterData.knownSpells),
+            usedSpellSlots: [0,2,3,0,0,0,0,0,0,0]
         }
         // TODO: add to available spells based on 'extends' stuff
 
         this.handleItemSelected = this.handleItemSelected.bind(this);
         this.closeInfoPane = this.closeInfoPane.bind(this);
         this.prepareSpell = this.prepareSpell.bind(this);
+        this.unprepareSpell = this.unprepareSpell.bind(this);
+        this.castSpell = this.castSpell.bind(this);
     }
 
     prepareSpell(id) {
-        // update characterdata
 
-        // check whether max prepared
+        if (this.props.characterData.preparedSpells.includes(id)) {
+            return this.unprepareSpell(id);
+        }
+
+        if (this.props.characterData.preparedSpells.length < this.getPrepareSlots()) {
+            // Character can prepare more spells
+            this.props.updateCharacterData({
+                preparedSpells: [...this.props.characterData.preparedSpells, id]
+            })
+        }
+    }
+
+    unprepareSpell(id) {
+        console.log('unprepareing')
+        this.props.updateCharacterData({
+            preparedSpells: this.props.characterData.preparedSpells.filter(i => i !== id)
+        })
+    }
+
+    castSpell(id) {
+
     }
 
     handleItemSelected(id) {
         this.setState({
             selectedItemID: id,
-            selectedItemData: this.state.availableSpells.find(i => i.id === id)
+            selectedItemData: SPELLS.find(i => i.id === id)
         });
     }
 
@@ -59,7 +81,7 @@ export default class Magic extends React.Component {
             filteredList = filteredList.filter(i => options.includes(i.setters.school));
         }
 
-        return filteredList;
+        return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] !== 0);
     }
 
     getSpellByID(id) {
@@ -189,13 +211,13 @@ export default class Magic extends React.Component {
     }
 
     getPrepareSlots() {
-        
+        return calculateStat(`${this.props.spellcasting.name.toLowerCase()}:spellcasting:prepare`, this.props.characterData);
     }
 
     render() {
 
         // Assume that the character CAN spellcast
-        console.log(this.getSpellSlots());
+        const spellSlots = this.getSpellSlots();
 
         // makes the format uniform
         if (typeof this.props.spellcasting.list === "string") this.props.spellcasting.list = { text: this.props.spellcasting.list };
@@ -208,47 +230,47 @@ export default class Magic extends React.Component {
         })];
 
 
-        // TESTING STAT UTILS
-        const fakeStats = [
-            {
-                name: "beep:boop",
-                value: "3"
-            },
-            {
-                name: "beep:boop",
-                value: "5",
-                bonus: "peepee"
-            },
-            {
-                name: "wahoo",
-                value: "beep:boop"
-            },
-            {
-                name: "beep:boop",
-                value: "4",
-                bonus: "poopoo"
-            },
-            {
-                name: "beep:boop",
-                value: "3",
-                bonus: "poopoo"
-            },
-            {
-                name: 'dexterity',
-                value: 2
-            },
-            {
-                name: 'dexterity:score:set',
-                value: 13,
-                bonus: 'base'
-            },
-            {
-                name: 'dexterity:misc',
-                value: 2
-            }
-        ];
+        // // TESTING STAT UTILS
+        // const fakeStats = [
+        //     {
+        //         name: "beep:boop",
+        //         value: "3"
+        //     },
+        //     {
+        //         name: "beep:boop",
+        //         value: "5",
+        //         bonus: "peepee"
+        //     },
+        //     {
+        //         name: "wahoo",
+        //         value: "beep:boop"
+        //     },
+        //     { 
+        //         name: "beep:boop",
+        //         value: "4",
+        //         bonus: "poopoo"
+        //     },
+        //     {
+        //         name: "beep:boop",
+        //         value: "3",
+        //         bonus: "poopoo"
+        //     },
+        //     {
+        //         name: 'dexterity',
+        //         value: 2
+        //     },
+        //     {
+        //         name: 'dexterity:score:set',
+        //         value: 13,
+        //         bonus: 'base'
+        //     },
+        //     {
+        //         name: 'dexterity:misc',
+        //         value: 2
+        //     }
+        // ];
 
-        console.log(calculateStat("dexterity:modifier", {stats: fakeStats}));
+        // console.log(calculateStat("bing bong", {stats: fakeStats}));
 
 
 
@@ -258,12 +280,12 @@ export default class Magic extends React.Component {
             <div className="tab magic">
                 <div className="main">
                     <div className="spellcastingWrapper">
-                        <span className="title">Your spells</span>
-                        <SpellcastingList data={yourSpells} />
+                        <div className="title">Your spells <span className="preparedCount">{this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span></div>
+                        <SpellcastingList data={yourSpells} spellSlots={spellSlots} usedSpellSlots={this.state.usedSpellSlots} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
                     </div>
 
                     {this.props.spellcasting.prepare &&
-                        <SpellList data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} />
+                        <SpellList data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} doubleSelectedItems={this.props.characterData.preparedSpells} />
                     }
                 </div>
 

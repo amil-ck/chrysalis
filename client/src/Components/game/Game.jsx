@@ -13,7 +13,21 @@ export default class Game extends React.Component {
                 level: 8,
                 preparedSpells: ["ID_PHB_SPELL_PRODUCE_FLAME"],
                 knownSpells: [],
-                grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT"]
+                grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT"],
+                stats: [
+                    {
+                        "name": "druid:spellcasting:prepare",
+                        "value": "wisdom:modifier"
+                    },
+                    {
+                        "name": "druid:spellcasting:prepare",
+                        "value": "level:druid"
+                    },
+                    {
+                        name: "wisdom",
+                        value: 16
+                    },
+                ]
             }
         }
 

@@ -9,6 +9,7 @@ export default class DetailsTab extends React.Component {
             name: this.props.characterData.name || '',
             backstory: this.props.characterData.details?.backstory || '',
             description: this.props.characterData.details?.description || '',
+            pronouns: this.props.characterData.details?.pronouns || '',
             namePlaceholder: this.placeholderName()
         }
 
@@ -33,7 +34,8 @@ export default class DetailsTab extends React.Component {
             name: this.state.name,
             details: {
                 backstory: this.state.backstory,
-                description: this.state.description
+                description: this.state.description,
+                pronouns: this.state.pronouns
             }
         });
     }
@@ -53,6 +55,10 @@ export default class DetailsTab extends React.Component {
                         <div className="inputWrapper">
                             <label htmlFor="name">Character name</label>
                             <input type="text" name='name' placeholder={"e.g. " + this.state.namePlaceholder} value={this.state.name} onChange={this.handleChange} onBlur={this.handleInputBlur} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="pronouns">Character pronouns</label>
+                            <input type="text" name="pronouns" placeholder={"e.g. they/she"} value={this.state.pronouns} onChange={this.handleChange} onBlur={this.handleInputBlur} />
                         </div>
                         <div className="inputWrapper">
                             <label htmlFor="level">Level</label>

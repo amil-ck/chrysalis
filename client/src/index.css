@@ -448,6 +448,7 @@ textarea {
         width: 100%;
         overflow-x: auto;
         overflow-y: visible;
+
         table {
             table-layout: auto;
 
@@ -994,6 +995,8 @@ textarea {
     display: flex;
     flex-direction: column;
 
+    flex-grow: 1;
+
     .card {
         background-color: #2c2c2c;
         border-radius: 4px;
@@ -1011,7 +1014,8 @@ textarea {
     .tab {
         display: flex;
         flex-direction: column;
-        margin: 48px;
+        margin: 0;
+        height: 100%;
 
         .header {
             height: fit-content;
@@ -1094,9 +1098,24 @@ textarea {
             flex-grow: 1;
             flex-direction: column;
 
-            .spellcastingList {
-                width: 100%;
+            .spellcastingWrapper {
+                /* background-color: #2c2c2c; */
+                margin-bottom: 24px;
+                border-radius: 8px;
+                /* padding: 12px; */
+
+                &>.title {
+                    font-size: 14pt;
+                    font-variation-settings: "wght" 600;
+                    margin-bottom: 8px;
+                }
+
+                .spellcastingList {
+                    width: 100%;
+                }
             }
+
+
         }
     }
 }
@@ -1110,29 +1129,47 @@ textarea {
     display: flex;
     flex-direction: column;
 
+
     .level {
         display: flex;
         flex-direction: column;
+        margin-bottom: 12px;
 
         .header {
             display: flex;
             flex-direction: row;
+            align-items: center;
+            margin-bottom: 6px;
 
-            .title {}
+            .title {
+                font-size: 12pt;
+                color: #c9c9c9;
+                font-variation-settings: "wght" 600;
+            }
 
             hr {
                 flex-grow: 1;
                 height: 0;
                 border: 1.5px solid #303030;
+                margin: 0 12px;
             }
 
             .slots {
                 display: flex;
                 flex-direction: row;
-                background-color: #2c2c2c;
+                background-color: #303030;
                 border-radius: 4px;
                 align-items: center;
-                padding: 0 4px;
+                padding: 4px 6px;
+                gap: 4px;
+                margin-right: 12px;
+
+                .label {
+                    font-size: 10pt;
+                    font-variation-settings: "wght" 600;
+                    color: #a1a1a1;
+                    margin-right: 4px;
+                }
 
                 .slot {
                     background-color: #1e1e1e;
@@ -1141,10 +1178,57 @@ textarea {
                     height: 15px;
                     display: block;
 
+
                     &.used {
                         background-color: red;
                     }
                 }
+            }
+        }
+
+        .list {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            .spell {
+                background-color: #2c2c2c;
+                border-radius: 6px;
+
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                min-width: 300px;
+
+
+
+                .left {
+                    display: flex;
+                    flex-direction: column;
+                    flex-grow: 1;
+                    margin: 6px 12px 6px 12px;
+
+                    .name {
+                        font-size: 12pt;
+                    }
+
+                    .range {
+                        font-size: 10pt;
+                        color: #a1a1a1;
+                        font-variation-settings: "wght" 600;
+                    }
+                }
+
+                .right {
+                    button {
+                        background-color: transparent;
+                        height: 100%;
+                    }
+                }
+
+
             }
         }
     }
