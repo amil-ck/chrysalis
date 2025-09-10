@@ -27,7 +27,24 @@ export function calculateStat(statName, characterData) {
     }
 
     // Check ac
-    
+    if (statName === "ac") {
+        // Get base
+        // a) if wearing armor, use as base
+        let base = calculateGenericStat("ac:armored:armor", characterData) + calculateGenericStat("ac:armored:enhancement", characterData) + calculateGenericStat("ac:armored:misc", characterData);
+
+        // b) else, get ac:calculation
+        if (base === 0) {
+            base = calculateGenericStat("ac:calculation", characterData);
+
+            if (base === 0) {
+                base = 10 + calculateStat("dexterity:modifier", characterData);
+            }
+        }
+
+        // Get additionals (misc, shield)
+        const ac = base + calculateGenericStat("ac:misc", characterData) + calculateGenericStat("ac:shield", characterData);
+        return ac;
+    }
 
     // Check abilities
     const abilities = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
@@ -89,7 +106,7 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
         let value = 0;
         if (Number.isNaN(Number(stat.value))) {
             // value is not a number (i.e. it is a reference to another stat)
-            value = calculateGenericStat(stat.value, characterData);
+            value = calculateStat(stat.value, characterData);
         } else {
             value = Number(stat.value);
         }
