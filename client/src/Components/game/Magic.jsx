@@ -3,43 +3,22 @@ import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
+import { calculateGenericStat, calculateStat } from '../lib/statUtils.js';
 
 export default class Magic extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
+        // PROPS: characterData etc., spellcasting: spellcasting object
 
         this.state = {
             selectedItemData: undefined,
-            selectedItemID: ''
+            selectedItemID: '',
+            preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)),
+            availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.filterBySupports(this.props.spellcasting.list.text, this.props.characterData.knownSpells),
         }
-
-        // Assume that the character CAN spellcast
-        this.spellcasting = {
-            name: "Druid",
-            ability: "Wisdom",
-            prepare: true,
-            allowReplace: false,
-            list: {
-                known: true, // ignore whether spells are known or not
-                text: "Druid,(Abjuration||Conjuration)" // compare to 'supports'
-            }
-        };
-
-        // makes the format uniform
-        if (typeof this.spellcasting.list === "string") this.spellcasting.list = { text: this.spellcasting.list };
-
-        // Simulating characterdata for now
-        const characterData = {};
-        characterData.preparedSpells = ["ID_PHB_SPELL_PRODUCE_FLAME"];
-        characterData.knownSpells = [];
-        characterData.grantedSpells = [];
-
-        this.preparedSpells = SPELLS.filter(spell => characterData.preparedSpells.includes(spell.id));
-        this.availableSpells = this.spellcasting.list.known === true ? this.filterBySupports(this.spellcasting.list.text, SPELLS) : this.filterBySupports(this.spellcasting.list.text, characterData.knownSpells);
-        // TODO: add to available spells based on 
-
+        // TODO: add to available spells based on 'extends' stuff
 
         this.handleItemSelected = this.handleItemSelected.bind(this);
         this.closeInfoPane = this.closeInfoPane.bind(this);
@@ -47,13 +26,15 @@ export default class Magic extends React.Component {
     }
 
     prepareSpell(id) {
+        // update characterdata
 
+        // check whether max prepared
     }
 
     handleItemSelected(id) {
         this.setState({
             selectedItemID: id,
-            selectedItemData: this.availableSpells.find(i => i.id === id)
+            selectedItemData: this.state.availableSpells.find(i => i.id === id)
         });
     }
 
@@ -81,7 +62,196 @@ export default class Magic extends React.Component {
         return filteredList;
     }
 
+    getSpellByID(id) {
+        return SPELLS.find(spell => spell.id === id);
+    }
+
+    getSpellSlots() {
+        const charLevel = this.props.characterData.level;
+
+        const fakeStats = [{
+            "name": "druid:spellcasting:slots:1",
+            "value": "2",
+            "level": "1"
+        },
+        {
+            "name": "druid:spellcasting:slots:1",
+            "value": "1",
+            "level": "2"
+        },
+        {
+            "name": "druid:spellcasting:slots:1",
+            "value": "1",
+            "level": "3"
+        },
+        {
+            "name": "druid:spellcasting:slots:2",
+            "value": "2",
+            "level": "3"
+        },
+        {
+            "name": "druid:spellcasting:slots:2",
+            "value": "1",
+            "level": "4"
+        },
+        {
+            "name": "druid:spellcasting:slots:3",
+            "value": "2",
+            "level": "5"
+        },
+        {
+            "name": "druid:spellcasting:slots:3",
+            "value": "1",
+            "level": "6"
+        },
+        {
+            "name": "druid:spellcasting:slots:4",
+            "value": "1",
+            "level": "7"
+        },
+        {
+            "name": "druid:spellcasting:slots:4",
+            "value": "1",
+            "level": "8"
+        },
+        {
+            "name": "druid:spellcasting:slots:4",
+            "value": "1",
+            "level": "9"
+        },
+        {
+            "name": "druid:spellcasting:slots:5",
+            "value": "1",
+            "level": "9"
+        },
+        {
+            "name": "druid:spellcasting:slots:5",
+            "value": "1",
+            "level": "10"
+        },
+        {
+            "name": "druid:spellcasting:slots:5",
+            "value": "1",
+            "level": "18"
+        },
+        {
+            "name": "druid:spellcasting:slots:6",
+            "value": "1",
+            "level": "11"
+        },
+        {
+            "name": "druid:spellcasting:slots:6",
+            "value": "1",
+            "level": "19"
+        },
+        {
+            "name": "druid:spellcasting:slots:7",
+            "value": "1",
+            "level": "13"
+        },
+        {
+            "name": "druid:spellcasting:slots:7",
+            "value": "1",
+            "level": "20"
+        },
+        {
+            "name": "druid:spellcasting:slots:8",
+            "value": "1",
+            "level": "15"
+        },
+        {
+            "name": "druid:spellcasting:slots:9",
+            "value": "1",
+            "level": "17"
+        },
+        {
+            "name": "druid:spellcasting:prepare",
+            "value": "wisdom:modifier"
+        },
+        {
+            "name": "druid:spellcasting:prepare",
+            "value": "level:druid"
+        }]
+
+        // Get all spellcasting slot stats
+        const searchStr = `${this.props.spellcasting.name.toLowerCase()}:spellcasting:slots:`;
+        const slotStats = fakeStats.filter(stat => stat.name.includes(searchStr));
+        const slots = [0,0,0,0,0,0,0,0,0,0];
+
+        for (const stat of slotStats) {
+            const slotLevel = Number(stat.name.replace(searchStr, ''));
+            if (Number(stat.level) <= charLevel) {
+                slots[slotLevel] += Number(stat.value);
+            }
+        }
+        
+        return slots;
+    }
+
+    getPrepareSlots() {
+        
+    }
+
     render() {
+
+        // Assume that the character CAN spellcast
+        console.log(this.getSpellSlots());
+
+        // makes the format uniform
+        if (typeof this.props.spellcasting.list === "string") this.props.spellcasting.list = { text: this.props.spellcasting.list };
+
+         
+        const yourSpells = [...this.props.characterData.grantedSpells.map(id => {
+            return this.getSpellByID(id)
+        }), ...this.props.characterData.preparedSpells.map(id => {
+            return { ...this.getSpellByID(id), prepared: true }
+        })];
+
+
+        // TESTING STAT UTILS
+        const fakeStats = [
+            {
+                name: "beep:boop",
+                value: "3"
+            },
+            {
+                name: "beep:boop",
+                value: "5",
+                bonus: "peepee"
+            },
+            {
+                name: "wahoo",
+                value: "beep:boop"
+            },
+            {
+                name: "beep:boop",
+                value: "4",
+                bonus: "poopoo"
+            },
+            {
+                name: "beep:boop",
+                value: "3",
+                bonus: "poopoo"
+            },
+            {
+                name: 'dexterity',
+                value: 2
+            },
+            {
+                name: 'dexterity:score:set',
+                value: 13,
+                bonus: 'base'
+            },
+            {
+                name: 'dexterity:misc',
+                value: 2
+            }
+        ];
+
+        console.log(calculateStat("dexterity:modifier", {stats: fakeStats}));
+
+
+
 
         // TODO: display spells added in create flow
         return (
@@ -89,11 +259,11 @@ export default class Magic extends React.Component {
                 <div className="main">
                     <div className="spellcastingWrapper">
                         <span className="title">Your spells</span>
-                        <SpellcastingList />
+                        <SpellcastingList data={yourSpells} />
                     </div>
 
-                    {this.spellcasting.prepare &&
-                        <SpellList data={this.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} />
+                    {this.props.spellcasting.prepare &&
+                        <SpellList data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} />
                     }
                 </div>
 
