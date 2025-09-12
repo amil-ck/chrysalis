@@ -2,6 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
+import { checkSubset } from './supportUtils.js';
 
 const CLASSES = EVERYTHING;
 
@@ -69,6 +70,10 @@ export default class DefaultSelection extends React.Component {
         return array.filter(e => this.access(type, e) !== undefined && this.access(type, e).includes(value))
     }
 
+    filterDataMultiple(array, type, value) {
+        return array.filter(e => this.access(type, e) !== undefined && checkSubset(value, this.access(type, e)))
+    }
+
     getFromId(id) {
         return CLASSES.find(e => e.id === id)
     }
@@ -84,7 +89,9 @@ export default class DefaultSelection extends React.Component {
             return (slice.some(y => {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
-                    return this.getChoices(y).some(support => xElement.supports.includes(support));
+                    console.log([x, y, this.getChoices(y)]);
+                    return this.getChoices(y).some(support => checkSubset(support, xElement.supports));
+                    // return this.getChoices(y).some(support => xElement.supports.includes(support));
 
                     // return this.getChoices(y).includes(xElement.supports[0]);
                     // [3, 4].includes([4, 5])
@@ -165,7 +172,7 @@ export default class DefaultSelection extends React.Component {
                         if (e.number === undefined) {
                             // idList.push(e.id)
                             idList = idList.concat(this.getGrants(e.id));
-                        } else {
+                        } else {    
                             for (let i = 0; i < parseInt(e.number); i++) {
                                 // idList.push(e.id)
                                 idList = idList.concat(this.getGrants(e.id));
@@ -207,10 +214,10 @@ export default class DefaultSelection extends React.Component {
                         if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
                             if (e.number === undefined) {
                                 console.log(e);
-                                newList.push(e.supports[0])
+                                newList.push(e.supports)
                             } else {
                                 for (let i = 0; i < parseInt(e.number); i++) {
-                                    newList.push(e.supports[0])
+                                    newList.push(e.supports)
                                 }
                             }
                         }
@@ -296,12 +303,12 @@ export default class DefaultSelection extends React.Component {
                         // presetFilters={{Supports: "Primal Path"}}
                         />
 
-                        {/* {console.log(this.state.listsNeeded)} */}
+                        {console.log(this.state.listsNeeded)}
 
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return y.supports.includes(x.name);
+                                    return checkSubset(x.name, y.supports);
                                 }
                                 return false;
                                 })
@@ -322,7 +329,7 @@ export default class DefaultSelection extends React.Component {
                                     maxDoubleSelected={e.count}
                                     // presetFilters={{Supports: e}}
                                     title={e.name}
-                                    data={this.filterDataIncludes(CLASSES, "supports", e.name)}
+                                    data={this.filterDataMultiple(CLASSES, "supports", e.name)}
                                 />
                             })}
                     </div>

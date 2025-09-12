@@ -20,7 +20,7 @@ export default class SpellCreation extends React.Component {
         const spellcast = this.getFromId(id);
         // console.log(spellcast.rules.select);
         // const newSpellGrants = this.fixSpells(spellcast.rules.select.concat(this.getFromId("ID_WOTC_PHB_CLASS_FEATURE_DRUID_SPELLCASTING_DRUID").rules.select));
-        // const newSpellGrants = this.fixSpells(spellcast.rules.select);
+        // const newSpellGrants = this.fixSpells(spellcast.rules.select);/78
         const newSpellGrants = this.fixSpells(this.getFromId("ID_WOTC_PHB_CLASS_FEATURE_DRUID_SPELLCASTING_DRUID").rules.select);
         const spellGrants = this.props.characterData.creationData.spellChoices || newSpellGrants;
         
