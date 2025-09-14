@@ -90,7 +90,7 @@ export default class DefaultSelection extends React.Component {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
                     console.log([x, y, this.getChoices(y)]);
-                    return this.getChoices(y).some(support => checkSupports(support, xElement.supports));
+                    return this.getChoices(y).some(yElement => checkSupports(yElement.supports, xElement.supports));
                     // return this.getChoices(y).some(support => xElement.supports.includes(support));
 
                     // return this.getChoices(y).includes(xElement.supports[0]);
@@ -133,7 +133,7 @@ export default class DefaultSelection extends React.Component {
             grantList.push(...this.getGrants(id));
         }
 
-        newList = this.choiceToChoiceCount(newList);
+        // newList = this.choiceToChoiceCount(newList);
 
         this.setState({listsNeeded: [...newList]});
         this.setState({choices: [...choices]});
@@ -209,17 +209,18 @@ export default class DefaultSelection extends React.Component {
             if (select !== undefined) {
                 select.forEach(
                     e => {
-                        console.log(e);
+                        // console.log(e);
                         //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
                         if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
-                            if (e.number === undefined) {
-                                console.log(e);
-                                newList.push(e.supports)
-                            } else {
-                                for (let i = 0; i < parseInt(e.number); i++) {
-                                    newList.push(e.supports)
-                                }
-                            }
+                            // if (e.number === undefined) {
+                            //     console.log(e);
+                            //     newList.push(e.supports)
+                            // } else {
+                            //     for (let i = 0; i < parseInt(e.number); i++) {
+                            //         newList.push(e.supports)
+                            //     }
+                            // }
+                            newList.push(e);
                         }
                     }
                 )
@@ -308,14 +309,15 @@ export default class DefaultSelection extends React.Component {
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return checkSupports(x.name, y.supports);
+                                    // console.log(x);
+                                    return checkSupports(x.supports, y.supports);
                                 }
                                 return false;
                                 })
                             ).map(
                             e => {
-                                if (this.state.listsData[e.name] === undefined) {
-                                    this.state.listsData[e.name] = [];
+                                if (this.state.listsData[e.supports] === undefined) {
+                                    this.state.listsData[e.supports] = [];
                                     this.setState({
                                         listsData: {...this.state.listsData}
                                     })
@@ -324,12 +326,12 @@ export default class DefaultSelection extends React.Component {
                                 return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.name)}
-                                    doubleSelectedItems={this.state.listsData[e.name]}
-                                    maxDoubleSelected={e.count}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.supports)}
+                                    doubleSelectedItems={this.state.listsData[e.supports]}
+                                    maxDoubleSelected={e.number || 1}
                                     // presetFilters={{Supports: e}}
                                     title={e.name}
-                                    data={this.filterDataMultiple(CLASSES, "supports", e.name)}
+                                    data={this.filterDataMultiple(CLASSES, "supports", e.supports)}
                                 />
                             })}
                     </div>
