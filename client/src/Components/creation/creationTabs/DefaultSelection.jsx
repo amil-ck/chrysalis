@@ -2,7 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkSubset } from './supportUtils.js';
+import { checkSubset, checkSupports } from './supportUtils.js';
 
 const CLASSES = EVERYTHING;
 
@@ -22,7 +22,7 @@ export default class DefaultSelection extends React.Component {
             selectedItemData: undefined,
             level: 5,
             listsNeeded: [],
-            listsData: this.props.characterData.creationData.listsData,
+            listsData: this.props.characterData.creationData.listsData[TYPE],
             choices: this.props.characterData.creationData.choices[TYPE],
             grants: []
         }
@@ -71,7 +71,7 @@ export default class DefaultSelection extends React.Component {
     }
 
     filterDataMultiple(array, type, value) {
-        return array.filter(e => this.access(type, e) !== undefined && checkSubset(value, this.access(type, e)))
+        return array.filter(e => this.access(type, e) !== undefined && checkSupports(value, this.access(type, e)))
     }
 
     getFromId(id) {
@@ -90,7 +90,7 @@ export default class DefaultSelection extends React.Component {
                 const xElement = this.getFromId(x); 
                 if (xElement?.supports !== undefined) {
                     console.log([x, y, this.getChoices(y)]);
-                    return this.getChoices(y).some(support => checkSubset(support, xElement.supports));
+                    return this.getChoices(y).some(support => checkSupports(support, xElement.supports));
                     // return this.getChoices(y).some(support => xElement.supports.includes(support));
 
                     // return this.getChoices(y).includes(xElement.supports[0]);
@@ -141,7 +141,7 @@ export default class DefaultSelection extends React.Component {
 
         const creationData = {...this.props.characterData.creationData};
         creationData.choices[TYPE] = choices;
-        creationData.listsData = this.state.listsData;
+        creationData.listsData[TYPE] = this.state.listsData;
 
         const exportGrantList = [];
         for (const x of grantList) {
@@ -308,7 +308,7 @@ export default class DefaultSelection extends React.Component {
                         {this.state.listsNeeded.filter(
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
-                                    return checkSubset(x.name, y.supports);
+                                    return checkSupports(x.name, y.supports);
                                 }
                                 return false;
                                 })

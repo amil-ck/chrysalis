@@ -17,9 +17,15 @@ export async function createCharacter() {
             Background: []
         },
         listsData: {
-            Class: [],
-            Race: [],
-            Background: []
+            Class: {
+                Class: []
+            },
+            Race: {
+                Race: []
+            },
+            Background: {
+                Background: []
+            }
         },
         grants: {
             Class: [],
