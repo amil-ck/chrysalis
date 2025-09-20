@@ -1,4 +1,3 @@
-import * as Bracket from "g2-bracket-parser";
 import jsep, * as Jsep from "jsep";
 
 const daProblem = "!(ID_INTERNAL_GRANTS_REQTEMPFIX||ID_RACE_VARIANT_HUMAN_VARIANT||ID_INTERNAL_GRANTS_DRAGONMARK||ID_WOTC_WGTE_GRANTS_DARKMARKED||ID_UA_PS_GRANTS_HUMAN_VARIANT)" 
@@ -31,7 +30,7 @@ export function checkRequirments(bool, grantArray) {
 export function test() {
     let values = ["ID_WOTC_PHB_CLASS_WARLOCK", "ID_WOTC_PHB_MULTICLASS_WARLOCK"];
 
-    let stuff = jsep("!(ID_WOTC_PHB_CLASS_WARLOCK||ID_WOTC_PHB_MULTICLASS_WARLOCK)");
+    let stuff = jsep("ID_WOTC_PHB_CLASS_WARLOCK, ID_WOTC_PHB_MULTICLASS_WARLOCK, !horse");
     console.log(stuff);
     console.log(recurse(stuff, values));
 }
@@ -45,5 +44,7 @@ function recurse(obj, values) {
         return recurse(obj.left, values) || recurse(obj.right, values);
     } else if (obj.operator === "&&") {
         return recurse(obj.left, values) && recurse(obj.right, values);
+    } else if (obj.type === "Compound") {
+        return obj.body.every(e => recurse(e, values));
     }
 }

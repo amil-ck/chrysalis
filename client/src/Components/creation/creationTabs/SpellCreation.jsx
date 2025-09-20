@@ -17,11 +17,17 @@ export default class SpellCreation extends React.Component {
 
         this.props = props;
 
-        const spellcast = this.getFromId(id);
-        // console.log(spellcast.rules.select);
-        // const newSpellGrants = this.fixSpells(spellcast.rules.select.concat(this.getFromId("ID_WOTC_PHB_CLASS_FEATURE_DRUID_SPELLCASTING_DRUID").rules.select));
-        // const newSpellGrants = this.fixSpells(spellcast.rules.select);/78
-        const newSpellGrants = this.fixSpells(this.getFromId("ID_WOTC_PHB_CLASS_FEATURE_DRUID_SPELLCASTING_DRUID").rules.select);
+        const grants = this.props.characterData.grants;
+        let selects = grants.flatMap(e => {
+            if (this.getFromId(e.id)?.rules?.select !== undefined) {
+                return this.getFromId(e.id).rules.select;
+            }
+        });
+        selects = selects.filter(e => e?.type === "Spell");
+
+        console.log(selects);
+
+        const newSpellGrants = this.fixSpells(selects);
         const spellGrants = this.props.characterData.creationData.spellChoices || newSpellGrants;
         
         this.state = {

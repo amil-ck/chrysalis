@@ -14,21 +14,21 @@ export default class AbilityScores extends React.Component {
             const abilityScoreData = {
                 choice: "Standard Array",
                 std_dict: {
-                    "strength": undefined,
-                    "dexterity": undefined,
-                    "constitution": undefined,
-                    "intelligence": undefined,
-                    "wisdom": undefined,    
-                    "charisma": undefined
+                    "strength": null,
+                    "dexterity": null,
+                    "constitution": null,
+                    "intelligence": null,
+                    "wisdom": null,    
+                    "charisma": null
                 },
                 avail_array: [8, 10, 12, 13, 14, 15],
                 manualArray: {
-                    "strength": undefined,
-                    "dexterity": undefined,
-                    "constitution": undefined,
-                    "intelligence": undefined,
-                    "wisdom": undefined,
-                    "charisma": undefined
+                    "strength": null,
+                    "dexterity": null,
+                    "constitution": null,
+                    "intelligence": null,
+                    "wisdom": null,
+                    "charisma": null
                 },
                 points: 27,
                 buyArray: {
@@ -109,7 +109,7 @@ export default class AbilityScores extends React.Component {
 
     stdDropdown(stat) {
         var avail_array2 = [...this.state.avail_array];
-        if (!(this.state.std_dict[stat] === undefined)) avail_array2.push(this.state.std_dict[stat]);
+        if (!(this.state.std_dict[stat] === null)) avail_array2.push(this.state.std_dict[stat]);
         avail_array2.sort(function(a, b){return a-b});
 
         var options = avail_array2.map(
@@ -126,7 +126,7 @@ export default class AbilityScores extends React.Component {
 
     assign(stat, value) {
         if (value === "-") {
-            value = undefined
+            value = null
         }
         else {
             value = parseInt(value)

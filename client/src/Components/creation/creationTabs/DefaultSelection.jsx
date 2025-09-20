@@ -36,6 +36,7 @@ export default class DefaultSelection extends React.Component {
 
         //probably shouldn't have something on a timer like this
         setTimeout(this.updateStuff, 1);
+        // this.updateStuff();
     }
 
     // filterData(supports) {
@@ -134,14 +135,16 @@ export default class DefaultSelection extends React.Component {
         }
 
         // newList = this.choiceToChoiceCount(newList);
+        console.log(newList);
 
-        this.setState({listsNeeded: [...newList]});
-        this.setState({choices: [...choices]});
-        this.setState({grants: [...grantList]});
+        this.setState({listsNeeded: [...newList], choices: [...choices], grants: [...grantList]});
+
+        const languages = newList.filter(e => (e.type === "Language"));
 
         const creationData = {...this.props.characterData.creationData};
         creationData.choices[TYPE] = choices;
         creationData.listsData[TYPE] = this.state.listsData;
+        creationData.languages[TYPE] = languages;
 
         const exportGrantList = [];
         for (const x of grantList) {
@@ -202,7 +205,6 @@ export default class DefaultSelection extends React.Component {
         let newList = [];
 
         let idList = this.getGrants(id);
-        console.log(idList);
 
         for (const eId of idList) {
             const select = CLASSES.find(e => e.id === eId)?.rules?.select
@@ -227,7 +229,6 @@ export default class DefaultSelection extends React.Component {
             }
         }
 
-        console.log(newList);
         return newList;
     }
 
@@ -246,7 +247,7 @@ export default class DefaultSelection extends React.Component {
         })
     }
 
-    onFeatureDoubleSelected(id, array) {
+    onFeatureDoubleSelected(id, array, max) {
         let actualArray = this.access(array, this.state)
         // if (this.state[array] === undefined) {
         //     this.setState({
@@ -255,8 +256,8 @@ export default class DefaultSelection extends React.Component {
         //     return;
         // }
 
-
-        if (!actualArray.includes(id)) {
+        // console
+        if (!actualArray.includes(id) && actualArray.length < max) {
             console.log('feat added: ' + id);
             this.state.choices.push(id)
             actualArray.push(id)
@@ -267,7 +268,7 @@ export default class DefaultSelection extends React.Component {
             // this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
 
 
-        } else {
+        } else if (actualArray.includes(id)) {
             console.log('feat removed: ' + id)
 
             actualArray.splice(actualArray.findIndex(e => e === id), 1);
@@ -295,7 +296,7 @@ export default class DefaultSelection extends React.Component {
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
-                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData."+TYPE)}
+                        onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData."+TYPE, 1)}
                         doubleSelectedItems={this.state.listsData[TYPE]}
                         maxDoubleSelected={1}
                         // shownColumns={["Name", "Supports"]}
@@ -310,14 +311,16 @@ export default class DefaultSelection extends React.Component {
                             x => CLASSES.some(y => {
                                 if (y.supports !== undefined) {
                                     // console.log(x);
-                                    return checkSupports(x.supports, y.supports);
+                                    return checkSupports(x.supports, y.supports)
                                 }
                                 return false;
                                 })
+                            ).filter(
+                                e => e.type !== "Language"
                             ).map(
                             e => {
-                                if (this.state.listsData[e.supports] === undefined) {
-                                    this.state.listsData[e.supports] = [];
+                                if (this.state.listsData[e.name] === undefined) {
+                                    this.state.listsData[e.name] = [];
                                     this.setState({
                                         listsData: {...this.state.listsData}
                                     })
@@ -326,8 +329,8 @@ export default class DefaultSelection extends React.Component {
                                 return <ClassList
                                     onItemSelected={this.onFeatureSelected}
                                     selectedItemID={this.state.selectedFeatureID}
-                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.supports)}
-                                    doubleSelectedItems={this.state.listsData[e.supports]}
+                                    onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, "listsData." + e.name, e.number || 1)}
+                                    doubleSelectedItems={this.state.listsData[e.name]}
                                     maxDoubleSelected={e.number || 1}
                                     // presetFilters={{Supports: e}}
                                     title={e.name}
