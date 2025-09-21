@@ -40,10 +40,8 @@ export default class DefaultSelection extends React.Component {
         // this.updateStuff();
     }
 
-    // filterData(supports) {
-    //     return CLASSES.filter(e => e.rules.select.supports)
-    // }
-
+    // This might not be necessary, it might not even work with the way that i've done it but this code might be useful if i refactor it
+    // for the not-yet-encountered edge-case where I get e.g metamagic from 2 different sources, my code will break if that occurs.
     choiceToChoiceCount(choices) {
         const choiceCounts = []
         const doneAlready = []
@@ -60,7 +58,7 @@ export default class DefaultSelection extends React.Component {
         return choiceCounts;
     }
 
-    access = (path, object) => {
+    access(path, object) {
         return path.split('.').reduce((o, i) => o?.[i], object)
     }
 
@@ -80,6 +78,9 @@ export default class DefaultSelection extends React.Component {
         return CLASSES.find(e => e.id === id)
     }
 
+    // This code is so insanely dense, the purpose of it is to check the list of choices and then cull any choice that isn't granted by a previous choice in the list.
+    // Essentially, e.g "metamagic" (recieved from being a sorceror) is a choice but if "sorceror" is removed as a choice, this function will be unable to find any previous choice that grants the user
+    // a "metamagic" choice so it will be removed from the list of choices as well
     checkChoices(choices) {
         if (choices.length > 1) {
             console.log(choices);
@@ -93,11 +94,6 @@ export default class DefaultSelection extends React.Component {
                 if (xElement?.supports !== undefined) {
                     console.log([x, y, this.getChoices(y)]);
                     return this.getChoices(y).some(yElement => checkSupports(yElement.supports, xElement.supports));
-                    // return this.getChoices(y).some(support => xElement.supports.includes(support));
-
-                    // return this.getChoices(y).includes(xElement.supports[0]);
-                    // [3, 4].includes([4, 5])
-                    // [3,4].some(x => {return [4,5].includes(x)})
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -111,6 +107,8 @@ export default class DefaultSelection extends React.Component {
         }
     }
 
+
+    // Too much stuff happens in this one function, probably bad coding
     updateStuff() {
         let choiceData = this.checkChoices([...this.state.choices]);
         let choices = choiceData.choices;
@@ -125,8 +123,6 @@ export default class DefaultSelection extends React.Component {
             }
         }
 
-
-        // let choices = [...this.state.choices];
         let newList = [];
         let grantList = [];
         console.log(choices);
@@ -173,6 +169,7 @@ export default class DefaultSelection extends React.Component {
         this.props.updateCharacterData({"creationData": creationData, "grants": allGrants, "stats": allStats});
     }
 
+    // This one gets weird and recursive for sure, crazy stuff
     getGrants(id) {
         let idList = [id];
         const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
@@ -180,14 +177,11 @@ export default class DefaultSelection extends React.Component {
             grant.forEach(
                 e => {
                     console.log(e);
-                    // if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                     if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
                         if (e.number === undefined) {
-                            // idList.push(e.id)
                             idList = idList.concat(this.getGrants(e.id));
                         } else {    
                             for (let i = 0; i < parseInt(e.number); i++) {
-                                // idList.push(e.id)
                                 idList = idList.concat(this.getGrants(e.id));
                             }
                         }
@@ -196,19 +190,7 @@ export default class DefaultSelection extends React.Component {
             )
         }
 
-        // 13
-        
-        // idList.push(id);
-        // const newList = [];
-        // while (set(idList) === set(newList)) {
-
-        // }
-
         return idList;
-    }
-
-    setAllGrants() {
-        
     }
 
     getChoices(id) {
@@ -221,17 +203,8 @@ export default class DefaultSelection extends React.Component {
             if (select !== undefined) {
                 select.forEach(
                     e => {
-                        // console.log(e);
                         //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
                         if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
-                            // if (e.number === undefined) {
-                            //     console.log(e);
-                            //     newList.push(e.supports)
-                            // } else {
-                            //     for (let i = 0; i < parseInt(e.number); i++) {
-                            //         newList.push(e.supports)
-                            //     }
-                            // }
                             newList.push(e);
                         }
                     }
@@ -242,6 +215,7 @@ export default class DefaultSelection extends React.Component {
         return newList;
     }
 
+    // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
     getStats(grantList) {
         let statList = [];
 
@@ -259,7 +233,7 @@ export default class DefaultSelection extends React.Component {
         return statList;
     }
 
-    
+    // Single click highlights the clicked item and opens the info pane for that item
     onFeatureSelected(id) {
         this.setState({
             selectedFeatureID: id,
@@ -267,6 +241,7 @@ export default class DefaultSelection extends React.Component {
         })
     }
 
+    // Closes info pane and deselects single-clicked item
     onInfoPaneClose() {
         this.setState({
             selectedItemData: undefined,
@@ -276,24 +251,15 @@ export default class DefaultSelection extends React.Component {
 
     onFeatureDoubleSelected(id, array, max) {
         let actualArray = this.access(array, this.state)
-        // if (this.state[array] === undefined) {
-        //     this.setState({
-        //         [array]: []
-        //     }, () => {this.onFeatureDoubleSelected(id, array)});
-        //     return;
-        // }
 
-        // console
+        // perhaps a block of code could go here that sets the actualArray to [] if undefined instead of it being in render
+
         if (!actualArray.includes(id) && actualArray.length < max) {
             console.log('feat added: ' + id);
-            this.state.choices.push(id)
-            actualArray.push(id)
+            this.state.choices.push(id);
+            actualArray.push(id);
             
-            this.updateStuff()
-
-            // console.log(newList)
-            // this.setState({listsNeeded: [...this.state.listsNeeded, ...newList]});
-
+            this.updateStuff();
 
         } else if (actualArray.includes(id)) {
             console.log('feat removed: ' + id)
@@ -301,6 +267,7 @@ export default class DefaultSelection extends React.Component {
             actualArray.splice(actualArray.findIndex(e => e === id), 1);
             
             //technically this won't be a necessary check when i fix some other stuff
+            //this removes the value from state.choices
             if (this.state.choices.includes(id)) {
                 this.state.choices.splice(this.state.choices.findIndex(e => e === id), 1);
                 this.setState({
@@ -309,7 +276,6 @@ export default class DefaultSelection extends React.Component {
             }
 
             this.updateStuff();
-
         }
     }
 

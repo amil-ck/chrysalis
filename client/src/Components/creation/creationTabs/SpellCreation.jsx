@@ -4,6 +4,7 @@ import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
+import { checkRequirments, checkSupports } from './supportUtils.js';
 
 
 const SPELLS = EVERYTHING.filter(e => e.type === "Spell");
@@ -18,12 +19,27 @@ export default class SpellCreation extends React.Component {
         this.props = props;
 
         const grants = this.props.characterData.grants;
+        // let selects = grants.flatMap(e => {
+        //     if (this.getFromId(e.id)?.rules?.select !== undefined) {
+        //         return this.getFromId(e.id).rules.select;
+        //     }
+        // });
+        // selects = selects.filter(e => e?.type === "Spell");
+
         let selects = grants.flatMap(e => {
-            if (this.getFromId(e.id)?.rules?.select !== undefined) {
-                return this.getFromId(e.id).rules.select;
+            let x = this.getFromId(e.id);
+            if (x?.rules?.select !== undefined) {
+                let list = x.rules.select.filter(sel => sel?.type === "Spell");
+                
+                if (x?.spellcasting?.list !== undefined) {
+                    list = list.map(sel => ({...sel, spellcastingList: x.spellcasting.list}));
+                }
+
+                return list;
             }
+
+            return [];
         });
-        selects = selects.filter(e => e?.type === "Spell");
 
         console.log(selects);
 
@@ -134,10 +150,22 @@ export default class SpellCreation extends React.Component {
         this.saveData();
     }
 
+    getSpellSupports(spell) {
+        return [...spell.supports || [], spell.setters.level, spell.setters.school];
+    }
+
     showSpells(spellGrant) {
         console.log(spellGrant);
 
-        let a = SPELLS.filter(e => e?.supports?.includes(spellGrant.spellcasting));
+        let list = spellGrant.supports[0]
+
+        // if (list === "$(spellcasting:list)") {
+        //     list = spellGrant.spellcastingList
+        // }
+        list = list.replace("$(spellcasting:list)", "("+spellGrant.spellcastingList+")");
+        console.log(list);
+
+        let filteredSpells = SPELLS.filter(e => checkRequirments(list, this.getSpellSupports(e)));
 
         let level = spellGrant.supports[1]
         if (level === "$(spellcasting:slots)") {
@@ -147,17 +175,17 @@ export default class SpellCreation extends React.Component {
         console.log(level);
 
         if (level == 0) {
-            a = a.filter(e => e.setters.level <= level);
+            filteredSpells = filteredSpells.filter(e => e.setters.level <= level);
         } else {
-            a = a.filter(e => e.setters.level <= level && e.setters.level != 0);
+            filteredSpells = filteredSpells.filter(e => e.setters.level <= level && e.setters.level != 0);
         }
 
-        a = a.filter(e => !this.state.grantedSpells.includes(e.id) || e.id === this.state.pickedSpell.spellId);
+        filteredSpells = filteredSpells.filter(e => !this.state.grantedSpells.includes(e.id) || e.id === this.state.pickedSpell.spellId);
 
-        console.log(a);
+        console.log(filteredSpells);
 
         const propsToPass = {
-            data: a,
+            data: filteredSpells,
             title: this.state.pickedSpell.name,
             columnNames: ["Name"],
             shownColumns: ["Name"],
