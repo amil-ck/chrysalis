@@ -32,6 +32,11 @@ export async function createCharacter() {
             Race: [],
             Background: []
         },
+        stats: {
+            Class: [],
+            Race: [],
+            Background: []
+        },
         languages: {
             Class: [],
             Race: [],

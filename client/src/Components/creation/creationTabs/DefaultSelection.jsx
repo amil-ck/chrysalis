@@ -24,7 +24,8 @@ export default class DefaultSelection extends React.Component {
             listsNeeded: [],
             listsData: this.props.characterData.creationData.listsData[TYPE],
             choices: this.props.characterData.creationData.choices[TYPE],
-            grants: []
+            grants: [],
+            stats: []
         }
 
         console.log(this.props.characterData.creationData.choices);
@@ -137,7 +138,9 @@ export default class DefaultSelection extends React.Component {
         // newList = this.choiceToChoiceCount(newList);
         console.log(newList);
 
-        this.setState({listsNeeded: [...newList], choices: [...choices], grants: [...grantList]});
+        let statList = this.getStats(grantList);
+
+        this.setState({listsNeeded: [...newList], choices: [...choices], grants: [...grantList], stats: [...statList]});
 
         const languages = newList.filter(e => (e.type === "Language"));
 
@@ -153,6 +156,7 @@ export default class DefaultSelection extends React.Component {
         }
 
         creationData.grants[TYPE] = exportGrantList;
+        creationData.stats[TYPE] = statList;
 
         // console.log(creationData.grants);
         let allGrants = [];
@@ -161,7 +165,12 @@ export default class DefaultSelection extends React.Component {
         }
         console.log(allGrants);
 
-        this.props.updateCharacterData({"creationData": creationData, "grants": allGrants});
+        let allStats = [];
+        for (const x of Object.values(creationData.stats)) {
+            allStats = [...allStats, ...x]
+        }
+
+        this.props.updateCharacterData({"creationData": creationData, "grants": allGrants, "stats": allStats});
     }
 
     getGrants(id) {
@@ -171,7 +180,8 @@ export default class DefaultSelection extends React.Component {
             grant.forEach(
                 e => {
                     console.log(e);
-                    if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                    // if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                    if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
                         if (e.number === undefined) {
                             // idList.push(e.id)
                             idList = idList.concat(this.getGrants(e.id));
@@ -232,10 +242,27 @@ export default class DefaultSelection extends React.Component {
         return newList;
     }
 
+    getStats(grantList) {
+        let statList = [];
+
+        for (const id of grantList) {
+            const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
+            if (stats !== undefined) {
+                if (Array.isArray(stats)) {
+                    statList.push(...stats);
+                } else {
+                    statList.push(stats);
+                }
+            }
+        }
+        
+        return statList;
+    }
+
     
     onFeatureSelected(id) {
         this.setState({
-            selectedFeatID: id,
+            selectedFeatureID: id,
             selectedItemData: CLASSES.find(value => value.id === id)
         })
     }
@@ -292,7 +319,7 @@ export default class DefaultSelection extends React.Component {
             <>
                 <div className='tab'>
                     <div className='main'>
-                        <button onClick={() => {console.log(this.state.choices); console.log(this.state.grants)}}>export n stuff</button>
+                        <button onClick={() => {console.log(this.state.choices); console.log(this.state.grants); console.log(this.state.stats)}}>export n stuff</button>
                         <ClassList 
                         onItemSelected={this.onFeatureSelected}
                         selectedItemID={this.state.selectedFeatureID}
