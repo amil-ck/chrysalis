@@ -16,7 +16,7 @@ export default class Magic extends React.Component {
             selectedItemData: undefined,
             selectedItemID: '',
             preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)),
-            availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.props.characterData.knownSpells.map(id => SPELLS.find(spell => spell.id === id)),
+            availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.props.characterData.knownSpells.map(obj => SPELLS.find(spell => spell.id === obj.id)),
             usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0,0,0,0,0,0,0,0,0,0]
         }
         // TODO: add to available spells based on 'extends' stuff
@@ -47,7 +47,7 @@ export default class Magic extends React.Component {
             })
         }
     }
-
+  
     unprepareSpell(id) {
         console.log('unprepareing')
         this.props.updateCharacterData({

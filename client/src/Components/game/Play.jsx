@@ -12,7 +12,7 @@ export default class Play extends React.Component {
             fakeCharacterData: {
                 level: 8,
                 preparedSpells: ["ID_PHB_SPELL_PRODUCE_FLAME"],
-                knownSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_PHB_SPELL_PRODUCE_FLAME"],
+                knownSpells: [{id: "ID_GGTR_SPELL_ENCODE_THOUGHTS", spellcasting: "Druid"}, {id: "ID_PHB_SPELL_PRODUCE_FLAME", spellcasting: "Druid"}],
                 grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT",],
                 stats: [
                     {
@@ -48,7 +48,7 @@ export default class Play extends React.Component {
         const spellcasting = {
             name: "Druid",
             ability: "Wisdom",
-            prepare: false,
+            prepare: true,
             allowReplace: false,
             list: {
                 known: false, // ignore whether spells are known or not

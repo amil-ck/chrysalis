@@ -4,7 +4,7 @@ import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
-import { checkRequirments, checkSupports } from './supportUtils.js';
+import { checkRequirments, checkSupports } from '../../lib/supportUtils.js';
 
 
 const SPELLS = EVERYTHING.filter(e => e.type === "Spell");

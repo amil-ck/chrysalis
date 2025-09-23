@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData';
-import { checkSupports } from './supportUtils.js';
+import { checkSupports } from '../../lib/supportUtils.js';
 
 export default class LanguageSelection extends React.Component {
     constructor(props) {
