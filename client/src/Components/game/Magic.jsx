@@ -16,8 +16,8 @@ export default class Magic extends React.Component {
             selectedItemData: undefined,
             selectedItemID: '',
             preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)),
-            availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.filterBySupports(this.props.spellcasting.list.text, this.props.characterData.knownSpells),
-            usedSpellSlots: [0,2,3,0,0,0,0,0,0,0]
+            availableSpells: this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : this.props.characterData.knownSpells.map(id => SPELLS.find(spell => spell.id === id)),
+            usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0,0,0,0,0,0,0,0,0,0]
         }
         // TODO: add to available spells based on 'extends' stuff
 
@@ -26,6 +26,12 @@ export default class Magic extends React.Component {
         this.prepareSpell = this.prepareSpell.bind(this);
         this.unprepareSpell = this.unprepareSpell.bind(this);
         this.castSpell = this.castSpell.bind(this);
+        this.clearSpellSlot = this.clearSpellSlot.bind(this);
+        this.getUsedSpellSlots = this.getUsedSpellSlots.bind(this);
+    }
+
+    getUsedSpellSlots() {
+        return this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0,0,0,0,0,0,0,0,0,0];
     }
 
     prepareSpell(id) {
@@ -50,7 +56,32 @@ export default class Magic extends React.Component {
     }
 
     castSpell(id) {
+        // TODO: some kind of popup confirmation
+        this.castSpellAtLevel(id, this.getSpellByID(id).setters.level);
 
+    }
+
+    castSpellAtLevel(id, level) {
+        if (level.trim() === "Cantrip") level = 0;
+        const totalSlots = this.getSpellSlots()[level];
+        const usedSlots = this.getUsedSpellSlots()[level];
+        if (level == 0 || usedSlots < totalSlots) {
+            const newUsedSlots = [...this.getUsedSpellSlots()];
+            newUsedSlots[level] += 1;
+            console.log('successfully casting spell', id);
+            this.props.updateCharacterData({
+                usedSpellSlots: {...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newUsedSlots}
+            })
+        }
+    }
+
+    clearSpellSlot(level) {
+        const newSlots = [...this.getUsedSpellSlots()];
+        newSlots[level] = Math.max(0, newSlots[level] - 1);
+        console.log(newSlots, this.getUsedSpellSlots())
+        this.props.updateCharacterData({
+            usedSpellSlots: {...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newSlots}
+        })
     }
 
     handleItemSelected(id) {
@@ -216,7 +247,6 @@ export default class Magic extends React.Component {
 
     render() {
 
-        // Assume that the character CAN spellcast
         const spellSlots = this.getSpellSlots();
 
         // makes the format uniform
@@ -280,8 +310,8 @@ export default class Magic extends React.Component {
             <div className="tab magic">
                 <div className="main">
                     <div className="spellcastingWrapper">
-                        <div className="title">Your spells <span className="preparedCount">{this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span></div>
-                        <SpellcastingList data={yourSpells} spellSlots={spellSlots} usedSpellSlots={this.state.usedSpellSlots} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
+                        <div className="title">Your spells {this.props.spellcasting.prepare && <span className="preparedCount">{this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span>}</div>
+                        <SpellcastingList data={yourSpells} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} clearSpellSlot={this.clearSpellSlot} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
                     </div>
 
                     {this.props.spellcasting.prepare &&

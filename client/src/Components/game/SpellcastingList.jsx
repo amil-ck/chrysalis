@@ -6,6 +6,18 @@ export default class SpellcastingList extends React.Component {
         this.props = props;
 
         // PROPS: data: [{}], spellSlots: number[], usedSpellSlots=[], onItemSelected: function(id), selectedItemID: string, 
+        this.onUnprepareClick = this.onUnprepareClick.bind(this);
+        this.onCastClick = this.onCastClick.bind(this);
+    }
+
+    onUnprepareClick(e, id) {
+        e.stopPropagation();
+        this.props.unprepareSpell(id);
+    }
+
+    onCastClick(e, id) {
+        e.stopPropagation();
+        this.props.castSpell(id);
     }
 
     render() {
@@ -40,7 +52,7 @@ export default class SpellcastingList extends React.Component {
                                     <div className="label">Spell slots: </div>
                                     {[...Array(this.props.spellSlots[lvl]).keys()].map(i =>
 
-                                        <div className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"}></div>
+                                        <div className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"} onClick={() => i < this.props.usedSpellSlots[lvl] && this.props.clearSpellSlot(lvl)}></div>
 
                                     )}
                                 </div>
@@ -56,37 +68,15 @@ export default class SpellcastingList extends React.Component {
                                         <span className="range">{spell.setters.range}</span>
                                     </div>
                                     <div className="right">
-                                        {spell.prepared && <button type="button">del</button>}
+                                        {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}>del</button>}
                                     
-                                        <button type='button'>Cast</button>
+                                        <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
                                     </div>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
-                {/* <div className="level">
-                    <div className="header">
-                        <span className="title">Cantrips</span>
-                        <hr />
-                        <button type="button">v</button>
-                    </div>
-                    <div className="list"></div>
-                </div>
-                <div className="level">
-                    <div className="header">
-                        <span className="title">Level 1</span>
-                        <hr />
-                        <div className="slots">
-                            <span className="slot used"></span>
-                            <span className="slot used"></span>
-                            <span className="slot"></span>
-                            <span className="slot"></span>
-                        </div>
-                        <button type="button">v</button>
-                    </div>
-                    <div className="list"></div>
-                </div> */}
             </div>
         )
     }

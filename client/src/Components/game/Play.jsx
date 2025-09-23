@@ -12,8 +12,8 @@ export default class Play extends React.Component {
             fakeCharacterData: {
                 level: 8,
                 preparedSpells: ["ID_PHB_SPELL_PRODUCE_FLAME"],
-                knownSpells: [],
-                grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT"],
+                knownSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_PHB_SPELL_PRODUCE_FLAME"],
+                grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT",],
                 stats: [
                     {
                         "name": "druid:spellcasting:prepare",
@@ -27,7 +27,10 @@ export default class Play extends React.Component {
                         name: "wisdom",
                         value: 16
                     },
-                ]
+                ],
+                usedSpellSlots: {
+                    "Druid": [0, 2, 1, 0, 0, 0, 0, 0, 0],
+                }
             }
         }
 
@@ -45,11 +48,11 @@ export default class Play extends React.Component {
         const spellcasting = {
             name: "Druid",
             ability: "Wisdom",
-            prepare: true,
+            prepare: false,
             allowReplace: false,
             list: {
-                known: true, // ignore whether spells are known or not
-                text: "Druid,(Abjuration||Conjuration)" // compare to 'supports'
+                known: false, // ignore whether spells are known or not
+                text: "Druid" // compare to 'supports'
             }
         }
 
@@ -66,9 +69,9 @@ export default class Play extends React.Component {
                         return <button className={this.state.tab === spellcasting.name.toLowerCase() ? 'current' : ''} onClick={() => this.setState({ tab: spellcasting.name.toLowerCase() })}>Magic ({spellcasting.name})</button>
                     })}
                 </div>
-                { this.state.tab === 'battle' && <Battle characterData={this.props.characterData} /> }
+                { this.state.tab === 'battle' && <Battle characterData={this.props.characterData} openModal={this.props.openModal} /> }
                 { this.state.tab === 'inventory' && <div className="tab inventory">no inventory :(</div> }
-                { this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} /> }
+                { this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} openModal={this.props.openModal} /> }
             </div>
 
         )
