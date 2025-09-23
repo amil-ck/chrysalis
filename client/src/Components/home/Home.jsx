@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createCharacter, importCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
+import { createCharacter, deleteCharacter, exportCharacter, importCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
 import GenericInfoPane from '../lib/GenericInfoPane.jsx';
 
 export default class Home extends React.Component {
@@ -15,6 +15,9 @@ export default class Home extends React.Component {
         this.onNewCharacterClick = this.onNewCharacterClick.bind(this);
         this.onCharacterClick = this.onCharacterClick.bind(this);
         this.onImportCharacterClick = this.onImportCharacterClick.bind(this);
+        this.onExportCharacterClick = this.onExportCharacterClick.bind(this);
+        this.onDeleteCharacterClick = this.onDeleteCharacterClick.bind(this);
+        this.onDeleteCharacterConfirm = this.onDeleteCharacterConfirm.bind(this);
     }
 
     async componentDidMount() {
@@ -53,6 +56,35 @@ export default class Home extends React.Component {
         this.props.setCharacterData(characterData);
     }
 
+    async onExportCharacterClick(e, id) {
+        e.stopPropagation();
+
+        await exportCharacter(id);
+    }
+
+    onDeleteCharacterClick(e, id) {
+        e.stopPropagation();
+        const character = this.state.characters.find(char => char.id === id);
+        this.props.openModal('confirm',
+            'Delete character',
+            `Are you sure? '${character.name}' will be deleted permanently.`,
+            'Delete Character',
+            'Cancel',
+            () => this.onDeleteCharacterConfirm(id)
+        );
+    }
+
+    async onDeleteCharacterConfirm(id) {
+        console.log("todo: delete character");
+
+        setTimeout(async () => { // Timeout avoids re-rendering clash
+            await deleteCharacter(id);
+            this.setState({
+                characters: await loadAllCharacters()
+            })
+        }, 200)
+    }
+
     render() {
 
         return (
@@ -86,10 +118,15 @@ export default class Home extends React.Component {
                     <div className="characterList">
                         {this.state.characters.map(char => {
                             return (
-                                <button className={char.id === this.props.characterData.id ? "character current" : "character"} onClick={() => this.onCharacterClick(char.id)}>
+                                <div role={'button'} className={char.id === this.props.characterData.id ? "character current" : "character"} onClick={() => this.onCharacterClick(char.id)}>
                                     <span className="name">{char.name || "Unnamed character"}</span>
                                     <span className="id">{char.id}</span>
-                                </button>)
+
+                                    <span className="actions">
+                                        <button type="button" onClick={(e) => this.onExportCharacterClick(e, char.id)}>exp</button>
+                                        <button type="button" onClick={(e) => this.onDeleteCharacterClick(e, char.id)}>del</button>
+                                    </span>
+                                </div>)
                         })}
                     </div>
                 </div>

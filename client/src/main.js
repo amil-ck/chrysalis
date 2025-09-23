@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog, Menu } = require('electron');
 const path = require('node:path');
 const settings = require('electron-settings');
 const fs = require('node:fs/promises');
@@ -18,6 +18,17 @@ const createWindow = async () => {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
         }
     });
+
+    Menu.setApplicationMenu(null);
+
+    // Create chrysalis_data folder if it doesn't exist
+    try {
+        if (!fsOld.existsSync(path.join(app.getPath("userData"), "chrysalis_data"))) {
+            fsOld.mkdirSync(path.join(app.getPath("userData"), "chrysalis_data"));
+        }
+    } catch (err) {
+        console.error(err);
+    }
 
     settings.configure({
         dir: getDataPath()
@@ -75,6 +86,14 @@ async function showOpenDialog(_e, options) {
     return await dialog.showOpenDialog(options);
 }
 
+async function showSaveDialog(_e, options) {
+    return await dialog.showSaveDialog(options);
+}
+
+async function deleteFile(_e, path) {
+    return await fs.unlink(path);
+}
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -89,6 +108,8 @@ app.whenReady().then(() => {
     ipcMain.handle("openExternal", openExternal);
     ipcMain.handle("readdir", readdir);
     ipcMain.handle("showOpenDialog", showOpenDialog);
+    ipcMain.handle("deleteFile", deleteFile);
+    ipcMain.handle("showSaveDialog", showSaveDialog);
 
     createWindow();
 

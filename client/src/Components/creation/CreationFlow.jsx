@@ -20,15 +20,6 @@ export default class CreationFlow extends React.Component {
     }
 
     async onNavigate(tab) {
-        // TODO: save tab & character data etc. to file
-
-        // console.log(await window.appSettings.set("bye", "world"));
-        // console.log(await window.appSettings.get("bye"));
-
-        // console.log(await saveCharacter("anid", {"hello": "world"}));
-
-        // console.log(await loadCharacter("anid"));
-
         await saveCharacter(this.props.characterData.id, this.props.characterData);
 
         this.setState({

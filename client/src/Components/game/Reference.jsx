@@ -3,12 +3,14 @@ import Chip from '../lib/Chip.jsx';
 import ClassList from '../lib/listTypes/ClassList.jsx';
 import GenericList from '../lib/GenericList.jsx';
 import FeatList from '../lib/listTypes/FeatList.jsx';
-import { BACKGROUNDS, CLASSES, FEATS, LANGUAGES, RACES, SPELLS } from '../lib/indexData.js';
+import { ARCHETYPE_FEATURES, ARCHETYPES, BACKGROUNDS, CLASS_FEATURES, CLASSES, EVERYTHING, FEATS, LANGUAGES, RACES, SPELLS } from '../lib/indexData.js';
 import SpellList from '../lib/listTypes/SpellList.jsx';
 import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import RaceList from '../lib/listTypes/RaceList.jsx';
 import LanguageList from '../lib/listTypes/LanguageList.jsx';
 import FloatingSearchResults from '../lib/FloatingSearchResults.jsx';
+import BackgroundList from '../lib/listTypes/BackgroundList.jsx';
+import FeaturesList from '../lib/listTypes/FeaturesList.jsx';
 
 export default class Reference extends React.Component {
     constructor(props) {
@@ -31,9 +33,9 @@ export default class Reference extends React.Component {
         this.categoryData = {
             "Races": RACES,
             "Classes": CLASSES,
-            "Archetypes": CLASSES,
-            "Class Features": CLASSES,
-            "Subclasses": CLASSES,
+            "Archetypes": ARCHETYPES,
+            "Class Features": CLASS_FEATURES,
+            "Archetype Features": ARCHETYPE_FEATURES,
             "Feats": FEATS,
             "Spells": SPELLS,
             "Backgrounds": BACKGROUNDS,
@@ -41,10 +43,7 @@ export default class Reference extends React.Component {
         }
 
         // Collate all data for searching
-        this.allData = [];
-        for (const data of Object.values(this.categoryData)) {
-            this.allData = this.allData.concat(data);
-        }
+        this.allData = EVERYTHING;
 
         this.onItemSelected = this.onItemSelected.bind(this);
         this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
@@ -111,7 +110,7 @@ export default class Reference extends React.Component {
     onSearchResultClick(e, id) {
         e.preventDefault();
         console.log('runs')
-        const itemData = this.allData.find(i => i.id === id);
+        const itemData = EVERYTHING.find(i => i.id === id);
         this.setState({
             selectedItemData: itemData,
             selectedItemID: id,
@@ -130,16 +129,18 @@ export default class Reference extends React.Component {
     }
 
     render() {
-        const categories = ['Races', 'Classes', 'Archetypes', 'Class Features', 'Backgrounds', 'Feats', 'Languages'];
+        const categories = ['Races', 'Classes', 'Archetypes', 'Class Features', 'Archetype Features', 'Backgrounds', 'Feats', 'Languages'];
 
         const lists = {
-            "Classes": (props) => <ClassList data={CLASSES.filter(i => i.type === "Class")} {...props} />,
-            "Archetypes": (props) => <ClassList data={CLASSES.filter(i => i.type === "Archetype")} {...props} />,
-            "Class Features": (props) => <ClassList data={CLASSES.filter(i => i.type === "Class Feature" || i.type === "Archetype Feature")} {...props} />,
+            "Classes": (props) => <ClassList data={CLASSES} {...props} />,
+            "Archetypes": (props) => <ClassList data={ARCHETYPES} {...props} />,
+            "Class Features": (props) => <FeaturesList data={CLASS_FEATURES} {...props} />,
+            "Archetype Features": (props) => <FeaturesList data={ARCHETYPE_FEATURES} {...props} />,
             "Feats": FeatList,
             "Spells": SpellList,
             "Races": RaceList,
-            "Languages": LanguageList
+            "Languages": LanguageList,
+            "Backgrounds": BackgroundList
         }
 
         let CurrentList = lists[this.state.currentCategory];
