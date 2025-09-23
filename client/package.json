@@ -40,6 +40,8 @@
     "dompurify": "^3.2.6",
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
+    "g2-bracket-parser": "^2.0.0",
+    "jsep": "^1.4.0",
     "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

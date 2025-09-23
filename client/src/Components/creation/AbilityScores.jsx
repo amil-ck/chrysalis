@@ -8,43 +8,51 @@ export default class AbilityScores extends React.Component {
 
         this.props = props;
 
-        this.state = {
-            choice: "Standard Array",
-            std_array: [8, 10, 12, 13, 14, 15],
-            std_dict: {
-                "strength": undefined,
-                "dexterity": undefined,
-                "constitution": undefined,
-                "intelligence": undefined,
-                "wisdom": undefined,    
-                "charisma": undefined
-            },
-            avail_array: [8, 10, 12, 13, 14, 15],
+        // this.data = this.props.abilityScoreData;
 
+        if (this.props.characterData.creationData.abilityScoreData === undefined) {
+            const abilityScoreData = {
+                choice: "Standard Array",
+                std_dict: {
+                    "strength": null,
+                    "dexterity": null,
+                    "constitution": null,
+                    "intelligence": null,
+                    "wisdom": null,    
+                    "charisma": null
+                },
+                avail_array: [8, 10, 12, 13, 14, 15],
+                manualArray: {
+                    "strength": null,
+                    "dexterity": null,
+                    "constitution": null,
+                    "intelligence": null,
+                    "wisdom": null,
+                    "charisma": null
+                },
+                points: 27,
+                buyArray: {
+                    "strength": 8,
+                    "dexterity": 8,
+                    "constitution": 8,
+                    "intelligence": 8,
+                    "wisdom": 8,
+                    "charisma": 8
+                },
+                std_array: [8, 10, 12, 13, 14, 15],
+                dice: [],
+                diceVisible: false
+            }
 
-            manualArray: {
-                "strength": undefined,
-                "dexterity": undefined,
-                "constitution": undefined,
-                "intelligence": undefined,
-                "wisdom": undefined,
-                "charisma": undefined
-            },
-            
-            
-            points: 27,
-            buyArray: {
-                "strength": 8,
-                "dexterity": 8,
-                "constitution": 8,
-                "intelligence": 8,
-                "wisdom": 8,
-                "charisma": 8
-            },
+            this.props.updateCharacterData({"creationData": {...this.props.characterData.creationData, "abilityScoreData": abilityScoreData}})
 
-            dice: [],
-            diceVisible: false
-
+            this.state = {
+                ...abilityScoreData
+            }
+        } else {
+            this.state = {
+                ...this.props.characterData.creationData.abilityScoreData
+            }
         }
 
         this.stdDropdown = this.stdDropdown.bind(this);
@@ -57,7 +65,7 @@ export default class AbilityScores extends React.Component {
         return (
             // <GenericList data={this.state.spellData} columns={["name", "source"]} />
             <>
-            <select onChange={e => this.setState({choice: e.target.value})} name='choice'>
+            <select onChange={e => {this.setState({choice: e.target.value}, this.saveData)}} name='choice' defaultValue={this.state.choice}>
                 <option value={"Standard Array"}>Standard Array</option>
                 <option value={"Roll / Manual Entry"}>Roll / Manual Entry</option>
                 <option value={"Point Buy"}>Point Buy</option>
@@ -71,17 +79,37 @@ export default class AbilityScores extends React.Component {
         );
     }
 
+    saveData(overwrite) {
+        let scores;
+        switch (this.state.choice) {
+            case "Standard Array":
+                scores = this.state.std_dict;
+                break;
+            case "Roll / Manual Entry":
+                scores = this.state.manualArray;
+                break;
+            case "Point Buy":
+                scores = this.state.pointArray;
+                break;
+            default:
+                scores = "there has been an error, it seems"
+        }
+
+        this.props.updateCharacterData({"creationData": {...this.props.characterData.creationData, "abilityScoreData": {...this.state, dice:[], diceVisible:false, ...overwrite}}, "abilityScores": scores});
+    }
+
     standardArray() {
         var dropdownArray = [];
         for (var stat in this.state.std_dict) {
             dropdownArray.push(this.stdDropdown(stat));
         }
+
         return dropdownArray;
     }
 
     stdDropdown(stat) {
         var avail_array2 = [...this.state.avail_array];
-        if (!(this.state.std_dict[stat] === undefined)) avail_array2.push(this.state.std_dict[stat]);
+        if (!(this.state.std_dict[stat] === null)) avail_array2.push(this.state.std_dict[stat]);
         avail_array2.sort(function(a, b){return a-b});
 
         var options = avail_array2.map(
@@ -98,7 +126,7 @@ export default class AbilityScores extends React.Component {
 
     assign(stat, value) {
         if (value === "-") {
-            value = undefined
+            value = null
         }
         else {
             value = parseInt(value)
@@ -114,7 +142,7 @@ export default class AbilityScores extends React.Component {
                 new_arr.splice(new_arr.indexOf(this.state.std_dict[key]), 1);
             }
         }
-        this.setState({avail_array: new_arr});
+        this.setState({avail_array: new_arr}, this.saveData);
 
         console.log(new_arr);
     }
@@ -158,6 +186,7 @@ export default class AbilityScores extends React.Component {
                 </div>
             );
         }
+
         return manualList;
     }
 
@@ -192,6 +221,9 @@ export default class AbilityScores extends React.Component {
             this.setState({buyArray: new_dict});
             this.setState({points: new_points});
         }
+
+        this.saveData();
+
     }
 
 }
