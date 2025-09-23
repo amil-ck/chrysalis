@@ -94,6 +94,8 @@ export default class DefaultSelection extends React.Component {
                 if (xElement?.supports !== undefined) {
                     console.log([x, y, this.getChoices(y)]);
                     return this.getChoices(y).some(yElement => checkSupports(yElement.supports, xElement.supports));
+                } else {
+                    return true;
                 };
                 return false;
             }) || this.getFromId(x).type === TYPE);
@@ -204,7 +206,8 @@ export default class DefaultSelection extends React.Component {
                 select.forEach(
                     e => {
                         //the e.supports !== undefined is for ranger's favoured enemy which gives you language (deal with this properly later)
-                        if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
+                        // if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
+                        if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                             newList.push(e);
                         }
                     }
@@ -300,14 +303,15 @@ export default class DefaultSelection extends React.Component {
 
                         {console.log(this.state.listsNeeded)}
 
-                        {this.state.listsNeeded.filter(
-                            x => CLASSES.some(y => {
-                                if (y.supports !== undefined) {
-                                    // console.log(x);
-                                    return checkSupports(x.supports, y.supports)
-                                }
-                                return false;
-                                })
+                        {//this.state.listsNeeded.filter(
+                            // x => CLASSES.some(y => {
+                            //     if (y.supports !== undefined) {
+                            //         // console.log(x);
+                            //         return checkSupports(x.supports, y.supports)
+                            //     }
+                                // return false;
+                                // })
+                            (this.state.listsNeeded
                             ).filter(
                                 e => e.type !== "Language"
                             ).map(
@@ -327,7 +331,7 @@ export default class DefaultSelection extends React.Component {
                                     maxDoubleSelected={e.number || 1}
                                     // presetFilters={{Supports: e}}
                                     title={e.name}
-                                    data={this.filterDataMultiple(CLASSES, "supports", e.supports)}
+                                    data={e.supports !== undefined ? this.filterDataMultiple(CLASSES, "supports", e.supports): this.filterData(CLASSES, "type", e.type)}
                                 />
                             })}
                     </div>
