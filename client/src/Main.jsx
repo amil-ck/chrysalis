@@ -1,10 +1,10 @@
 import * as React from 'react';
 import CreationFlow from './Components/creation/CreationFlow.jsx';
 import Home from './Components/home/Home.jsx';
-import Game from './Components/game/Game.jsx';
 import Reference from './Components/game/Reference.jsx';
 import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
 import Modal from './Components/lib/Modal.jsx';
+import Play from './Components/game/Play.jsx';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -103,7 +103,7 @@ export default class Main extends React.Component {
         const pages = {
             creation: CreationFlow,
             home: Home,
-            game: Game,
+            play: Play,
             reference: Reference
         }
 
@@ -116,7 +116,7 @@ export default class Main extends React.Component {
                     <div className="navButtons">
                         <button className={this.state.page === 'home' ? 'current' : ''} type="button" onClick={() => this.handlePageNavigate('home')}>Home</button>
                         <button className={this.state.page === 'creation' ? 'current' : ''} type="button" onClick={() => this.handlePageNavigate('creation')}>Create</button>
-                        <button className={this.state.page === 'game' ? 'current' : ''} type="button" onClick={() => this.handlePageNavigate('game')}>Play</button>
+                        <button className={this.state.page === 'play' ? 'current' : ''} type="button" onClick={() => this.handlePageNavigate('play')}>Play</button>
                         <button className={this.state.page === 'reference' ? 'current standalone' : 'standalone'} type="button" onClick={() => this.handlePageNavigate('reference')}>Reference</button>
                     </div>
                     <div className="characterDisplay">

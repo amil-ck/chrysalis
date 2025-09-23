@@ -32,7 +32,7 @@ export default class SpellcastingList extends React.Component {
                 {Object.entries(spellsByLevel).map(([lvl, list]) =>
                     <div className="level">
                         <div className="header">
-                            <span className="title">{lvl === "0" ? "Cantrip" : `Level ${lvl}`}</span>
+                            <span className="title">{lvl === "0" ? "Cantrips" : `Level ${lvl}`}</span>
                             <hr />
                             {lvl !== "0" &&
 
