@@ -17,16 +17,31 @@ export async function createCharacter() {
             Background: []
         },
         listsData: {
-            Class: [],
-            Race: [],
-            Background: []
+            Class: {
+                Class: []
+            },
+            Race: {
+                Race: []
+            },
+            Background: {
+                Background: []
+            }
         },
         grants: {
             Class: [],
             Race: [],
             Background: []
         },
-        allGrants: []
+        stats: {
+            Class: [],
+            Race: [],
+            Background: []
+        },
+        languages: {
+            Class: [],
+            Race: [],
+            Background: []
+        }
     }
 
     await saveCharacter(id, { id: id, creationData: creationData });
