@@ -30,7 +30,7 @@ export function checkRequirments(bool, grantArray) {
 export function test() {
     let values = ["ID_WOTC_PHB_CLASS_WARLOCK", "ID_WOTC_PHB_MULTICLASS_WARLOCK"];
 
-    let stuff = jsep("(Wizard||Wizard,(Enchantment||Illusion))");
+    let stuff = jsep("Horse|gobo");
     console.log(stuff);
     console.log(recurse(stuff, values));
 }
@@ -40,7 +40,7 @@ function recurse(obj, values) {
         return values.includes(obj.name);
     } else if (obj.operator === "!") {
         return !recurse(obj.argument, values);
-    } else if (obj.operator === "||") {
+    } else if (obj.operator === "||" || obj.operator === "|") {
         return recurse(obj.left, values) || recurse(obj.right, values);
     } else if (obj.operator === "&&") {
         return recurse(obj.left, values) && recurse(obj.right, values);

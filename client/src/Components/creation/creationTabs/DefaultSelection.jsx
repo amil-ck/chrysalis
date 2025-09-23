@@ -20,7 +20,7 @@ export default class DefaultSelection extends React.Component {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
             selectedItemData: undefined,
-            level: 5,
+            level: this.props.characterData.level,
             listsNeeded: [],
             listsData: this.props.characterData.creationData.listsData[TYPE],
             choices: this.props.characterData.creationData.choices[TYPE],

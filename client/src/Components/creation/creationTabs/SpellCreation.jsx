@@ -9,7 +9,6 @@ import { checkRequirments, checkSupports } from './supportUtils.js';
 
 const SPELLS = EVERYTHING.filter(e => e.type === "Spell");
 const id = "ID_WOTC_PHB_CLASS_FEATURE_SORCERER_SPELLCASTING_SORCERER";
-const level = 10;
 const spellSlot = 3;
 
 export default class SpellCreation extends React.Component {
@@ -32,7 +31,11 @@ export default class SpellCreation extends React.Component {
                 let list = x.rules.select.filter(sel => sel?.type === "Spell");
                 
                 if (x?.spellcasting?.list !== undefined) {
-                    list = list.map(sel => ({...sel, spellcastingList: x.spellcasting.list}));
+                    if (x.spellcasting.list.constructor == Object) {
+                        list = list.map(sel => ({...sel, spellcastingList: x.spellcasting.list.text}));
+                    } else {
+                        list = list.map(sel => ({...sel, spellcastingList: x.spellcasting.list}));
+                    }
                 }
 
                 return list;
@@ -43,10 +46,15 @@ export default class SpellCreation extends React.Component {
 
         console.log(selects);
 
+        this.state = {
+            level: this.props.characterData.level
+        }
+
         const newSpellGrants = this.fixSpells(selects);
         const spellGrants = this.props.characterData.creationData.spellChoices || newSpellGrants;
         
         this.state = {
+            level: this.props.characterData.level,
             spellGrants: this.compareSpellGrants(spellGrants, newSpellGrants),
             pickedSpell: undefined,
             grantedSpells: [],
@@ -86,7 +94,7 @@ export default class SpellCreation extends React.Component {
         let id = 0;
         for (const spell of spells) {
             // const spell = spells[i];
-            if (spell.level <= level) {
+            if (spell.level <= this.state.level) {
                 const amount = spell.number || 1;
                 
                 for (let i = 0; i < amount; i++) {
