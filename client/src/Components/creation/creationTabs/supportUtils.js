@@ -20,6 +20,7 @@ export function checkSupports(subsetArray, parentArray) {
 
 export function checkOr(supports, parentArray) {
     supports = supports.split("||");
+    supports = supports.flatMap(item => item.split("|"));
     return supports.some(e => parentArray.includes(e));
 }
 

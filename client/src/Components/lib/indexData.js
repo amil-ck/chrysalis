@@ -1,9 +1,3 @@
-import spells from '../../data/spells';
-import feats from '../../data/feats';
-import classes from '../../data/classes';
-import backgrounds from '../../data/backgrounds.json';
-import languages from '../../data/languages.json';
-import races from '../../data/races.json';
 import everything from "../../data/everything.json"
 
 const SPELLS = everything.filter(i => i.type === 'Spell');
