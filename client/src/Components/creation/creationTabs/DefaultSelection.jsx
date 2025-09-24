@@ -156,8 +156,7 @@ export default class DefaultSelection extends React.Component {
         // newListCombined just means that multiple separate values are combined into one, this section should be changed if we want separate boxes for
         // e.g multiple metamagics from different level ups to be separate boxes
         newList = newList.map(e => {
-            (e.number === undefined) && (e.number = 1);
-            e.number = Number(e.number);
+            (e.number === undefined) && (e.number = "1");
             return e;
         })
         
@@ -168,7 +167,7 @@ export default class DefaultSelection extends React.Component {
             let same = newListCombined.find(e => e.name === select.name);
             if (same !== undefined) {
                 if (JSON.stringify(same.supports) === JSON.stringify(select.supports)) {
-                    same.number += select.number;
+                    same.number = (Number(same.number) + Number(select.number)).toString();
                 } else {
                     // Should be something else (but it feels like a very weird edge case that might never happen so maybe don't need to deal with it yet?)
                     // should be somthing along the lines of adding the second one but with a slightly different name like adding (1) after it or something
