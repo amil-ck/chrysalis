@@ -214,13 +214,13 @@ export default class SpellCreation extends React.Component {
         const propsToPass = {
             data: filteredSpells,
             title: this.state.pickedSpell.name,
-            columnNames: ["Name"],
-            shownColumns: ["Name"],
-            allowFilter: [],
-            allowSearch: [],
-            columnLocations: ["name"],
-            multiValueColumns: [],
-            presetFilters: {},
+            // columnNames: ["Name"],
+            // shownColumns: ["Name"],
+            // allowFilter: [],
+            // allowSearch: [],
+            // columnLocations: ["name"],
+            // multiValueColumns: [],
+            // presetFilters: {},
 
             selectedItemID: null,
             onItemSelected: this.spellDescription,
@@ -228,7 +228,7 @@ export default class SpellCreation extends React.Component {
             doubleSelectedItems: (this.state.pickedSpell.spellId === null) ? [] : [this.state.pickedSpell.spellId]
         };
 
-        return <GenericList {...propsToPass}/>
+        return <SpellList {...propsToPass}/>
     }
 
     show(spells) {
