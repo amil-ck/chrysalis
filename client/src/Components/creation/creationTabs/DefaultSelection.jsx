@@ -65,8 +65,41 @@ export default class DefaultSelection extends React.Component {
     }
     
     saveData() {
-        console.log({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData, [TYPE]: this.state.choices}}});
-        this.props.updateCharacterData({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData.choices, [TYPE]: this.state.choices}}})
+        // console.log({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData, [TYPE]: this.state.choices}}});
+        const choiceIds = this.state.choices.flatMap(e => e.data);
+        const grants = choiceIds.flatMap(id => this.getGrants(id));
+        const stats = this.getStats(grants);
+        // console.log(choiceIds);
+
+        const grantDict =  {...this.props.characterData.creationData.grants, [TYPE]: grants};
+        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+
+        const statDict =  {...this.props.characterData.creationData.stats, [TYPE]: stats};
+        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+
+        console.log(grantDict);
+        console.log(allGrants);
+        
+        console.log(statDict);
+        console.log(allStats);
+
+        allGrants = allGrants.map(id => {
+            return {"id": id};
+        });
+
+        console.log(allGrants);
+
+        this.props.updateCharacterData(
+            {
+                creationData: {...this.props.characterData.creationData,
+                    choices: {...this.props.characterData.creationData.choices, [TYPE]: this.state.choices},
+                    grants: grantDict,
+                    stats: statDict
+                },
+                grants: allGrants,
+                stats: allStats
+            }
+        )
     }
 
     getDataForSelect(select) {
@@ -218,6 +251,24 @@ export default class DefaultSelection extends React.Component {
         }
 
         return choiceList;
+    }
+
+    // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
+    getStats(grantList) {
+        let statList = [];
+
+        for (const id of grantList) {
+            const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
+            if (stats !== undefined) {
+                if (Array.isArray(stats)) {
+                    statList.push(...stats);
+                } else {
+                    statList.push(stats);
+                }
+            }
+        }
+        
+        return statList;
     }
     
 }
