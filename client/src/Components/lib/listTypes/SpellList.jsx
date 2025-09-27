@@ -14,6 +14,12 @@ export default class SpellList extends React.Component {
 
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.props.data !== prevProps.data) {
+            this.setState({spellData: this.props.data || SPELLS});
+        }
+    }
+
     stringFromComponents(spell) {
         const v = spell.setters?.hasVerbalComponent;
         const s = spell.setters?.hasSomaticComponent;

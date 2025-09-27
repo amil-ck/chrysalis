@@ -2,7 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkSubset, checkSupports } from './supportUtils.js';
+import { checkRequirments, checkSubset, checkSupports } from './supportUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -63,6 +63,10 @@ export default class DefaultSelection extends React.Component {
             </div>
         )
     }
+
+    getFromId(id) {
+        return EVERYTHING.find(e => e.id === id);
+    }
     
     saveData() {
         // console.log({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData, [TYPE]: this.state.choices}}});
@@ -84,7 +88,7 @@ export default class DefaultSelection extends React.Component {
         console.log(allStats);
 
         allGrants = allGrants.map(id => {
-            return {"id": id};
+            return {"id": id, "type": this.getFromId(id)?.type};
         });
 
         console.log(allGrants);
@@ -108,7 +112,9 @@ export default class DefaultSelection extends React.Component {
             filtered = filtered.filter(e => {
                 let allSupports = [e.id];
                 e.supports !== undefined && allSupports.push(...e.supports);
-                return checkSupports(select.supports, allSupports)    
+                return checkSupports(select.supports, allSupports);
+                // console.log(select.supports.toString());
+                // return checkRequirments(select.supports.toString(), allSupports);
             })
         }
         
@@ -137,6 +143,9 @@ export default class DefaultSelection extends React.Component {
             
             // move
             let sels = this.getSelects(id);
+            
+            sels = sels.filter(e => e.type !== "Spell");
+
             sels = sels.map(e => {
                 e.from = id;
                 return e;
