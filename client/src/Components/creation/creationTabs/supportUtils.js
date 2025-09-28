@@ -36,6 +36,14 @@ function checkNot(support, parentArray) {
 }
 
 export function checkRequirments(bool, grantArray) {
+    console.log(grantArray);
+    // if (grantArray) {
+    //     console.log(jsep(bool.toString()));
+    //     console.log(grantArray);
+    //     console.log(recurse(jsep(bool.toString()), grantArray));
+    // }
+
+
     return recurse(jsep(bool.toString()), grantArray);
 }
 

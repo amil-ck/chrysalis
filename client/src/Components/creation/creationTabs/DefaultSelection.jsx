@@ -45,13 +45,14 @@ export default class DefaultSelection extends React.Component {
         return (
             <div className='tab'>
                 <div className='main'>
+                    {console.log(this.state.choices)}
                     {this.state.choices.map(
                         select => {
                             return <ClassList
                                 onItemSelected={this.onFeatureSelected}
                                 selectedItemID={this.state.selectedFeatureID}
                                 onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, select, select.number || 1)}
-                                doubleSelectedItems={select.data}
+                                doubleSelectedItems={[...select.data]}
                                 maxDoubleSelected={select.number || 1}
                                 // presetFilters={{Supports: e}}
                                 title={select.name}
@@ -107,11 +108,23 @@ export default class DefaultSelection extends React.Component {
     }
 
     getDataForSelect(select) {
+        // Some selects have the data defined internally and are of type "List"
+        if (select.type === "List") {
+            return select.item.map(e => {
+                e.name = e.text;
+                return e;
+            });
+        }
+
         let filtered = EVERYTHING.filter(e => e.type === select.type);
         if (select.supports !== undefined) {
             filtered = filtered.filter(e => {
                 let allSupports = [e.id];
+                // Here shall lay every edge case that is necessary to make this work
                 e.supports !== undefined && allSupports.push(...e.supports);
+                //possibly not covering a real edge case (still a possible edge case so i'll leave it)
+                e.setters?.type !== undefined && allSupports.push(e.setters.type);
+
                 return checkSupports(select.supports, allSupports);
                 // console.log(select.supports.toString());
                 // return checkRequirments(select.supports.toString(), allSupports);

@@ -193,7 +193,9 @@ export default class SpellCreation extends React.Component {
     getSpellSupports(spell) {
         const supports = [...spell.supports || [], spell.setters.school];
 
-        if (spell.setters.level === "0") {
+        console.log(spell.setters.level);
+
+        if (spell.setters.level == 0) {
             supports.push("0");
         } else {
             // For every spell that isn't a cantrip, it adds the level of the spell and every number up to 20 (normal dnd spells max out at level 12)
@@ -218,7 +220,7 @@ export default class SpellCreation extends React.Component {
         console.log(filteredSpells);
 
         const propsToPass = {
-            data: filteredSpells,
+            data: JSON.parse(JSON.stringify(filteredSpells)),
             title: this.state.pickedSpell.name,
             // columnNames: ["Name"],
             // shownColumns: ["Name"],

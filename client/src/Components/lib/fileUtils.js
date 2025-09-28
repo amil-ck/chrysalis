@@ -24,7 +24,8 @@ export async function createCharacter() {
         stats: {
             Class: [],
             Race: [],
-            Background: []
+            Background: [],
+            Abilities: []
         },
         languages: {
             Class: [],
