@@ -20,12 +20,16 @@ export default class DefaultSelection extends React.Component {
         original = {
             "type": TYPE,
             "name": TYPE,
-            "data": [],
-            id: 0
+            "data": []
         }
 
+        this.state = {
+            level: this.props.characterData.level,
+        }
 
         const choicesProps = this.props.characterData.creationData.choices[TYPE];
+        // this.onLoadPage(choicesProps);
+
         this.state = {
             level: this.props.characterData.level,
 
@@ -194,14 +198,42 @@ export default class DefaultSelection extends React.Component {
         return this.cull(newSelects, newIdList);
     }
 
-    // updateStuff() {
-    //     console.log(this.state.choices);
+    onLoadPage(selects) {
+        const newSelects = [original];
 
-    //     const choices = this.state.choices.flatMap(select => select.data);
+        // for (const select of selects) {
+        //     // console.log(select, select.data.flatMap(e => this.getSelects(e)));
+        //     const same = newSelects.find(e => this.compareSelectObject(select, e));
+
+        //     if (same !== undefined) {
+        //         same.data = [...select.data];
+        //         newSelects.push(...select.data.flatMap(e => this.getSelects(e)));
+        //     }
+        // }
+        let index = 0;
+        while (index < newSelects.length) {
+            console.log(index);
+            const newSelect = newSelects[index];
+            const same = selects.find(e => this.compareSelectObject(newSelect, e));
+
+            if (same !== undefined) {
+                console.log(same, newSelect);
+                newSelect.data = [...same.data];
+                newSelects.push(...same.data.flatMap(e => this.getSelects(e)));
+            }
+
+            index++;
+        }
+
+        return newSelects;
+    }
+
+    // updateStuff() {
+    //     const choices = selects.flatMap(select => select.data);
 
     //     const selects = [original, ...choices.flatMap(id => this.getSelects(id))];
         
-    //     const checkChoices =  this.state.choices;
+    //     const checkChoices =  [...selects];
 
     //     let id = 0
     //     for (const select1 of selects) {
@@ -221,8 +253,8 @@ export default class DefaultSelection extends React.Component {
 
     compareSelectObject(obj1, obj2) {
         obj1 = {...obj1}; obj2 = {...obj2};
-        delete obj1.data; delete obj2.data;
-        console.log(obj1, obj2);
+        delete obj1.data; delete obj2.data; delete obj1.id; delete obj2.id; delete obj1.from; delete obj2.from;
+        // console.log(obj1, obj2);
         return JSON.stringify(obj1) === JSON.stringify(obj2);
     }
 

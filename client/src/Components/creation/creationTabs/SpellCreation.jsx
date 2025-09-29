@@ -17,6 +17,8 @@ export default class SpellCreation extends React.Component {
 
         this.props = props;
 
+        const spellcastings = [];
+
         const grants = this.props.characterData.grants;
         this.spellsFromGrants = grants.filter(e => e.type === "Spell").map(e => e.id);
         // let selects = grants.flatMap(e => {
@@ -28,6 +30,12 @@ export default class SpellCreation extends React.Component {
 
         let selects = grants.flatMap(e => {
             let x = this.getFromId(e.id);
+
+            if (x?.spellcasting !== undefined) {
+                spellcastings.push(x.spellcasting);
+            }
+
+
             if (x?.rules?.select !== undefined) {
                 let list = x.rules.select.filter(sel => sel?.type === "Spell");
                 
@@ -73,6 +81,8 @@ export default class SpellCreation extends React.Component {
         this.spellSelected = this.spellSelected.bind(this);
         this.spellDescription = this.spellDescription.bind(this);
         this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
+
+        this.props.updateCharacterData({spellcastings: spellcastings});
     }
 
     render() {
@@ -196,7 +206,7 @@ export default class SpellCreation extends React.Component {
         console.log(spell.setters.level);
 
         if (spell.setters.level == 0) {
-            supports.push("0");
+            supports.push("0", "Cantrip");
         } else {
             // For every spell that isn't a cantrip, it adds the level of the spell and every number up to 20 (normal dnd spells max out at level 12)
             // Making it accessible by spell grants of higher levels
