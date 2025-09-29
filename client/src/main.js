@@ -19,7 +19,7 @@ const createWindow = async () => {
         }
     });
 
-    Menu.setApplicationMenu(null);
+    //Menu.setApplicationMenu(null);
 
     // Create chrysalis_data folder if it doesn't exist
     try {
