@@ -45,6 +45,8 @@ export default class SpellcastingList extends React.Component {
             spellsByLevel[o.setters.level]?.push(o);
         }
 
+        console.log(spellsByLevel);
+
         // TODO: UPCASTING
 
         return (
@@ -79,7 +81,7 @@ export default class SpellcastingList extends React.Component {
                                         {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}><FiTrash2 size={18} /></button>}
 
                                         <select value={this.props.upcasting[spell.id] || lvl} onChange={e => this.onUpcastUpdate(e, spell.id)} onClick={e => e.stopPropagation()}>
-                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= Number(spell.setters.level) && (i == 0 || i === " Cantrip" || i === "Cantrip" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
+                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == 0 || i === " Cantrip" || i === "Cantrip" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
                                         </select>
                                     
                                         <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
