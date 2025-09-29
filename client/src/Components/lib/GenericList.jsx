@@ -377,7 +377,7 @@ export default class GenericList extends React.Component {
                     </div>
                     <div className="rightWrapper">
                         <div className="buttons">
-                            {this.props.allowSearch.length > 0 &&
+                            {!this.state.minimised && this.props.allowSearch.length > 0 &&
                                 <button type='button' className='searchBtn' onClick={this.toggleSearch}>Search</button>
                             }
 
@@ -385,9 +385,9 @@ export default class GenericList extends React.Component {
                         </div>
 
 
-                        {this.state.showSearch &&
+                        {!this.state.minimised && this.state.showSearch &&
                             <div className='search'>
-                                <input type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
+                                <input autoFocus type='text' placeholder='Search...' value={this.state.searchValue} onChange={this.onSearchChange} />
                             </div>
                         }
                     </div>
