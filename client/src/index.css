@@ -1108,6 +1108,17 @@ textarea {
                     font-size: 14pt;
                     font-variation-settings: "wght" 600;
                     margin-bottom: 8px;
+
+                    display: flex;
+                    flex-direction: row;
+                    align-items: baseline;
+
+                    .preparedCount {
+                        font-size: 12pt;
+                        color: #c2c2c2;
+                        font-variation-settings: "wght" 600;
+                        margin-left: 6px;
+                    }
                 }
 
                 .spellcastingList {
@@ -1222,6 +1233,10 @@ textarea {
                 }
 
                 .right {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+
                     button {
                         background-color: transparent;
                         height: 100%;

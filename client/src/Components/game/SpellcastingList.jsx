@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { FiChevronDown, FiTrash2 } from 'react-icons/fi';
 
 export default class SpellcastingList extends React.Component {
     constructor(props) {
@@ -42,7 +43,7 @@ export default class SpellcastingList extends React.Component {
         return (
             <div className="spellcastingList">
                 {Object.entries(spellsByLevel).map(([lvl, list]) =>
-                    <div className="level">
+                    <div className="level" key={lvl}>
                         <div className="header">
                             <span className="title">{lvl === "0" ? "Cantrips" : `Level ${lvl}`}</span>
                             <hr />
@@ -52,23 +53,23 @@ export default class SpellcastingList extends React.Component {
                                     <div className="label">Spell slots: </div>
                                     {[...Array(this.props.spellSlots[lvl]).keys()].map(i =>
 
-                                        <div className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"} onClick={() => i < this.props.usedSpellSlots[lvl] && this.props.clearSpellSlot(lvl)}></div>
+                                        <div key={i} className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"} onClick={() => i < this.props.usedSpellSlots[lvl] && this.props.clearSpellSlot(lvl)}></div>
 
                                     )}
                                 </div>
 
                             }
-                            <button type="button">v</button>
+                            <button type="button"><FiChevronDown /></button>
                         </div>
                         <div className="list">
                             {list.map(spell =>
-                                <div className="spell" onClick={() => this.props.onItemSelected(spell.id)}>
+                                <div className="spell" key={spell.id} onClick={() => this.props.onItemSelected(spell.id)}>
                                     <div className="left">
                                         <span className="name">{spell.name}</span>
-                                        <span className="range">{spell.setters.range}</span>
+                                        <span className="range">{spell.setters.range} {spell.setters.isConcentration && <>&bull; Concentration</>}</span>
                                     </div>
                                     <div className="right">
-                                        {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}>del</button>}
+                                        {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}><FiTrash2 size={18} /></button>}
                                     
                                         <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
                                     </div>

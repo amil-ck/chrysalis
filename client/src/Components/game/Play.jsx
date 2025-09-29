@@ -12,8 +12,8 @@ export default class Play extends React.Component {
             fakeCharacterData: {
                 level: 8,
                 preparedSpells: ["ID_PHB_SPELL_PRODUCE_FLAME"],
-                knownSpells: [{id: "ID_GGTR_SPELL_ENCODE_THOUGHTS", spellcasting: "Druid"}, {id: "ID_PHB_SPELL_PRODUCE_FLAME", spellcasting: "Druid"}],
-                grantedSpells: ["ID_GGTR_SPELL_ENCODE_THOUGHTS", "ID_GGTR_SPELL_CHAOS_BOLT",],
+                knownSpells: [{ id: "ID_GGTR_SPELL_ENCODE_THOUGHTS", spellcasting: "Druid" }, { id: "ID_PHB_SPELL_PRODUCE_FLAME", spellcasting: "Druid" }],
+                grantedSpells: [{ id: "ID_GGTR_SPELL_ENCODE_THOUGHTS" }, { id: "ID_GGTR_SPELL_CHAOS_BOLT" }],
                 stats: [
                     {
                         "name": "druid:spellcasting:prepare",
@@ -26,6 +26,101 @@ export default class Play extends React.Component {
                     {
                         name: "wisdom",
                         value: 16
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:1",
+                        "value": "2",
+                        "level": "1"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:1",
+                        "value": "1",
+                        "level": "2"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:1",
+                        "value": "1",
+                        "level": "3"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:2",
+                        "value": "2",
+                        "level": "3"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:2",
+                        "value": "1",
+                        "level": "4"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:3",
+                        "value": "2",
+                        "level": "5"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:3",
+                        "value": "1",
+                        "level": "6"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:4",
+                        "value": "1",
+                        "level": "7"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:4",
+                        "value": "1",
+                        "level": "8"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:4",
+                        "value": "1",
+                        "level": "9"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:5",
+                        "value": "1",
+                        "level": "9"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:5",
+                        "value": "1",
+                        "level": "10"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:5",
+                        "value": "1",
+                        "level": "18"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:6",
+                        "value": "1",
+                        "level": "11"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:6",
+                        "value": "1",
+                        "level": "19"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:7",
+                        "value": "1",
+                        "level": "13"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:7",
+                        "value": "1",
+                        "level": "20"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:8",
+                        "value": "1",
+                        "level": "15"
+                    },
+                    {
+                        "name": "druid:spellcasting:slots:9",
+                        "value": "1",
+                        "level": "17"
                     },
                 ],
                 usedSpellSlots: {
@@ -51,7 +146,7 @@ export default class Play extends React.Component {
             prepare: true,
             allowReplace: false,
             list: {
-                known: false, // ignore whether spells are known or not
+                known: true, // ignore whether spells are known or not
                 text: "Druid" // compare to 'supports'
             }
         }
@@ -66,12 +161,12 @@ export default class Play extends React.Component {
                     <button className={this.state.tab === 'battle' ? 'current' : ''} onClick={() => this.setState({ tab: 'battle' })}>Battle</button>
                     <button className={this.state.tab === 'inventory' ? 'current' : ''} onClick={() => this.setState({ tab: 'inventory' })}>Inventory</button>
                     {spellcastings.map(spellcasting => {
-                        return <button className={this.state.tab === spellcasting.name.toLowerCase() ? 'current' : ''} onClick={() => this.setState({ tab: spellcasting.name.toLowerCase() })}>Magic ({spellcasting.name})</button>
+                        return <button key={spellcasting.name} className={this.state.tab === spellcasting.name.toLowerCase() ? 'current' : ''} onClick={() => this.setState({ tab: spellcasting.name.toLowerCase() })}>Magic ({spellcasting.name})</button>
                     })}
                 </div>
-                { this.state.tab === 'battle' && <Battle characterData={this.props.characterData} openModal={this.props.openModal} /> }
-                { this.state.tab === 'inventory' && <div className="tab inventory">no inventory :(</div> }
-                { this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} openModal={this.props.openModal} /> }
+                {this.state.tab === 'battle' && <Battle characterData={this.props.characterData} openModal={this.props.openModal} />}
+                {this.state.tab === 'inventory' && <div className="tab inventory">no inventory :(</div>}
+                {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} openModal={this.props.openModal} />}
             </div>
 
         )

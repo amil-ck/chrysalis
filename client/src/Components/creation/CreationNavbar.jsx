@@ -10,7 +10,7 @@ export default class CreationNavbar extends React.Component {
     }
 
     render() {
-        const tabs = ["Details", "Class", "Race", "Background", "Ability Scores", "Languages", "Equipment", "Feats", "Test"];
+        const tabs = ["Details", "Class", "Race", "Background", "Ability Scores", "Languages", "Feats", "Spells"];
 
         return (
             <div className='creationNavbar'>
