@@ -36,7 +36,7 @@ function checkNot(support, parentArray) {
 }
 
 export function checkRequirments(bool, grantArray) {
-    console.log(grantArray);
+    // console.log(grantArray);
     // if (grantArray) {
     //     console.log(jsep(bool.toString()));
     //     console.log(grantArray);

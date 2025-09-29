@@ -28,15 +28,18 @@ export default class DefaultSelection extends React.Component {
         }
 
         const choicesProps = this.props.characterData.creationData.choices[TYPE];
-        // this.onLoadPage(choicesProps);
+        console.log(choicesProps);
+        console.log(JSON.parse(JSON.stringify(choicesProps)));
 
         this.state = {
             level: this.props.characterData.level,
 
-            choices: choicesProps.length === 0 ? [original] : choicesProps,
+            choices: choicesProps.length === 0 ? [original] : [...this.onLoadPage(JSON.parse(JSON.stringify(choicesProps)))],
             selectedItemData: undefined,
             selectedFeatureID: null,
         }
+
+        // console.log(this.state.choices);
 
         this.onFeatureSelected = this.onFeatureSelected.bind(this);
         this.onInfoPaneClose = this.onInfoPaneClose.bind(this);
@@ -101,7 +104,7 @@ export default class DefaultSelection extends React.Component {
         this.props.updateCharacterData(
             {
                 creationData: {...this.props.characterData.creationData,
-                    choices: {...this.props.characterData.creationData.choices, [TYPE]: this.state.choices},
+                    choices: {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]},
                     grants: grantDict,
                     stats: statDict
                 },
@@ -160,8 +163,6 @@ export default class DefaultSelection extends React.Component {
             
             // move
             let sels = this.getSelects(id);
-            
-            sels = sels.filter(e => e.type !== "Spell");
 
             sels = sels.map(e => {
                 e.from = id;
@@ -303,6 +304,8 @@ export default class DefaultSelection extends React.Component {
                 )
             }
         }
+
+        choiceList = choiceList.filter(e => e.type !== "Spell");
 
         return choiceList;
     }

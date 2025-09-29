@@ -138,6 +138,9 @@ export default class SpellCreation extends React.Component {
     }
 
     compareSpellGrants(spellGrants, newSpellGrants) {
+        console.log(spellGrants, newSpellGrants);
+        console.log(spellGrants, JSON.parse(JSON.stringify(newSpellGrants)));
+
         spellGrants = [...spellGrants]
 
         for (const spell of newSpellGrants) {
@@ -299,7 +302,7 @@ export default class SpellCreation extends React.Component {
         obj1 = {...obj1};
         obj2 = {...obj2};
         delete obj1.spellId; delete obj1.spellName; delete obj2.spellId; delete obj2.spellName; delete obj1.id; delete obj2.id;
-        delete obj1.prepare; delete obj2.prepare;
+        delete obj1.prepare; delete obj2.prepare; delete obj1.data; delete obj2.data;
         console.log(JSON.stringify(obj1));
         console.log(JSON.stringify(obj2));
         console.log(JSON.stringify(obj1) === JSON.stringify(obj2));
