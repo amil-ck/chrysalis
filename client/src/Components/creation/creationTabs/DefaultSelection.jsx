@@ -20,7 +20,7 @@ export default class DefaultSelection extends React.Component {
             selectedFeatureID: null,
             doubleSelectedFeatures: [],
             selectedItemData: undefined,
-            level: 5,
+            level: this.props.characterData.level,
             listsNeeded: [],
             listsData: this.props.characterData.creationData.listsData[TYPE],
             choices: this.props.characterData.creationData.choices[TYPE],
@@ -78,6 +78,24 @@ export default class DefaultSelection extends React.Component {
         return CLASSES.find(e => e.id === id)
     }
 
+    getDataForSelect(select) {
+        // return select.supports !== undefined ? this.filterDataMultiple(CLASSES, "supports", select.supports): this.filterData(CLASSES, "type", select.type)
+        if (select.supports !== undefined) {
+            // return CLASSES.filter(e => checkSupports(select.supports, [...e.supports, e.type, e.id]));
+            console.log(select.supports);
+            return CLASSES.filter(e => {
+                let allSupports = [];
+                e.supports !== undefined && allSupports.push(...e.supports);
+                allSupports.push(e.type);
+                allSupports.push(e.id);
+
+                return checkSupports(select.supports, allSupports);
+            })
+        } else {
+            return this.filterData(CLASSES, "type", select.type);
+        }
+    }
+
     // This code is so insanely dense, the purpose of it is to check the list of choices and then cull any choice that isn't granted by a previous choice in the list.
     // Essentially, e.g "metamagic" (recieved from being a sorceror) is a choice but if "sorceror" is removed as a choice, this function will be unable to find any previous choice that grants the user
     // a "metamagic" choice so it will be removed from the list of choices as well
@@ -133,8 +151,34 @@ export default class DefaultSelection extends React.Component {
             grantList.push(...this.getGrants(id));
         }
 
-        // newList = this.choiceToChoiceCount(newList);
-        console.log(newList);
+
+
+        // newListCombined just means that multiple separate values are combined into one, this section should be changed if we want separate boxes for
+        // e.g multiple metamagics from different level ups to be separate boxes
+        newList = newList.map(e => {
+            (e.number === undefined) && (e.number = "1");
+            return e;
+        })
+        
+
+        let newListCombined = []
+        // I feel like making a deepcopy by stringify-ing and then immedietely parsing is literally insane here? but it works
+        for (const select of JSON.parse(JSON.stringify(newList))) {
+            let same = newListCombined.find(e => e.name === select.name);
+            if (same !== undefined) {
+                if (JSON.stringify(same.supports) === JSON.stringify(select.supports)) {
+                    same.number = (Number(same.number) + Number(select.number)).toString();
+                } else {
+                    // Should be something else (but it feels like a very weird edge case that might never happen so maybe don't need to deal with it yet?)
+                    // should be somthing along the lines of adding the second one but with a slightly different name like adding (1) after it or something
+                    newListCombined.push(select);
+                }
+            } else {
+                newListCombined.push(select);
+            }
+        }
+
+        newList = newListCombined;
 
         let statList = this.getStats(grantList);
 
@@ -313,7 +357,7 @@ export default class DefaultSelection extends React.Component {
                                 // })
                             (this.state.listsNeeded
                             ).filter(
-                                e => e.type !== "Language"
+                                e => e.type !== "Language" && e.type !== "Spell"
                             ).map(
                             e => {
                                 if (this.state.listsData[e.name] === undefined) {
@@ -331,7 +375,7 @@ export default class DefaultSelection extends React.Component {
                                     maxDoubleSelected={e.number || 1}
                                     // presetFilters={{Supports: e}}
                                     title={e.name}
-                                    data={e.supports !== undefined ? this.filterDataMultiple(CLASSES, "supports", e.supports): this.filterData(CLASSES, "type", e.type)}
+                                    data={this.getDataForSelect(e)}
                                 />
                             })}
                     </div>

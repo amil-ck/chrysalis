@@ -9,7 +9,6 @@ import { checkRequirments, checkSupports } from '../../lib/supportUtils.js';
 
 const SPELLS = EVERYTHING.filter(e => e.type === "Spell");
 const id = "ID_WOTC_PHB_CLASS_FEATURE_SORCERER_SPELLCASTING_SORCERER";
-const level = 10;
 const spellSlot = 3;
 
 export default class SpellCreation extends React.Component {
@@ -31,9 +30,18 @@ export default class SpellCreation extends React.Component {
             if (x?.rules?.select !== undefined) {
                 let list = x.rules.select.filter(sel => sel?.type === "Spell");
                 
+                let spellcastingList = "";
                 if (x?.spellcasting?.list !== undefined) {
-                    list = list.map(sel => ({...sel, spellcastingList: x.spellcasting.list}));
+                    if (x.spellcasting.list.constructor == Object) {
+                        spellcastingList = x.spellcasting.list.text;
+                    } else {
+                        spellcastingList = x.spellcasting.list;
+                    }
                 }
+
+                let prepare = x?.spellcasting?.prepare || false
+
+                list = list.map(sel => ({...sel, spellcastingList: spellcastingList, prepare: prepare}));
 
                 return list;
             }
@@ -43,10 +51,15 @@ export default class SpellCreation extends React.Component {
 
         console.log(selects);
 
+        this.state = {
+            level: this.props.characterData.level
+        }
+
         const newSpellGrants = this.fixSpells(selects);
         const spellGrants = this.props.characterData.creationData.spellChoices || newSpellGrants;
         
         this.state = {
+            level: this.props.characterData.level,
             spellGrants: this.compareSpellGrants(spellGrants, newSpellGrants),
             pickedSpell: undefined,
             grantedSpells: [],
@@ -85,8 +98,9 @@ export default class SpellCreation extends React.Component {
 
         let id = 0;
         for (const spell of spells) {
-            // const spell = spells[i];
-            if (spell.level <= level) {
+            spell.level === undefined && (spell.level = 1);
+
+            if (spell.level <= this.state.level) {
                 const amount = spell.number || 1;
                 
                 for (let i = 0; i < amount; i++) {
@@ -97,6 +111,19 @@ export default class SpellCreation extends React.Component {
         }
 
         return fixedSpells;
+    }
+
+    // this function can only work once the spells are chose becuase it uses the picked spell to check if it is a cantrip
+    makeCantripsGrants(spells) {
+        spells = spells.map(spell => {
+                if (spell.spellId !== null && this.getFromId(spell.spellId)?.setters?.level === "0") {
+                    spell.prepare = false;
+                }
+                return spell
+            }
+        )
+
+        return spells
     }
 
     compareSpellGrants(spellGrants, newSpellGrants) {
@@ -227,13 +254,32 @@ export default class SpellCreation extends React.Component {
     }
 
     saveData() {
-        this.props.updateCharacterData({"spellGrants": this.state.spellGrants, "creationData": {...this.props.characterData.creationData, spellChoices: this.state.spellGrants}});
+        let spellGrants = this.makeCantripsGrants(this.state.spellGrants);
+        spellGrants = spellGrants.filter(spell => spell.spellId !== null);
+
+        let grantedSpells = spellGrants.filter(spell => spell.prepare === false);
+        let knownSpells = spellGrants.filter(spell => spell.prepare === true);
+
+        console.log(grantedSpells, knownSpells);
+
+        grantedSpells = grantedSpells.map(
+            spell => ({id: spell.spellId, spellcasting: spell.spellcasting})
+        )
+
+        knownSpells = knownSpells.map(
+            spell => ({id: spell.spellId, spellcasting: spell.spellcasting})
+        )
+
+        console.log(grantedSpells, knownSpells);
+
+        this.props.updateCharacterData({"grantedSpells": grantedSpells, "knownSpells": knownSpells, "spellGrants": this.state.spellGrants, "creationData": {...this.props.characterData.creationData, spellChoices: this.state.spellGrants}});
     }
 
     compareSpellObjects(obj1, obj2) {
         obj1 = {...obj1};
         obj2 = {...obj2};
         delete obj1.spellId; delete obj1.spellName; delete obj2.spellId; delete obj2.spellName; delete obj1.id; delete obj2.id;
+        delete obj1.prepare; delete obj2.prepare;
         console.log(JSON.stringify(obj1));
         console.log(JSON.stringify(obj2));
         console.log(JSON.stringify(obj1) === JSON.stringify(obj2));
