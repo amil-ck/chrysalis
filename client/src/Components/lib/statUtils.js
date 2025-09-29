@@ -1,4 +1,8 @@
+import * as supportUtils from './supportUtils.js';
+
 export function calculateStat(statName, characterData) {
+    if (!characterData.stats) return 0;
+
     // Check reserved first
     const names = statName.split(":");
     
@@ -63,6 +67,8 @@ export function calculateStat(statName, characterData) {
                 return 20 + calculateGenericStat(statName, characterData);
             }
         }
+
+        // TODO: proficiency?? i.e. value: proficiency
     }
 
     // Check skills
@@ -134,9 +140,9 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
 
 function checkRequirements(reqs, characterData) {
     // TODO: CHECK REQUIREMENTS????
-    //return true;
+    return supportUtils.checkRequirments(reqs, characterData.grants.map(g => g.id));
 
-    return checkRequirements(reqs, characterData.grants.map(g => g.id));
+    //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 
 }
 
 function checkEquipped(equipped, characterData) {
