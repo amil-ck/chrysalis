@@ -1,4 +1,7 @@
 import everything from "../../data/everything.json"
+import internal from "../../data/internal.json"
+
+everything = everything.concat(internal);
 
 const SPELLS = everything.filter(i => i.type === 'Spell');
 const FEATS = everything.filter(i => i.type === 'Feat');
