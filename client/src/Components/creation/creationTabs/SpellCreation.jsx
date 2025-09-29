@@ -18,6 +18,7 @@ export default class SpellCreation extends React.Component {
         this.props = props;
 
         const grants = this.props.characterData.grants;
+        this.spellsFromGrants = grants.filter(e => e.type === "Spell").map(e => e.id);
         // let selects = grants.flatMap(e => {
         //     if (this.getFromId(e.id)?.rules?.select !== undefined) {
         //         return this.getFromId(e.id).rules.select;
@@ -177,50 +178,57 @@ export default class SpellCreation extends React.Component {
         this.saveData();
     }
 
+    range(start, end, step=1) {
+        start = Number(start);
+        end = Number(end);
+        step = Number(step);
+
+        const arr = [];
+        for (let i = start; i < end; i += step) {
+            arr.push(i.toString());
+        }
+        return arr;
+    }
+
     getSpellSupports(spell) {
-        return [...spell.supports || [], spell.setters.level, spell.setters.school];
+        const supports = [...spell.supports || [], spell.setters.school];
+
+        console.log(spell.setters.level);
+
+        if (spell.setters.level == 0) {
+            supports.push("0");
+        } else {
+            // For every spell that isn't a cantrip, it adds the level of the spell and every number up to 20 (normal dnd spells max out at level 12)
+            // Making it accessible by spell grants of higher levels
+            supports.push(...this.range(spell.setters.level, 20));
+        }
+
+        return supports;
     }
 
     showSpells(spellGrant) {
         console.log(spellGrant);
 
-        let list = spellGrant.supports[0]
+        let supportList = [...spellGrant.supports];
+        supportList = supportList.map(e => e.replace("$(spellcasting:list)", "("+spellGrant.spellcastingList+")"));
+        supportList = supportList.map(e => e.replace("$(spellcasting:slots)", "("+spellSlot+")"));
 
-        // if (list === "$(spellcasting:list)") {
-        //     list = spellGrant.spellcastingList
-        // }
-        list = list.replace("$(spellcasting:list)", "("+spellGrant.spellcastingList+")");
-        console.log(list);
+        console.log(supportList);
 
-        let filteredSpells = SPELLS.filter(e => checkRequirments(list, this.getSpellSupports(e)));
-
-        let level = spellGrant.supports[1]
-        if (level === "$(spellcasting:slots)") {
-            level = spellSlot;
-        }
-
-        console.log(level);
-
-        if (level == 0) {
-            filteredSpells = filteredSpells.filter(e => e.setters.level <= level);
-        } else {
-            filteredSpells = filteredSpells.filter(e => e.setters.level <= level && e.setters.level != 0);
-        }
-
-        filteredSpells = filteredSpells.filter(e => !this.state.grantedSpells.includes(e.id) || e.id === this.state.pickedSpell.spellId);
+        let filteredSpells = SPELLS.filter(e => checkRequirments(supportList, this.getSpellSupports(e)));
 
         console.log(filteredSpells);
 
         const propsToPass = {
-            data: filteredSpells,
+            data: JSON.parse(JSON.stringify(filteredSpells)),
             title: this.state.pickedSpell.name,
-            columnNames: ["Name"],
-            shownColumns: ["Name"],
-            allowFilter: [],
-            allowSearch: [],
-            columnLocations: ["name"],
-            multiValueColumns: [],
-            presetFilters: {},
+            // columnNames: ["Name"],
+            // shownColumns: ["Name"],
+            // allowFilter: [],
+            // allowSearch: [],
+            // columnLocations: ["name"],
+            // multiValueColumns: [],
+            // presetFilters: {},
 
             selectedItemID: null,
             onItemSelected: this.spellDescription,
@@ -228,7 +236,7 @@ export default class SpellCreation extends React.Component {
             doubleSelectedItems: (this.state.pickedSpell.spellId === null) ? [] : [this.state.pickedSpell.spellId]
         };
 
-        return <GenericList {...propsToPass}/>
+        return <SpellList {...propsToPass}/>
     }
 
     show(spells) {
@@ -269,6 +277,8 @@ export default class SpellCreation extends React.Component {
         knownSpells = knownSpells.map(
             spell => ({id: spell.spellId, spellcasting: spell.spellcasting})
         )
+
+        grantedSpells.push(this.spellsFromGrants);
 
         console.log(grantedSpells, knownSpells);
 

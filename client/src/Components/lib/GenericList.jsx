@@ -8,7 +8,7 @@ export default class GenericList extends React.Component {
         this.props = props;
 
         this.state = {
-            minimised: props.startMinimised || false,
+            minimised: (this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected) || this.props.startMinimised,
             columnFilters: props.presetFilters || {},
             addingFilter: false,
             newFilterColumn: undefined,
@@ -171,26 +171,12 @@ export default class GenericList extends React.Component {
         if (prevProps !== this.props) {
             // Props have changed
 
-            if (this.props.doubleSelectedItems !== this.state.oldDoubleSelected) {
-                // Selected items have changed
-
-                if (this.props.maxDoubleSelected > 0) {
-                    // There is a maximum number of selected items allowed
-
-                    if (this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected) {
-                        // The number of selected items meets (or exceeds) the maximum allowed
-                        this.setState({
-                            minimised: true,
-                            oldDoubleSelected: this.props.doubleSelectedItems
-                        })
-                    } else {
-                        // The number of selected items is below the maximum
-                        this.setState({
-                            minimised: false,
-                            oldDoubleSelected: this.props.doubleSelectedItems
-                        })
-                    }
-                }
+            // Sets minimised state based on the current doubleSelectedItems
+            console.log(this.props.doubleSelectedItems, prevProps.doubleSelectedItems);
+            if (JSON.stringify(this.props.doubleSelectedItems) !== JSON.stringify(prevProps.doubleSelectedItems)) {
+                this.setState({
+                    minimised: this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected
+                });
             }
         }
     }

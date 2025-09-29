@@ -1,6 +1,7 @@
 import * as React from 'react';
 import diceRoll from '../lib/diceRoll';
 import DiceRollAnim from '../lib/DiceRollAnim.jsx';
+import { calculateStat } from '../lib/statUtils.js';
 
 export default class AbilityScores extends React.Component {
     constructor(props) {
@@ -75,8 +76,24 @@ export default class AbilityScores extends React.Component {
             {(this.state.choice === "Roll / Manual Entry") && this.manualEntry()}
             {(this.state.choice === "Point Buy") && this.pointBuy()}
             {this.state.diceVisible && <DiceRollAnim rolls={this.state.rolls} advantage={"advantage"} modifier={3}/>}
+
+            {this.ScoreDisplay()};
             </>
         );
+    }
+
+    ScoreDisplay() {
+        const scores = this.props.characterData.abilityScores;
+        let scoreList = []
+        if (scores !== undefined) {
+            scoreList = Object.keys(scores);
+        }
+
+        return (
+            <>
+                {scoreList.map(e => e + ":   \n" + calculateStat(e,this.props.characterData))}
+            </>
+        )
     }
 
     saveData(overwrite) {
@@ -89,13 +106,34 @@ export default class AbilityScores extends React.Component {
                 scores = this.state.manualArray;
                 break;
             case "Point Buy":
-                scores = this.state.pointArray;
+                scores = this.state.buyArray;
                 break;
             default:
                 scores = "there has been an error, it seems"
         }
 
-        this.props.updateCharacterData({"creationData": {...this.props.characterData.creationData, "abilityScoreData": {...this.state, dice:[], diceVisible:false, ...overwrite}}, "abilityScores": scores});
+        const scoresStatList = Object.keys(scores).map(
+            key => {
+                return {
+                    name: key,
+                    value: scores[key] || 10,
+                    bonus: "base"
+                }
+            }
+        )
+
+        console.log(scoresStatList);
+
+        this.props.updateCharacterData(
+            {
+                "creationData": {
+                    ...this.props.characterData.creationData,
+                    "abilityScoreData": {...this.state, dice:[], diceVisible:false, ...overwrite},
+                    "stats": {...this.props.characterData.creationData.stats, "Abilities": scoresStatList}
+                },
+                "abilityScores": scores
+            }
+        );
     }
 
     standardArray() {
