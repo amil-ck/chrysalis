@@ -134,7 +134,9 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
 
 function checkRequirements(reqs, characterData) {
     // TODO: CHECK REQUIREMENTS????
-    return true;
+    //return true;
+
+    return checkRequirements(reqs, characterData.grants.map(g => g.id));
 }
 
 function checkEquipped(equipped, characterData) {

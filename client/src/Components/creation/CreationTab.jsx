@@ -16,7 +16,7 @@ export default class CreationTab extends React.Component {
         this.props = props;
         
         this.tabs = {
-            "Test": SpellCreation,
+            "Spells": SpellCreation,
             "Ability Scores": AbilityScores,
             "Class":  ClassSelection,
             "Details": DetailsTab,

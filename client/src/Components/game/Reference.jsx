@@ -109,7 +109,6 @@ export default class Reference extends React.Component {
 
     onSearchResultClick(e, id) {
         e.preventDefault();
-        console.log('runs')
         const itemData = EVERYTHING.find(i => i.id === id);
         this.setState({
             selectedItemData: itemData,
@@ -179,7 +178,7 @@ export default class Reference extends React.Component {
                         <select className={['Spells', 'Equipment'].includes(this.state.currentCategory) ? '' : 'current'} value={this.state.currentCategory} onChange={(e) => this.setState({ currentCategory: e.target.value !== 'none' ? e.target.value : 'Spells' })}>
                             <option value={'none'}>More categories</option>
                             {categories.map((e) => {
-                                return <option value={e}>{e}</option>
+                                return <option key={e} value={e}>{e}</option>
                             })}
                         </select>
                     </div>

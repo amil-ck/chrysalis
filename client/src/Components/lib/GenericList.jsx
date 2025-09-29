@@ -27,7 +27,7 @@ export default class GenericList extends React.Component {
         // onItemSelected (function(string id)), onItemDoubleSelected (function(string id)), 
         // selectedItemID (string), doubleSelectedItems (string[]), startMinimised (bool), 
         // allowFilter (string[]), presetFilters (obj), multiValueColumns (string[]), doubleSelectOnSingleClick (bool)
-        // maxDoubleSelected: number
+        // maxDoubleSelected: number, hideSelected (bool, default false)
 
         this.handleItemClick = this.handleItemClick.bind(this);
         this.toggleMinimised = this.toggleMinimised.bind(this);
@@ -236,7 +236,7 @@ export default class GenericList extends React.Component {
 
             dropdowns[colName] = (
                 <select value={this.state.columnFilters[colName]} onChange={(e) => this.onFilterChange(colName, e.target.value)}>
-                    <option value={"remove"}>No filter selected</option>
+                    <option value={"remove"}>No filter</option>
                     {possibleValues.toSorted().map((value) => {
                         return <option key={value} value={value}>{value?.toString()}</option>
                     })}
@@ -329,7 +329,7 @@ export default class GenericList extends React.Component {
                     <div className='leftWrapper'>
                         <span className='title'>{this.props.title}</span>
 
-                        {this.props.doubleSelectedItems !== undefined &&
+                        {this.props.doubleSelectedItems !== undefined && !this.props.hideSelected &&
                             <span className='selectedItems'>
                                 Selected{this.props.maxDoubleSelected > 0 && <> ({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
                                 {this.props.doubleSelectedItems.map((value) => {

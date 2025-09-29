@@ -1,5 +1,5 @@
 import * as React from 'react';
-import CreationNavbar from './CreationNavBar.jsx';
+import CreationNavbar from './CreationNavbar.jsx';
 import CreationTab from './CreationTab.jsx';
 import { loadCharacter, saveCharacter } from '../lib/fileUtils.js';
 
@@ -16,7 +16,6 @@ export default class CreationFlow extends React.Component {
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;
 
         this.onNavigate = this.onNavigate.bind(this);
-        this.updateCreationData = this.updateCreationData.bind(this);
     }
 
     async onNavigate(tab) {
@@ -25,19 +24,6 @@ export default class CreationFlow extends React.Component {
         this.setState({
             navigationTab: tab
         });
-    }
-
-    // updateCharacterData(data) {
-    //     console.log('UPDATING DATA', data)
-    //     this.setState({
-    //         characterData: data
-    //     })
-    // }
-
-    updateCreationData(data) {
-        this.setState({
-            creationData: data
-        })
     }
 
     render() {

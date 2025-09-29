@@ -2,7 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkRequirments, checkSubset, checkSupports } from './supportUtils.js';
+import { checkRequirments, checkSubset, checkSupports } from '../../lib/supportUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
