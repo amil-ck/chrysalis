@@ -214,7 +214,7 @@ export default class Magic extends React.Component {
                     </div>
 
                     {this.props.spellcasting.prepare &&
-                        <SpellList startMinimised={true} hideSelected={true} data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} doubleSelectedItems={selectedSpells} />
+                        <SpellList startMinimised={this.props.characterData.preparedSpells.length === this.getPrepareSlots()} hideSelected={true} data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} doubleSelectedItems={selectedSpells} />
                     }
                 </div>
 
