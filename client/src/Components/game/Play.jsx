@@ -132,6 +132,31 @@ export default class Play extends React.Component {
         this.updateFakeCharacterData = this.updateFakeCharacterData.bind(this);
     }
 
+    componentDidMount() {
+        // First time setup of spell data
+        const spellcastings = [{name: "Druid"}]; // VERY TEMPORARY
+        if (spellcastings.length === 0) return; // No spellcasting, so no need to set up
+
+        const toUpdate = {};
+        if (this.props.characterData.preparedSpells === undefined) {
+            toUpdate.preparedSpells = [];
+        }
+        if (this.props.characterData.usedSpellSlots === undefined) {
+            toUpdate.usedSpellSlots = {
+                [spellcastings[0].name]: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            };
+        }
+        if (this.props.characterData.grantedSpells === undefined) {
+            toUpdate.grantedSpells = [];
+        }
+        if (this.props.characterData.knownSpells === undefined) {
+            toUpdate.knownSpells = [];
+        }
+
+        // Update if necessary
+        if (Object.keys(toUpdate).length > 0) this.props.updateCharacterData(toUpdate);
+    }
+
     updateFakeCharacterData(data) {
         const newData = { ...this.state.fakeCharacterData, ...data };
         this.setState({
@@ -153,8 +178,6 @@ export default class Play extends React.Component {
 
         const spellcastings = [spellcasting]; // temporary
 
-
-
         return (
             <div className="play fullPane">
                 <div className="playNavbar creationNavbar">
@@ -166,7 +189,7 @@ export default class Play extends React.Component {
                 </div>
                 {this.state.tab === 'battle' && <Battle characterData={this.props.characterData} openModal={this.props.openModal} />}
                 {this.state.tab === 'inventory' && <div className="tab inventory">no inventory :(</div>}
-                {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} openModal={this.props.openModal} />}
+                {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} openModal={this.props.openModal} />}
             </div>
 
         )

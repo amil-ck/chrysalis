@@ -5,6 +5,7 @@ import Reference from './Components/game/Reference.jsx';
 import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
 import Modal from './Components/lib/Modal.jsx';
 import Play from './Components/game/Play.jsx';
+import { CLASSES } from './Components/lib/indexData.js';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -109,6 +110,9 @@ export default class Main extends React.Component {
 
         const Page = pages[this.state.page];
 
+        const characterClassID = this.state.characterData.grants?.find(grant => grant.type === 'Class')?.id;
+        const characterClass = characterClassID ? CLASSES.find(c => c.id === characterClassID)?.name : undefined;
+
         return (
             <div id='root'>
                 <Modal {...this.state.modalOptions} />
@@ -124,7 +128,7 @@ export default class Main extends React.Component {
                         
                         <div className="info" onClick={() => console.log(this.state.characterData)}>
                             <span className="name">{this.state.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.state.characterData.level || "unknown"} {this.state.characterData.class || "Class unknown"}</span>
+                            <span className="details">Level {this.state.characterData.level || "unknown"} {characterClass || "Class unknown"}</span>
                         </div>
 
                         }
