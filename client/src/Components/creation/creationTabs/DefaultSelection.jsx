@@ -33,11 +33,12 @@ export default class DefaultSelection extends React.Component {
 
         this.state = {
             level: this.props.characterData.level,
-
             choices: choicesProps.length === 0 ? [original] : [...this.onLoadPage(JSON.parse(JSON.stringify(choicesProps)))],
             selectedItemData: undefined,
             selectedFeatureID: null,
         }
+
+        this.saveData();
 
         // console.log(this.state.choices);
 
@@ -81,7 +82,7 @@ export default class DefaultSelection extends React.Component {
         const choiceIds = this.state.choices.flatMap(e => e.data);
         const grants = choiceIds.flatMap(id => this.getGrants(id));
         const stats = this.getStats(grants);
-        // console.log(choiceIds);
+        console.log(choiceIds);
 
         const grantDict =  {...this.props.characterData.creationData.grants, [TYPE]: grants};
         let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);

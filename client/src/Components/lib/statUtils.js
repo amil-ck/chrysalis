@@ -1,3 +1,5 @@
+import { checkRequirments } from "./supportUtils";
+
 export function calculateStat(statName, characterData) {
     // Check reserved first
     const names = statName.split(":");
@@ -136,7 +138,7 @@ function checkRequirements(reqs, characterData) {
     // TODO: CHECK REQUIREMENTS????
     //return true;
 
-    return checkRequirements(reqs, characterData.grants.map(g => g.id));
+    return checkRequirments(reqs, characterData.grants.map(g => g.id));
 }
 
 function checkEquipped(equipped, characterData) {

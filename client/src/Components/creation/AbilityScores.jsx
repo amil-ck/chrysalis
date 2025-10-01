@@ -66,6 +66,8 @@ export default class AbilityScores extends React.Component {
         return (
             // <GenericList data={this.state.spellData} columns={["name", "source"]} />
             <>
+            {this.ScoreDisplay()}
+
             <select onChange={e => {this.setState({choice: e.target.value}, this.saveData)}} name='choice' defaultValue={this.state.choice}>
                 <option value={"Standard Array"}>Standard Array</option>
                 <option value={"Roll / Manual Entry"}>Roll / Manual Entry</option>
@@ -76,8 +78,6 @@ export default class AbilityScores extends React.Component {
             {(this.state.choice === "Roll / Manual Entry") && this.manualEntry()}
             {(this.state.choice === "Point Buy") && this.pointBuy()}
             {this.state.diceVisible && <DiceRollAnim rolls={this.state.rolls} advantage={"advantage"} modifier={3}/>}
-
-            {this.ScoreDisplay()};
             </>
         );
     }
@@ -90,8 +90,10 @@ export default class AbilityScores extends React.Component {
         }
 
         return (
-            <>
-                {scoreList.map(e => e + ":   \n" + calculateStat(e,this.props.characterData))}
+            <>                
+                <div style={{display: 'flex', flexDirection: 'row', width: "100%", backgroundColor: "green", justifyContent: "space-around"}}>
+                    {scoreList.map(e => this.abilitySquare(e))}
+                </div>
             </>
         )
     }
@@ -124,14 +126,18 @@ export default class AbilityScores extends React.Component {
 
         console.log(scoresStatList);
 
+        const statDict =  {...this.props.characterData.creationData.stats, "Abilities": scoresStatList};
+        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+
         this.props.updateCharacterData(
             {
                 "creationData": {
                     ...this.props.characterData.creationData,
                     "abilityScoreData": {...this.state, dice:[], diceVisible:false, ...overwrite},
-                    "stats": {...this.props.characterData.creationData.stats, "Abilities": scoresStatList}
+                    "stats": statDict
                 },
-                "abilityScores": scores
+                "abilityScores": scores,
+                "stats": allStats
             }
         );
     }
@@ -200,21 +206,21 @@ export default class AbilityScores extends React.Component {
                     }
                     
                     this.state.manualArray[stat] = e.target.value;
-                    this.setState();
+                    this.setState({manualArray: this.state.manualArray}, this.saveData);
 
                     }}
                 onChange={e => {
                     // let dict = {...this.state.manualArray}
                     // dict[stat] = e.target.value;
                     this.state.manualArray[stat] = e.target.value;
-                    this.setState({manualArray: this.state.manualArray});}}></input>
+                    this.setState({manualArray: this.state.manualArray}, this.saveData);}}></input>
                 
                 <button onClick={e => 
                     {let results = diceRoll(6, 3, 0, "advantage");
                     this.state.manualArray[stat] = results.value;
-                    this.setState({rolls: results.rolls});
-                    this.setState({manualArray: this.state.manualArray});
-                    this.setState({diceVisible: true});
+
+                    this.setState({rolls: results.rolls, manualArray: this.state.manualArray, diceVisible: true}, this.saveData);
+
                     clearTimeout(this.state.timeoutID);
                     this.setState({timeoutID: setTimeout(() => {
                         this.setState({diceVisible: false});
@@ -256,12 +262,27 @@ export default class AbilityScores extends React.Component {
         new_dict[stat] = new_dict[stat] + amount;
 
         if (new_dict[stat] >= 8 && new_dict[stat] <= 15 && new_points >= 0) {
-            this.setState({buyArray: new_dict});
-            this.setState({points: new_points});
+            this.setState({buyArray: new_dict, points: new_points}, this.saveData);
         }
 
         this.saveData();
+    }
 
+    /////////////////// visual functions ////////////////////////
+
+    abilitySquare(name) {
+        let modifier = calculateStat(name+":modifier", this.props.characterData);
+        modifier = modifier >= 0 ? "+"+modifier : modifier
+
+        return (
+            <div style={{display: 'flex', flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+                {name}
+                <div style={{backgroundColor: "red", height: 50, width: 50, display: "flex", justifyContent: "center", alignItems: "center"}}>
+                    {calculateStat(name, this.props.characterData)}
+                </div>
+                {modifier}
+            </div>
+        )
     }
 
 }

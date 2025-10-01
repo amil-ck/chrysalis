@@ -1,7 +1,8 @@
 import everything from "../../data/everything.json"
 import internal from "../../data/internal.json"
+import chrysalisInteral from "../../data/chrysalisInternal.json"
 
-everything = everything.concat(internal);
+everything = everything.concat(internal).concat(chrysalisInteral);
 
 const SPELLS = everything.filter(i => i.type === 'Spell');
 const FEATS = everything.filter(i => i.type === 'Feat');
