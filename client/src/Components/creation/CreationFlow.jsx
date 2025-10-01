@@ -18,8 +18,23 @@ export default class CreationFlow extends React.Component {
         this.onNavigate = this.onNavigate.bind(this);
     }
 
+    async componentDidMount() {
+
+        // Remember recent tab if character is not new
+        if (this.props.characterData.name !== undefined) {
+            const recentTab = await window.appSettings.get("recentCreationTab");
+            if (recentTab && recentTab !== this.state.navigationTab) {
+                this.setState({
+                    navigationTab: recentTab
+                })
+            }
+        }
+    }
+
     async onNavigate(tab) {
         await saveCharacter(this.props.characterData.id, this.props.characterData);
+
+        await window.appSettings.set("recentCreationTab", tab);
 
         this.setState({
             navigationTab: tab

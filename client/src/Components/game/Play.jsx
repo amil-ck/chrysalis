@@ -2,6 +2,7 @@ import * as React from 'react';
 import Battle from './Battle.jsx';
 import Magic from './Magic.jsx';
 import Inventory from './Inventory.jsx';
+import { saveCharacter } from '../lib/fileUtils.js';
 
 export default class Play extends React.Component {
     constructor(props) {
@@ -11,9 +12,19 @@ export default class Play extends React.Component {
         this.state = {
             tab: 'battle'
         }
+
+        this.onNavigate = this.onNavigate.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        // Remember recent tab
+        const recentTab = await window.appSettings.get("recentPlayTab");
+        if (recentTab && recentTab !== this.state.tab) {
+            return this.setState({
+                tab: recentTab
+            })
+        }
+
         // First time setup of spell data
         if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.length === 0) return; // No spellcasting, so no need to set up
 
@@ -37,16 +48,26 @@ export default class Play extends React.Component {
         if (Object.keys(toUpdate).length > 0) this.props.updateCharacterData(toUpdate);
     }
 
+    async onNavigate(tab) {
+        await saveCharacter(this.props.characterData.id, this.props.characterData);
+
+        await window.appSettings.set("recentPlayTab", tab);
+
+        this.setState({
+            tab: tab
+        });
+    }
+
     render() {
         const spellcastings = this.props.characterData.spellcastings || [];
 
         return (
             <div className="play fullPane">
                 <div className="playNavbar creationNavbar">
-                    <button className={this.state.tab === 'battle' ? 'current' : ''} onClick={() => this.setState({ tab: 'battle' })}>Battle</button>
-                    <button className={this.state.tab === 'inventory' ? 'current' : ''} onClick={() => this.setState({ tab: 'inventory' })}>Inventory</button>
+                    <button className={this.state.tab === 'battle' ? 'current' : ''} onClick={() => this.onNavigate('battle')}>Battle</button>
+                    <button className={this.state.tab === 'inventory' ? 'current' : ''} onClick={() => this.onNavigate('inventory')}>Inventory</button>
                     {spellcastings.map(spellcasting => {
-                        return <button key={spellcasting.name} className={this.state.tab === spellcasting.name?.toLowerCase() ? 'current' : ''} onClick={() => this.setState({ tab: spellcasting.name.toLowerCase() })}>Magic ({spellcasting.name})</button>
+                        return <button key={spellcasting.name} className={this.state.tab === spellcasting.name?.toLowerCase() ? 'current' : ''} onClick={() => this.onNavigate(spellcasting.name.toLowerCase())}>Magic ({spellcasting.name})</button>
                     })}
                 </div>
                 {this.state.tab === 'battle' && <Battle characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} openModal={this.props.openModal} />}
