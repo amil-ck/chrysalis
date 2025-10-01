@@ -78,7 +78,7 @@ export default class Battle extends React.Component {
 
         // Feats and features
         const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type.includes('Feature')).map(g => g.id);
-        const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs.includes(item.id) && !(item.sheet?.display == false));
+        const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         const processedFeats = featsFeatures.map(feat => {
             const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });

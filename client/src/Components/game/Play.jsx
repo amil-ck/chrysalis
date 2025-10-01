@@ -20,9 +20,20 @@ export default class Play extends React.Component {
         // Remember recent tab
         const recentTab = await window.appSettings.get("recentPlayTab");
         if (recentTab && recentTab !== this.state.tab) {
-            return this.setState({
-                tab: recentTab
-            })
+            if (!['battle', 'inventory'].includes(recentTab)) {
+                // Spellcasting tab, check if allowed
+                if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.find(s => `Magic (${s.name})` === recentTab) === undefined) {
+
+                } else {
+                    return this.setState({
+                        tab: recentTab
+                    })
+                }
+            } else {
+                return this.setState({
+                    tab: recentTab
+                })
+            }
         }
 
         // First time setup of spell data
