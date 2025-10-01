@@ -153,6 +153,10 @@ textarea {
     }
 }
 
+.divider {
+    flex-grow: 1;
+}
+
 .fullPane {
     height: 100%;
     width: 100%;
@@ -1000,27 +1004,42 @@ textarea {
     display: flex;
     flex-direction: column;
 
-    flex-grow: 1;
+    min-height: none;
 
     .card {
         background-color: #2c2c2c;
         border-radius: 4px;
 
+        height: fit-content;
+
         .title {
             font-size: 11pt;
             font-variation-settings: "wght" 600;
             color: #a1a1a1;
-            margin: 4px 0 4px 6px;
+            margin: 4px 4px 4px 6px;
         }
 
-        .body {}
+        .body {
+            overflow-y: auto;
+        }
+    }
+
+    .miscStat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .value {
+            font-size: 14pt;
+            font-variation-settings: "wght" 600;
+        }
     }
 
     .tab {
         display: flex;
         flex-direction: column;
-        margin: 0;
-        height: 100%;
+        margin: 0 auto;
+        height: calc(99% - 60px);
 
         .header {
             height: fit-content;
@@ -1029,12 +1048,15 @@ textarea {
             justify-content: start;
 
             padding: 0 20px;
+            margin-bottom: 12px;
 
             .details {
                 .body {
                     display: flex;
                     flex-direction: column;
                     align-items: start;
+
+                    margin: 6px 8px;
 
                     .name {
                         font-size: 14pt;
@@ -1052,12 +1074,20 @@ textarea {
         .main {
             display: flex;
             flex-direction: row;
-            width: 100%;
+            margin: 0;
+
+            height: 100%;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            margin-bottom: 12px;
+
+            padding-bottom: 6px;
 
             .col {
                 display: flex;
                 flex-direction: column;
                 margin: 0 12px 0 0;
+                max-height: 100%;
 
                 &:last-child {
                     margin: 0;
@@ -1068,15 +1098,15 @@ textarea {
                 .body {
                     display: flex;
                     flex-direction: column;
-                    
+
                     gap: 8px;
 
-                    >div {
+                    &>div {
                         display: flex;
                         flex-direction: row;
                         justify-content: space-between;
                         align-items: center;
-                        
+
                         width: 100%;
                         min-width: 170px;
                         padding: 4px 6px;
@@ -1094,51 +1124,97 @@ textarea {
             }
 
             .stats {
+                margin-bottom: 12px;
+
                 .body {
-                    margin: 0 6px;
+                    margin: 0 6px 6px 6px;
+
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-rows: 1fr 1fr 1fr;
+                    gap: 6px;
+
+                    .stat {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+
+                        background-color: #353535;
+                        border-radius: 4px;
+
+                        /* margin: 0 0 6px 0; */
+
+                        .name {
+                            font-size: 10pt;
+                            font-variation-settings: "wght" 700;
+                            color: #c2c2c2;
+                        }
+
+                        .modifier {
+                            font-size: 18pt;
+                            height: auto;
+                            background-color: #404040;
+                            padding: 4px;
+                            font-family: monospace;
+                        }
+
+                        .value {}
+                    }
                 }
 
-                .stat {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-
-                    background-color: #353535;
-                    border-radius: 4px;
-
-                    margin: 0 0 6px 0;
-
-                    .name {
-                        font-size: 10pt;
-                        font-variation-settings: "wght" 700;
-                        color: #c2c2c2;
-                    }
-
-                    .modifier {
-                        font-size: 18pt;
-                        margin: 14px;
-                        aspect-ratio: 1 / 1;
-                        height: auto;
-                        background-color: #404040;
-                        font-family: monospace;
-                    }
-
-                    .value {}
-                }
             }
 
             .skills {
-                .savingThrows {
-                    margin: 0 0 12px 0;
-                }
 
                 .skillsList {
-                    flex-grow: 1;
+                    /* flex-grow: 1; */
                 }
             }
 
             .misc {
                 flex-grow: 1;
+
+                .topRow {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 6px;
+                    height: fit-content;
+
+                    .miscStat {
+                        height: 100%;
+                    }
+                }
+            }
+
+            .feats {
+                max-width: 350px;
+                .body {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    overflow-y: auto;
+                    .feat {
+                        display: flex;
+                        flex-direction: column;
+
+                        margin: 0 0 0 6px;
+
+                        .name {
+                            font-size: 12pt;
+                            font-variation-settings: "wght" 600;
+                        }
+
+                        .action {
+                            font-variation-settings: "wght" 700;
+                            font-size: 10pt;
+                            color: #a1a1a1;
+                        }
+
+                        .description {
+                            margin: 0 0 0 6px;
+                        }
+                    }
+                }
             }
         }
     }

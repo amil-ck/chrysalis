@@ -31,9 +31,11 @@ export default class Inventory extends React.Component {
         return (
             <div className="tab inventory">
                 <div className="main">
-                    <div className="inputWrapper">
-                        <label htmlFor="inventory">Inventory (temporary)</label>
-                        <textarea name="inventory" placeholder='que tienes muchacha' rows={15} cols={75} value={this.state.tempInventoryString} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                    <div className="inputList">
+                        <div className="inputWrapper">
+                            <label htmlFor="inventory">Inventory (temporary)</label>
+                            <textarea name="inventory" placeholder='que tienes muchacha' rows={15} cols={75} value={this.state.tempInventoryString} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
