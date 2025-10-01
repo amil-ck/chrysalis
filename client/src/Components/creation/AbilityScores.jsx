@@ -277,7 +277,7 @@ export default class AbilityScores extends React.Component {
         return (
             <div style={{display: 'flex', flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
                 {name}
-                <div style={{backgroundColor: "red", height: 50, width: 50, display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <div style={{backgroundColor: "darkslategray", height: 50, width: 50, display: "flex", justifyContent: "center", alignItems: "center", fontSize: "20pt"}}>
                     {calculateStat(name, this.props.characterData)}
                 </div>
                 {modifier}

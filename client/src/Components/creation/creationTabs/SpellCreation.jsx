@@ -204,7 +204,7 @@ export default class SpellCreation extends React.Component {
     }
 
     getSpellSupports(spell) {
-        const supports = [...spell.supports || [], spell.setters.school];
+        const supports = [...spell.supports || [], spell.setters.school, spell.id];
 
         console.log(spell.setters.level);
 
