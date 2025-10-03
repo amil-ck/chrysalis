@@ -377,7 +377,12 @@ textarea {
 
         th {
             text-align: left;
-            padding: 6px 0 0 18px;
+
+            padding: 6px 0 0 10px;
+
+            &:first-child {
+                padding-left: 18px;
+            }
 
             select {
                 margin: 0 0 6px 0;
@@ -406,7 +411,7 @@ textarea {
         }
 
         td {
-            padding: 4px 0 4px 18px;
+            padding: 4px 0 4px 10px;
         }
     }
 }
@@ -1024,6 +1029,8 @@ textarea {
         }
     }
 
+    .card.tabbed {}
+
     .miscStat {
         display: flex;
         flex-direction: column;
@@ -1056,7 +1063,7 @@ textarea {
                     flex-direction: column;
                     align-items: start;
 
-                    margin: 6px 8px;
+                    margin: 6px 12px 6px 8px;
 
                     .name {
                         font-size: 14pt;
@@ -1089,17 +1096,27 @@ textarea {
                 margin: 0 12px 0 0;
                 max-height: 100%;
 
+                resize: both;
+
                 &:last-child {
                     margin: 0;
+                }
+
+                &>div:not(:last-child) {
+                    margin-bottom: 12px;
                 }
             }
 
             .card.list {
+                display: flex;
+                flex-direction: column;
+
                 .body {
                     display: flex;
                     flex-direction: column;
+                    padding-bottom: 3px;
 
-                    gap: 8px;
+                    overflow-x: hidden;
 
                     &>div {
                         display: flex;
@@ -1108,23 +1125,41 @@ textarea {
                         align-items: center;
 
                         width: 100%;
-                        min-width: 170px;
-                        padding: 4px 6px;
+                        min-width: 185px;
+                        padding: 3px 6px;
 
-                        background-color: #353535;
+                        border-top: 2px solid #353535;
+
+                        font-size: 12pt;
+
+                        &:hover {
+                            background-color: #353535;
+                        }
+
+                        /* background-color: #353535; */
 
                         .value {
                             border-radius: 4px;
-                            margin-left: 12px;
+                            margin-left: 20px;
                             padding: 4px;
+                            height: 100%;
+                            width: auto;
                             background-color: #404040;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+
+                            font-variation-settings: "wght" 600;
+
+                            &.accent {
+                                background-color: var(--accent-color);
+                            }
                         }
                     }
                 }
             }
 
             .stats {
-                margin-bottom: 12px;
 
                 .body {
                     margin: 0 6px 6px 6px;
@@ -1182,25 +1217,35 @@ textarea {
 
                     .miscStat {
                         height: 100%;
+                        flex-grow: 1;
                     }
                 }
+
+
             }
 
             .feats {
                 max-width: 350px;
+
                 .body {
                     display: flex;
                     flex-direction: column;
                     gap: 6px;
                     overflow-y: auto;
+
                     .feat {
                         display: flex;
                         flex-direction: column;
 
-                        margin: 0 0 0 6px;
+                        padding: 0 0 0 6px;
+
+
+                        &:hover {
+                            background-color: #393939;
+                        }
 
                         .name {
-                            font-size: 12pt;
+                            font-size: 11pt;
                             font-variation-settings: "wght" 600;
                         }
 
@@ -1212,6 +1257,7 @@ textarea {
 
                         .description {
                             margin: 0 0 0 6px;
+                            font-size: 11pt;
                         }
                     }
                 }
@@ -1229,6 +1275,8 @@ textarea {
         }
 
         .main {
+            overflow-y: auto;
+
             flex-grow: 1;
             flex-direction: column;
 
@@ -1237,11 +1285,11 @@ textarea {
                 margin-bottom: 24px;
                 border-radius: 8px;
                 /* padding: 12px; */
+                margin-bottom: 6px;
 
                 &>.title {
                     font-size: 14pt;
                     font-variation-settings: "wght" 600;
-                    margin-bottom: 8px;
 
                     display: flex;
                     flex-direction: row;
@@ -1252,6 +1300,21 @@ textarea {
                         color: #c2c2c2;
                         font-variation-settings: "wght" 600;
                         margin-left: 6px;
+                    }
+                }
+
+                .stats {
+                    margin-bottom: 8px;
+                    background-color: #2c2c2c;
+                    border-radius: 6px;
+
+                    display: flex;
+                    flex-direction: column;
+
+                    width: fit-content;
+
+                    &>span {
+
                     }
                 }
 
@@ -1347,7 +1410,9 @@ textarea {
 
                 min-width: 300px;
 
-
+                &:hover {
+                    cursor: pointer;
+                }
 
                 .left {
                     display: flex;
@@ -1371,9 +1436,17 @@ textarea {
                     flex-direction: row;
                     align-items: center;
 
+                    height: 100%;
+
                     button {
                         background-color: transparent;
                         height: 100%;
+
+                        border-radius: 0 6px 6px 0;
+
+                        &:hover {
+                            background-color: #353535;
+                        }
                     }
                 }
 

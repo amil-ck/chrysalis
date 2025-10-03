@@ -70,6 +70,11 @@ export default class Play extends React.Component {
     }
 
     render() {
+        if (this.props.characterData.id === undefined) {
+            return (<>No character selected</>)
+        }
+
+
         const spellcastings = this.props.characterData.spellcastings || [];
 
         return (

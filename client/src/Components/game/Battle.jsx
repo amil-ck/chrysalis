@@ -1,29 +1,125 @@
 import * as React from 'react';
 import DOMPurify from 'dompurify';
 import { calculateStat } from '../lib/statUtils';
-import { CLASSES, EVERYTHING } from '../lib/indexData';
+import { ARCHETYPES, CLASSES, EVERYTHING } from '../lib/indexData';
 
 export default class Battle extends React.Component {
     constructor(props) {
         super();
         this.props = props;
 
+        this.state = {
+            miscTab: 'Actions',
+            notes: this.props.characterData.notes || { general: '' },
+            hp: this.props.characterData.hp
+        }
+
+        if (this.props.characterData.id === undefined) {
+            return;
+        }
+
+        // Do all the calculations and processing
+
+        // Ability scores & saving throws
+        this.abilityScores = [];
+        this.savingThrows = [];
+        const abilities = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
+        const abbreviations = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
+
+        for (const i in abilities) {
+            const ability = abilities[i].toLowerCase();
+            const score = calculateStat(ability, this.props.characterData);
+            const modifier = calculateStat(`${ability}:modifier`, this.props.characterData);
+            this.abilityScores.push({
+                name: abbreviations[i],
+                score, modifier
+            })
+
+            const saveProf = calculateStat(`${ability}:save:proficiency`, this.props.characterData);
+
+            this.savingThrows.push({
+                name: abilities[i],
+                value: modifier + saveProf,
+                proficient: saveProf !== 0
+            })
+        }
+
+        this.ac = calculateStat("ac", this.props.characterData);
+
+        const characterClassID = this.props.characterData.grants?.find(grant => grant.type === 'Class')?.id;
+        this.characterClass = characterClassID ? CLASSES.find(c => c.id === characterClassID)?.name : undefined;
+        const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
+        this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
+
+        // Feats and features
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type.includes('Feature')).map(g => g.id);
+        const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
+        console.log(featsFeatureIDs, featsFeatures)
+        this.processedFeats = featsFeatures.map(feat => {
+            const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
+            const descriptionWithStats = this.insertStats(sanitisedDescription);
+
+            return {
+                id: feat.id,
+                name: feat.sheet?.alt || feat.name,
+                description: descriptionWithStats,
+                action: feat.sheet?.action,
+                usage: feat.sheet?.usage
+            }
+        })
+
+        // Internal stats that I assume we should have
+        this.proficiencyBonus = calculateStat("proficiency", this.props.characterData);
+        this.initiative = calculateStat("initiative", this.props.characterData);
+        this.speed = calculateStat("speed", this.props.characterData);
+        this.maxHp = calculateStat("hp", this.props.characterData);
+
+        // Skills
+        const skills = [
+            { name: "Acrobatics", stat: "dexterity" },
+            { name: "Animal Handling", stat: "wisdom" },
+            { name: "Arcana", stat: "intelligence" },
+            { name: "Athletics", stat: "strength" },
+            { name: "Deception", stat: "charisma" },
+            { name: "History", stat: "intelligence" },
+            { name: "Insight", stat: "wisdom" },
+            { name: "Intimidation", stat: "charisma" },
+            { name: "Investigation", stat: "intelligence" },
+            { name: "Medicine", stat: "wisdom" },
+            { name: "Nature", stat: "intelligence" },
+            { name: "Perception", stat: "wisdom" },
+            { name: "Performance", stat: "charisma" },
+            { name: "Persuasion", stat: "charisma" },
+            { name: "Religion", stat: "intelligence" },
+            { name: "Sleight of Hand", stat: "dexterity" },
+            { name: "Stealth", stat: "dexterity" },
+            { name: "Survival", stat: "wisdom" },
+        ];
+        this.processedSkills = skills.map(skill => {
+            const profBonus = calculateStat(`${skill.name.toLowerCase()}:proficiency`, this.props.characterData)
+            return {
+                name: skill.name,
+                modifier: profBonus + calculateStat(`${skill.stat}:modifier`, this.props.characterData),
+                proficient: profBonus !== 0
+            }
+        })
+
+        this.handleNotesChange = this.handleNotesChange.bind(this);
+        this.handleInputBlur = this.handleInputBlur.bind(this);
     }
 
     componentDidMount() {
         const toUpdate = {};
         if (this.props.characterData.hp === undefined) {
             toUpdate.hp = calculateStat("hp", this.props.characterData);
-            this.props.updateCharacterData(toUpdate);
+            return this.props.updateCharacterData(toUpdate);
         }
-        
     }
 
     insertStats(description = '') {
-        //const statNames = [];
 
         let parsedDescription = `${description}`;
-        
+
         const statNames = description.split("{{").map(str => {
             if (str.includes("}}")) {
                 return str.split("}}")[0]; // get substring between brackets
@@ -44,148 +140,152 @@ export default class Battle extends React.Component {
         return Number(value) >= 0 ? `+${value}` : `${value}`;
     }
 
+    handleNotesChange(e) {
+        this.setState({
+            notes: { ...this.state.notes, [e.target.name]: e.target.value }
+        })
+    }
+
+    handleInputBlur(e) {
+        this.props.updateCharacterData({
+            notes: this.state.notes
+        });
+    }
+
     render() {
         if (this.props.characterData.id === undefined) {
             return (<>No character selected</>)
         }
 
-        // const stats = [{ name: "STR", value: 16, modifier: 3 }, { name: "DEX", value: 9, modifier: -1 }, { name: "CON", value: 15, modifier: 2 }, { name: "INT", value: 11, modifier: 0 }, { name: "WIS", value: 13, modifier: +1 }, { name: "CHA", value: 14, modifier: +2 }];
-
-        const abilityScores = [];
-        const savingThrows = [];
-        const abilities = ["Strength", "Dexterity", "Constitution", "Intelligence", "Wisdom", "Charisma"];
-        const abbreviations = ["STR", "DEX", "CON", "INT", "WIS", "CHA"];
-
-        for (const i in abilities) {
-            const ability = abilities[i].toLowerCase();
-            const score = calculateStat(ability, this.props.characterData);
-            const modifier = calculateStat(`${ability}:modifier`, this.props.characterData);
-            abilityScores.push({
-                name: abbreviations[i],
-                score, modifier
-            })
-
-            savingThrows.push({
-                name: abilities[i],
-                value: modifier + calculateStat(`${ability}:proficiency`, this.props.characterData)
-            })
+        this.miscTabs = ['Actions', 'Backstory', 'Feats & Features', 'Notes'];
+        this.miscTabBodies = {
+            Actions: (
+                <div className="hello">hello</div>
+            ),
+            Backstory: <></>,
+            Notes: (
+                <div className="inputList">
+                    <div className="inputWrapper">
+                        <label htmlFor="general">General Notes</label>
+                        <textarea name="general" rows={5} value={this.state.notes.general} onChange={this.handleNotesChange} onBlur={this.handleInputBlur}></textarea>
+                    </div>
+                </div>
+            ),
+            "Feats & Features": (
+                this.processedFeats.map(feat => {
+                    return (
+                        <div className='feat' key={feat.id}>
+                            <span className="name">{feat.name}</span>{feat.action != undefined && <span className="action">{feat.action.toUpperCase()}{feat.usage && `: ${feat.usage.toUpperCase()}`}</span>}
+                            <div className="description" dangerouslySetInnerHTML={{ __html: feat.description }}></div>
+                        </div>
+                    )
+                })
+            )
         }
 
-        const ac = calculateStat("ac", this.props.characterData);
-
-        const characterClassID = this.props.characterData.grants?.find(grant => grant.type === 'Class')?.id;
-        const characterClass = characterClassID ? CLASSES.find(c => c.id === characterClassID)?.name : undefined;
-
-        // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type.includes('Feature')).map(g => g.id);
-        const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
-        console.log(featsFeatureIDs, featsFeatures)
-        const processedFeats = featsFeatures.map(feat => {
-            const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
-            const descriptionWithStats = this.insertStats(sanitisedDescription);
-            
-            return {
-                id: feat.id,
-                name: feat.sheet?.alt || feat.name,
-                description: descriptionWithStats,
-                action: feat.sheet?.action,
-                usage: feat.sheet?.usage
-            }
-        })
-
-        // Internal stats that I assume we should have
-        const proficiencyBonus = calculateStat("proficiency", this.props.characterData);
-        const initiative = calculateStat("initiative", this.props.characterData);
-        const speed = calculateStat("speed", this.props.characterData);
-        const maxHp = calculateStat("hp", this.props.characterData);
-
         return (
-           
-                <div className="tab battle">
-                    <div className="header">
-                        <div className="details card">
-                            <div className="body">
-                                <span className="name">{this.props.characterData.name}</span>
-                                <span className="details">Level {this.props.characterData.level || "unknown"} {characterClass || "Class unknown"}</span>
-                            </div>
-                        </div>
-                        <div className="divider"></div>
-                        <div className="right">
-                            <div className="ac card miscStat">
-                                <div className="title">AC</div>
-                                <div className="value">{ac}</div>
-                            </div>
+
+            <div className="tab battle">
+                <div className="header">
+                    <div className="details card">
+                        <div className="body">
+                            <span className="name">{this.props.characterData.name || "Unnamed"}</span>
+                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
                         </div>
                     </div>
-                    <div className="main">
-                        <div className="col">
-                            <div className="stats card">
-                                <span className="title">Stats</span>
-                                <div className="body">
-                                    {abilityScores.map(stat => {
-                                        return (
-                                            <div className="stat" key={stat.name}>
-                                                <span className="name">{stat.name}</span>
-                                                <span className="modifier">{this.plusify(stat.modifier)}</span>
-                                                <span className="value">{stat.score}</span>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                            <div className="savingThrows card list">
-                                <span className="title">Saving throws</span>
-                                <div className="body">
-                                    {savingThrows.map(stat => {
-                                        return (
-                                            <div key={stat.name}>
-                                                <span className="name">{stat.name}</span>
-                                                <span className="value">{this.plusify(stat.value)}</span>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
+                    <div className="divider"></div>
+                    <div className="right">
+                        <div className="ac card miscStat">
+                            <div className="title">AC</div>
+                            <div className="value">{this.ac}</div>
                         </div>
-                        <div className="skills col">
-                            
-                            <div className="skillsList card list">
-                                <span className="title">Skills</span>
-                            </div>
-                        </div>
-                        <div className="misc col">
-                            <div className="topRow">
-                                <div className="initiative card miscStat">
-                                    <div className="title">Initiative</div>
-                                    <div className="value">{this.plusify(initiative)}</div>
-                                </div>
-                                <div className="speed card miscStat">
-                                    <div className="title">Speed</div>
-                                    <div className="value">{speed}</div>
-                                </div>
-                                <div className="proficiency card miscStat">
-                                    <div className="title">Proficiency</div>
-                                    <div className="value">{this.plusify(proficiencyBonus)}</div>
-                                    <div className="title">Bonus</div>
-                                </div>
-                            </div>
-                            <div className="actions card"></div>
-                        </div>
-                        <div className="feats col card">
-                            <span className="title">Feats & Features</span>
+                    </div>
+                </div>
+                <div className="main">
+                    <div className="col">
+                        <div className="stats card">
+                            <span className="title">Stats</span>
                             <div className="body">
-                                {processedFeats.map(feat => {
+                                {this.abilityScores.map(stat => {
                                     return (
-                                        <div className='feat' key={feat.id}>
-                                            <span className="name">{feat.name}</span>{feat.action != undefined && <span className="action">{feat.action.toUpperCase()}{feat.usage && `: ${feat.usage.toUpperCase()}`}</span>}
-                                            <div className="description" dangerouslySetInnerHTML={{ __html: feat.description }}></div>
-                                       </div>
+                                        <div className="stat" key={stat.name}>
+                                            <span className="name">{stat.name}</span>
+                                            <span className="modifier">{this.plusify(stat.modifier)}</span>
+                                            <span className="value">{stat.score}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                        <div className="savingThrows card list">
+                            <span className="title">Saving throws</span>
+                            <div className="body">
+                                {this.savingThrows.map(stat => {
+                                    return (
+                                        <div key={stat.name}>
+                                            <span className="name">{stat.name}</span>
+                                            <span className={stat.proficient ? "accent value" : "value"}>{this.plusify(stat.value)}</span>
+                                        </div>
                                     )
                                 })}
                             </div>
                         </div>
                     </div>
+                    <div className="skills col card list">
+                        <span className="title">Skills</span>
+                        <div className="body">
+                            {this.processedSkills.map(skill => {
+                                return (
+                                    <div key={skill.name}>
+                                        <span className="name">{skill.name}</span>
+                                        <span className={skill.proficient ? "accent value" : "value"}>{this.plusify(skill.modifier)}</span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                    <div className="misc col">
+                        <div className="topRow">
+                            <div className="initiative card miscStat">
+                                <div className="title">Initiative</div>
+                                <div className="value">{this.plusify(this.initiative)}</div>
+                            </div>
+                            <div className="speed card miscStat">
+                                <div className="title">Speed</div>
+                                <div className="value">{this.speed}</div>
+                            </div>
+                            <div className="proficiency card miscStat">
+                                <div className="title">Proficiency</div>
+                                <div className="value">{this.plusify(this.proficiencyBonus)}</div>
+                                <div className="title">Bonus</div>
+                            </div>
+                        </div>
+                        <div className="actions card tabbed">
+                            <div className="navbar radioGroup">
+                                {this.miscTabs.map(tab => {
+                                    return <button type="button" key={tab} className={this.state.miscTab === tab ? 'checked' : ''} onClick={() => this.setState({ miscTab: tab })}>{tab}</button>
+                                })}
+                            </div>
+                            <div className="body">
+                                {this.miscTabBodies[this.state.miscTab]}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="feats col card">
+                        <span className="title">Feats & Features</span>
+                        <div className="body">
+                            {this.processedFeats.map(feat => {
+                                return (
+                                    <div className='feat' key={feat.id}>
+                                        <span className="name">{feat.name}</span>{feat.action != undefined && <span className="action">{feat.action.toUpperCase()}{feat.usage && `: ${feat.usage.toUpperCase()}`}</span>}
+                                        <div className="description" dangerouslySetInnerHTML={{ __html: feat.description }}></div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
                 </div>
-        ) 
+            </div>
+        )
     }
 }
