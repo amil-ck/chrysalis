@@ -19,7 +19,7 @@ export default class Magic extends React.Component {
             selectedItemID: '',
             preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)), // list of spell objects
             availableSpells: availableSpells, // list of spell objects
-            usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0,0,0,0,0,0,0,0,0,0],
+            usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             upcasting: {}
         }
         // TODO: add to available spells based on 'extends' stuff
@@ -49,7 +49,7 @@ export default class Magic extends React.Component {
     }
 
     getUsedSpellSlots() {
-        return this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0,0,0,0,0,0,0,0,0,0];
+        return this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     prepareSpell(id) {
@@ -113,7 +113,7 @@ export default class Magic extends React.Component {
             newUsedSlots[level] += 1;
             console.log('successfully casting spell', id);
             this.props.updateCharacterData({
-                usedSpellSlots: {...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newUsedSlots}
+                usedSpellSlots: { ...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newUsedSlots }
             })
         }
     }
@@ -129,7 +129,7 @@ export default class Magic extends React.Component {
         newSlots[level] = Math.max(0, newSlots[level] - 1);
         console.log(newSlots, this.getUsedSpellSlots())
         this.props.updateCharacterData({
-            usedSpellSlots: {...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newSlots}
+            usedSpellSlots: { ...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newSlots }
         })
     }
 
@@ -174,7 +174,7 @@ export default class Magic extends React.Component {
         // Get all spellcasting slot stats
         const searchStr = `${this.props.spellcasting.name.toLowerCase()}:spellcasting:slots:`;
         const slotStats = this.props.characterData.stats.filter(stat => stat.name.includes(searchStr));
-        const slots = [0,0,0,0,0,0,0,0,0,0];
+        const slots = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
         for (const stat of slotStats) {
             const slotLevel = Number(stat.name.replace(searchStr, ''));
@@ -182,7 +182,7 @@ export default class Magic extends React.Component {
                 slots[slotLevel] += Number(stat.value);
             }
         }
-        
+
         return slots;
     }
 
@@ -190,13 +190,19 @@ export default class Magic extends React.Component {
         return calculateStat(`${this.props.spellcasting.name.toLowerCase()}:spellcasting:prepare`, this.props.characterData);
     }
 
+    plusify(value) {
+        return Number(value) >= 0 ? `+${value}` : `${value}`;
+    }
+
+
+
     render() {
 
         const spellSlots = this.getSpellSlots();
 
         // makes the format uniform
         if (typeof this.props.spellcasting.list === "string") this.props.spellcasting.list = { text: this.props.spellcasting.list };
-         
+
         const yourSpells = [...this.props.characterData.grantedSpells.map(spell => {
             return this.getSpellByID(spell.id)
         }), ...this.props.characterData.preparedSpells.map(id => {
@@ -205,11 +211,28 @@ export default class Magic extends React.Component {
 
         const selectedSpells = [...this.props.characterData.preparedSpells, ...this.props.characterData.grantedSpells.filter(spell => this.state.availableSpells.find(s => s.id === spell.id)).map(spell => spell.id)];
 
+        const spellcastingModifier = calculateStat(`${this.props.spellcasting.ability.toLowerCase()}:modifier`, this.props.characterData);
+        const spellSaveDC = calculateStat(`spellcasting:dc:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
+
+
         return (
             <div className="tab magic">
                 <div className="main">
                     <div className="spellcastingWrapper">
-                        <div className="title">Your spells {this.props.spellcasting.prepare && <span className="preparedCount">&bull; {this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span>}</div>
+                        <div className="title">
+                            Your spells
+                            {this.props.spellcasting.prepare && <span className="preparedCount">&bull; {this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span>}
+                        </div>
+                        <div className="stats">
+                            <span>
+                                <span className="name">Spellcasting modifier ({this.props.spellcasting.ability}):</span>
+                                <span className="value">{this.plusify(spellcastingModifier)}</span>
+                            </span>
+                            <span>
+                                <span className="name">Spell save DC:</span>
+                                <span className="value">{spellSaveDC}</span>
+                            </span>
+                        </div>
                         <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} clearSpellSlot={this.clearSpellSlot} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
                     </div>
 

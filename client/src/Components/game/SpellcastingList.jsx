@@ -45,10 +45,6 @@ export default class SpellcastingList extends React.Component {
             spellsByLevel[o.setters.level]?.push(o);
         }
 
-        console.log(spellsByLevel);
-
-        // TODO: UPCASTING
-
         return (
             <div className="spellcastingList">
                 {Object.entries(spellsByLevel).map(([lvl, list]) =>
