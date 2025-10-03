@@ -34,7 +34,7 @@ export async function createCharacter() {
         }
     }
 
-    await saveCharacter(id, { id: id, creationData: creationData });
+    await saveCharacter(id, { id: id, level: 1, creationData: creationData });
     return id;
 }
 
