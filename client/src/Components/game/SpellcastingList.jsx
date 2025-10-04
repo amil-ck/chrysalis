@@ -48,11 +48,6 @@ export default class SpellcastingList extends React.Component {
         }
         for (const o of this.props.data) {
             if (!o || Object.keys(o) === 0) continue;
-
-            if (o.setters.level.trim() === "Cantrip") {
-                spellsByLevel["0"].push(o);
-                continue;
-            }
             
             spellsByLevel[o.setters.level]?.push(o);
         }
@@ -89,7 +84,7 @@ export default class SpellcastingList extends React.Component {
                                         {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}><FiTrash2 size={18} /></button>}
 
                                         <select value={this.props.upcasting[spell.id] || lvl} onChange={e => this.onUpcastUpdate(e, spell.id)} onClick={e => e.stopPropagation()}>
-                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == 0 || i === " Cantrip" || i === "Cantrip" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
+                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == "0" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
                                         </select>
                                     
                                         <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>

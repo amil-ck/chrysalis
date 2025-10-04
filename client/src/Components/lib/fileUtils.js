@@ -39,11 +39,15 @@ export async function createCharacter() {
 }
 
 export async function loadCharacter(id) {
-    // 1. Read file
     const dataPath = await window.electronAPI.getDataPath();
+
+    // Check that character exists
+    if (!doesCharacterExist(id)) return undefined;
+
+    // Read file
     const data = await window.electronAPI.readFile(`${dataPath}/characters/${id}.character.json`);
 
-    // 2. Parse JSON
+    // Parse JSON
     const parsedData = JSON.parse(data);
     return parsedData;
 }

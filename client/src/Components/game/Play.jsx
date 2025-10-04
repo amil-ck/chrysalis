@@ -22,7 +22,7 @@ export default class Play extends React.Component {
         if (recentTab && recentTab !== this.state.tab) {
             if (!['battle', 'inventory'].includes(recentTab)) {
                 // Spellcasting tab, check if allowed
-                if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.find(s => s.name.toLowerCase() === recentTab) === undefined) {
+                if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.find(s => s.name?.toLowerCase() === recentTab) === undefined) {
                     console.log(recentTab)
                 } else {
                     return this.setState({

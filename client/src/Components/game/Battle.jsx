@@ -55,7 +55,7 @@ export default class Battle extends React.Component {
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type.includes('Feature')).map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
@@ -114,6 +114,8 @@ export default class Battle extends React.Component {
             }
         })
 
+        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined)];
+
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
     }
@@ -170,7 +172,14 @@ export default class Battle extends React.Component {
         this.miscTabs = ['Actions', 'Backstory', 'Features', 'Notes'];
         this.miscTabBodies = {
             Actions: (
-                <div className="hello">hello</div>
+                <div className="actionList">
+                    {this.processedActions.map(a => (
+                        <div className="action">
+                            <span className="name">{a.name} ({a.action})</span>
+                            
+                        </div>
+                    ))}
+                </div>
             ),
             Backstory: <></>,
             Notes: (
