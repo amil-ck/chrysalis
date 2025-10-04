@@ -78,15 +78,11 @@ export default class Battle extends React.Component {
         this.maxHp = calculateStat("hp", this.props.characterData);
 
         this.hitDice = "";
-        const hdType = characterClassData.setters?.hd;
+        const hdType = characterClassData?.setters?.hd;
         console.log(hdType);
         if (hdType) {
             this.hitDice = `${this.props.characterData.level}${hdType}`;
         }
-
-        // TODO: remove
-        // TEMPORARY:::::
-        this.maxHp = 20;
 
         // Skills
         const skills = [

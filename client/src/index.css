@@ -1295,7 +1295,7 @@ button.collapse {
             }
 
             .misc {
-                flex-grow: 1;                
+                flex-grow: 1;
 
                 .topRow {
                     display: flex;
@@ -1462,6 +1462,37 @@ button.collapse {
                     width: fit-content;
 
                     &>span {}
+
+                    .sorceryPoints {
+                        display: flex;
+                        flex-direction: row;
+                        background-color: #303030;
+                        border-radius: 4px;
+                        align-items: center;
+                        padding: 4px 6px;
+                        gap: 4px;
+                        margin-right: 12px;
+
+                        .label {
+                            font-size: 10pt;
+                            font-variation-settings: "wght" 600;
+                            color: #a1a1a1;
+                            margin-right: 4px;
+                        }
+
+                        .slot {
+                            background-color: #1e1e1e;
+                            border-radius: 100%;
+                            width: 15px;
+                            height: 15px;
+                            display: block;
+
+                            &.used {
+                                background-color: var(--accent-color);
+                            }
+                        }
+                    }
+
                 }
 
                 .spellcastingList {

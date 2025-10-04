@@ -1,14 +1,15 @@
+import { CLASSES } from './indexData.js';
 import * as supportUtils from './supportUtils.js';
+
 
 export function calculateStat(statName, characterData) {
     if (!characterData.stats) return 0;
 
     // Check reserved first
 
-    const names = statName.split(":");
+    statName = statName.toLowerCase();
 
-    // TEMPORARY
-    if (statName === 'proficiency') return 2;
+    const names = statName.split(":");
     
     // Check for halving
     const halfIdx = names.indexOf("half");
@@ -27,6 +28,16 @@ export function calculateStat(statName, characterData) {
     if (names[0] === "level") {
         // TODO: deal with multiclassing
         return Number(characterData.level);
+    }
+
+    // Check max hp
+    if (statName === 'hp') {
+        const hdType = getHitDie(characterData);
+
+        if (isNaN(hdType)) return 0;
+
+        const avgRoll = hdType * Number(characterData.level) / 2;
+        return avgRoll + calculateGenericStat("hp", characterData);
     }
 
     // Check speed (apply innate speed)
@@ -87,8 +98,7 @@ export function calculateStat(statName, characterData) {
 function calculateGenericStat(statName, characterData, altNames=[]) {
     
 
-    const matchingStats = characterData.stats.filter(i => [...altNames, statName, `${statName}:misc`].includes(i.name));
-    console.log(statName, matchingStats)
+    const matchingStats = characterData.stats.filter(i => [...altNames.map(n => n.toLowerCase()), statName.toLowerCase(), `${statName}:misc`.toLowerCase()].includes(i.name.toLowerCase()));
     let finalValue = 0;
     const bonuses = {};
 
@@ -132,12 +142,22 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
     }
 
     // Add bonuses
-    console.log(bonuses);
     for (const i in bonuses) {
         finalValue += bonuses[i];
     }
 
     return finalValue;
+}
+
+function getHitDie(characterData) {
+    const characterClassID = characterData.grants?.find(grant => grant.type === 'Class')?.id;
+    const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
+    const hd = characterClassData?.setters?.hd;
+    if (hd) {
+        return Number(hd[1]);
+    } else {
+        return NaN
+    }
 }
 
 function checkRequirements(reqs, characterData) {

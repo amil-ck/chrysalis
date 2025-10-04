@@ -34,12 +34,22 @@ export default class Magic extends React.Component {
         this.castSpellAtLevel = this.castSpellAtLevel.bind(this);
         this.updateCastLevel = this.updateCastLevel.bind(this);
         console.log('constructor running')
+
+        this.maxSorceryPoints = calculateStat("sorcery-points", this.props.characterData);
+
     }
 
     componentDidMount() {
         // Make sure preparedSpells only contains available spells
         const availableSpells = this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : SPELLS.filter(spell => this.props.characterData.knownSpells.find(s => s.id === spell.id));
         const shouldBePrepared = this.props.characterData.preparedSpells.filter(id => availableSpells.find(spell => spell.id === id));
+
+        // Initialise sorcery pts
+        if (this.maxSorceryPoints > 0 && this.props.characterData.usedSorceryPoints === undefined) {
+            this.props.updateCharacterData({
+                usedSorceryPoints: 0
+            })
+        }
 
         if (shouldBePrepared.length !== this.props.characterData.preparedSpells.length) {
             this.props.updateCharacterData({
@@ -194,7 +204,17 @@ export default class Magic extends React.Component {
         return Number(value) >= 0 ? `+${value}` : `${value}`;
     }
 
-
+    toggleSorceryPoint(i) {
+        if (i < this.props.characterData.usedSorceryPoints) {
+            this.props.updateCharacterData({
+                usedSorceryPoints: this.props.characterData.usedSorceryPoints - 1
+            })
+        } else {
+            this.props.updateCharacterData({
+                usedSorceryPoints: this.props.characterData.usedSorceryPoints + 1
+            })
+        }
+    }
 
     render() {
 
@@ -213,7 +233,9 @@ export default class Magic extends React.Component {
 
         const spellcastingModifier = calculateStat(`${this.props.spellcasting.ability.toLowerCase()}:modifier`, this.props.characterData);
         const spellSaveDC = calculateStat(`spellcasting:dc:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
-        const spellAttack  = calculateStat(`spellcasting:attack:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
+        const spellAttack = calculateStat(`spellcasting:attack:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
+
+        console.log("sorcery", this.maxSorceryPoints)
 
         return (
             <div className="tab magic">
@@ -236,6 +258,18 @@ export default class Magic extends React.Component {
                                 <span className="name">Spell save DC:</span>
                                 <span className="value">{spellSaveDC}</span>
                             </span>
+                            {this.maxSorceryPoints > 0 &&
+
+                                <div className="sorceryPoints">
+                                    <div className="label">Sorcery points: </div>
+                                    {[...Array(this.maxSorceryPoints).keys()].map(i =>
+
+                                        <div key={i} className={i < this.props.characterData.usedSorceryPoints ? "slot used" : "slot"} onClick={() => this.toggleSorceryPoint(i)}></div>
+
+                                    )}
+                                </div>
+
+                            }
                         </div>
                         <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} clearSpellSlot={this.clearSpellSlot} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
                     </div>
