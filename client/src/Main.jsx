@@ -5,6 +5,7 @@ import Reference from './Components/game/Reference.jsx';
 import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
 import Modal from './Components/lib/Modal.jsx';
 import Play from './Components/game/Play.jsx';
+import { CLASSES } from './Components/lib/indexData.js';
 
 export default class Main extends React.Component {
     constructor(props) {
@@ -19,7 +20,8 @@ export default class Main extends React.Component {
             subTab: '',
             modalOptions: {
                 show: false
-            }
+            },
+            version: 'alpha-0.1.0'
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
@@ -27,6 +29,19 @@ export default class Main extends React.Component {
         this.setCharacterData = this.setCharacterData.bind(this);
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+    }
+
+    async componentDidMount() {
+        // Remember recent character
+        if (this.state.characterData.id === undefined) {
+            // No character selected
+            const recentCharID = await window.appSettings.get("recentCharacterID");
+            if (recentCharID) {
+                this.setState({
+                    characterData: (await loadCharacter(recentCharID))
+                })
+            }
+        }
     }
 
     async handlePageNavigate(page, subTab='') {
@@ -57,8 +72,11 @@ export default class Main extends React.Component {
 
     updateCharacterData(data) {
         const newData = {...this.state.characterData, ...data};
+        
         this.setState({
             characterData: newData
+        }, () => {
+            saveCharacter(this.state.characterData.id, newData).then(() => console.log("Character saved"))
         })
     }
 
@@ -109,6 +127,9 @@ export default class Main extends React.Component {
 
         const Page = pages[this.state.page];
 
+        const characterClassID = this.state.characterData.grants?.find(grant => grant.type === 'Class')?.id;
+        const characterClass = characterClassID ? CLASSES.find(c => c.id === characterClassID)?.name : undefined;
+
         return (
             <div id='root'>
                 <Modal {...this.state.modalOptions} />
@@ -124,7 +145,7 @@ export default class Main extends React.Component {
                         
                         <div className="info" onClick={() => console.log(this.state.characterData)}>
                             <span className="name">{this.state.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.state.characterData.level || "unknown"} {this.state.characterData.class || "Class unknown"}</span>
+                            <span className="details">Level {this.state.characterData.level || "unknown"} {characterClass || "Class unknown"}</span>
                         </div>
 
                         }
@@ -140,6 +161,7 @@ export default class Main extends React.Component {
                     </div>
                 </div>
                 <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} setCharacterData={this.setCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} openModal={this.openModal} navigateToPage={this.handlePageNavigate} />
+                <div className="version">Version: {this.state.version}</div>
             </div>
         )
     }

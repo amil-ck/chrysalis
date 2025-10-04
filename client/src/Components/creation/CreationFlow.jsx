@@ -9,8 +9,7 @@ export default class CreationFlow extends React.Component {
         this.props = props;
 
         this.state = {
-            navigationTab: 'Details',
-            characterData: {}
+            navigationTab: 'Details'
         }
 
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;
@@ -18,8 +17,23 @@ export default class CreationFlow extends React.Component {
         this.onNavigate = this.onNavigate.bind(this);
     }
 
+    async componentDidMount() {
+
+        // Remember recent tab if character is not new
+        if (this.props.characterData.name !== undefined) {
+            const recentTab = await window.appSettings.get("recentCreationTab");
+            if (recentTab && recentTab !== this.state.navigationTab) {
+                this.setState({
+                    navigationTab: recentTab
+                })
+            }
+        }
+    }
+
     async onNavigate(tab) {
         await saveCharacter(this.props.characterData.id, this.props.characterData);
+
+        await window.appSettings.set("recentCreationTab", tab);
 
         this.setState({
             navigationTab: tab
