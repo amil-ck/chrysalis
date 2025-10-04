@@ -1,8 +1,6 @@
 import everything from "../../data/everything.json"
 import internal from "../../data/internal.json"
-import chrysalisInteral from "../../data/chrysalisInternal.json"
-
-everything = everything.concat(internal).concat(chrysalisInteral);
+import chrysalisInternal from "../../data/chrysalisInternal.json"
 
 const SPELLS = everything.filter(i => i.type === 'Spell');
 const FEATS = everything.filter(i => i.type === 'Feat');
@@ -14,6 +12,6 @@ const BACKGROUNDS = everything.filter(i => i.type === 'Background');
 const CLASS_FEATURES = everything.filter(i => i.type === 'Class Feature');
 const ARCHETYPE_FEATURES = everything.filter(i => i.type === 'Archetype Feature');
 
-const EVERYTHING = everything;
+const EVERYTHING = everything.concat(internal).concat(chrysalisInternal);
 
 export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES };
