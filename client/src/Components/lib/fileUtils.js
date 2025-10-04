@@ -63,6 +63,11 @@ export async function loadAllCharacters() {
     return characters;
 }
 
+export async function doesCharacterExist(id) {
+    const fileList = await window.electronAPI.readdir(`${await window.electronAPI.getDataPath()}/characters`);
+    return fileList.includes(`${id}.character.json`);
+}
+
 export async function importCharacter() {
     // 1. Show file picker dialog
     const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
