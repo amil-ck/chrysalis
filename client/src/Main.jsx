@@ -20,7 +20,8 @@ export default class Main extends React.Component {
             subTab: '',
             modalOptions: {
                 show: false
-            }
+            },
+            version: 'alpha-0.1.0'
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
@@ -71,8 +72,11 @@ export default class Main extends React.Component {
 
     updateCharacterData(data) {
         const newData = {...this.state.characterData, ...data};
+        
         this.setState({
             characterData: newData
+        }, () => {
+            saveCharacter(this.state.characterData.id, newData).then(() => console.log("Character saved"))
         })
     }
 
@@ -157,6 +161,7 @@ export default class Main extends React.Component {
                     </div>
                 </div>
                 <Page navigationTab={this.state.subTab} updateCharacterData={this.updateCharacterData} setCharacterData={this.setCharacterData} characterData={this.state.characterData} creationData={this.state.creationData} openModal={this.openModal} navigateToPage={this.handlePageNavigate} />
+                <div className="version">Version: {this.state.version}</div>
             </div>
         )
     }

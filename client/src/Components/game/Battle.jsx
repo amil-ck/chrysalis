@@ -12,7 +12,7 @@ export default class Battle extends React.Component {
 
         this.state = {
             miscTab: 'Actions',
-            notes: this.props.characterData.notes || { general: '' },
+            notes: this.props.characterData.notes || { general: '', conditions: '' },
             hp: this.props.characterData.hp
         }
 
@@ -49,7 +49,8 @@ export default class Battle extends React.Component {
         this.ac = calculateStat("ac", this.props.characterData);
 
         const characterClassID = this.props.characterData.grants?.find(grant => grant.type === 'Class')?.id;
-        this.characterClass = characterClassID ? CLASSES.find(c => c.id === characterClassID)?.name : undefined;
+        const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
+        this.characterClass = characterClassData?.name || undefined;
         const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
 
@@ -75,6 +76,13 @@ export default class Battle extends React.Component {
         this.initiative = calculateStat("initiative", this.props.characterData);
         this.speed = calculateStat("speed", this.props.characterData);
         this.maxHp = calculateStat("hp", this.props.characterData);
+
+        this.hitDice = "";
+        const hdType = characterClassData.setters?.hd;
+        console.log(hdType);
+        if (hdType) {
+            this.hitDice = `${this.props.characterData.level}${hdType}`;
+        }
 
         // TODO: remove
         // TEMPORARY:::::
@@ -175,6 +183,10 @@ export default class Battle extends React.Component {
                         <label htmlFor="general">General Notes</label>
                         <textarea name="general" rows={5} value={this.state.notes.general} onChange={this.handleNotesChange} onBlur={this.handleInputBlur}></textarea>
                     </div>
+                    <div className="inputWrapper">
+                        <label htmlFor="conditions">Conditions</label>
+                        <textarea name="conditions" rows={5} value={this.state.notes.conditions} onChange={this.handleNotesChange} onBlur={this.handleInputBlur}></textarea>
+                    </div>
                 </div>
             ),
             "Features": (
@@ -201,7 +213,10 @@ export default class Battle extends React.Component {
                     </div>
                     <div className="divider"></div>
                     <div className="right">
-
+                        <div className="hd card miscStat">
+                            <div className="title">Hit dice</div>
+                            <div className="value">{this.hitDice}</div>
+                        </div>
                         <HPControl hp={this.props.characterData.hp} maxHp={this.maxHp} updateHp={(newHp) => this.props.updateCharacterData({ hp: newHp })} />
                     </div>
                 </div>

@@ -11,6 +11,7 @@
 
 * {
     scrollbar-color: #999 transparent;
+    scrollbar-width: thin;
 
     &::-webkit-scrollbar {
         width: 10px;
@@ -31,6 +32,7 @@ body {
     margin: 0;
     overflow-y: hidden;
     height: 100vh;
+    scrollbar-gutter: auto;
 
     --accent-color: rgb(13, 98, 104);
 }
@@ -188,6 +190,17 @@ button.collapse {
             transform: rotate(90deg);
         }
     }
+}
+
+.version {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 9pt;
+    color: #a1a1a1;
+    padding: 2px 4px;
+    background-color: #282828;
+    border-radius: 4px 0 0 0;
 }
 
 .fullPane {
@@ -1082,6 +1095,12 @@ button.collapse {
         margin: 0 auto;
         height: calc(99% - 60px);
 
+        &.battle {
+            width: 100%;
+            max-width: 1000px;
+
+        }
+
         .header {
             height: fit-content;
             display: flex;
@@ -1158,9 +1177,6 @@ button.collapse {
             margin-bottom: 12px;
 
             padding-bottom: 6px;
-
-            max-width:  1000px;
-
 
             .col {
                 display: flex;
@@ -1407,6 +1423,7 @@ button.collapse {
             overflow-y: auto;
 
             max-width: none;
+            width: 100%;
 
             flex-grow: 1;
             flex-direction: column;
