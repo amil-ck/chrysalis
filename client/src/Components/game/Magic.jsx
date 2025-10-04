@@ -213,7 +213,7 @@ export default class Magic extends React.Component {
 
         const spellcastingModifier = calculateStat(`${this.props.spellcasting.ability.toLowerCase()}:modifier`, this.props.characterData);
         const spellSaveDC = calculateStat(`spellcasting:dc:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
-
+        const spellAttack  = calculateStat(`spellcasting:attack:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
 
         return (
             <div className="tab magic">
@@ -227,6 +227,10 @@ export default class Magic extends React.Component {
                             <span>
                                 <span className="name">Spellcasting modifier ({this.props.spellcasting.ability}):</span>
                                 <span className="value">{this.plusify(spellcastingModifier)}</span>
+                            </span>
+                            <span>
+                                <span className="name">Spell attack modifier:</span>
+                                <span className="value">{this.plusify(spellAttack)}</span>
                             </span>
                             <span>
                                 <span className="name">Spell save DC:</span>

@@ -9,6 +9,23 @@
     font-optical-sizing: auto;
 }
 
+* {
+    scrollbar-color: #999 transparent;
+
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #999;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
 html,
 body {
     margin: 0;
@@ -155,6 +172,22 @@ textarea {
 
 .divider {
     flex-grow: 1;
+}
+
+.collapsible {
+    &.collapsed {
+        display: none !important;
+    }
+}
+
+button.collapse {
+
+
+    &.collapsed {
+        svg {
+            transform: rotate(90deg);
+        }
+    }
 }
 
 .fullPane {
@@ -1039,6 +1072,7 @@ textarea {
         .value {
             font-size: 14pt;
             font-variation-settings: "wght" 600;
+            margin: 0 12px;
         }
     }
 
@@ -1076,6 +1110,41 @@ textarea {
                     }
                 }
             }
+
+            .right {
+                display: flex;
+                flex-direction: row;
+                gap: 6px;
+                height: 100%;
+
+                &>div {
+                    height: 100%;
+                }
+
+                .hp {
+                    display: flex;
+                    flex-direction: row;
+
+                    .change {
+                        border-right: 2px solid #353535;
+
+                        display: flex;
+                        flex-direction: column;
+                        width: 5rem;
+                    }
+
+                    .display {
+                        .value {
+
+                            .max {
+                                color: #a1a1a1;
+                                font-size: 11pt;
+                                margin-left: 6px;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         .main {
@@ -1089,6 +1158,9 @@ textarea {
             margin-bottom: 12px;
 
             padding-bottom: 6px;
+
+            max-width:  1000px;
+
 
             .col {
                 display: flex;
@@ -1207,24 +1279,79 @@ textarea {
             }
 
             .misc {
-                flex-grow: 1;
+                flex-grow: 1;                
 
                 .topRow {
                     display: flex;
                     flex-direction: row;
                     gap: 6px;
-                    height: fit-content;
+                    height: min-content;
 
                     .miscStat {
                         height: 100%;
-                        flex-grow: 1;
+                        /* flex-grow: 1; */
+                        flex: 1;
                     }
                 }
 
+                .miscTabs {
+                    width: 100%;
+                    flex-grow: 1;
+                    max-height: 100%;
 
+                    display: flex;
+                    flex-direction: column;
+
+                    .navbar {
+                        width: 100%;
+                        justify-content: start;
+                    }
+
+                    .body {
+                        width: 100%;
+                        flex-grow: 1;
+
+                        &.Features {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 6px;
+                            overflow-y: auto;
+
+                            .feat {
+                                display: flex;
+                                flex-direction: column;
+
+                                padding: 0 0 0 6px;
+
+
+                                &:hover {
+                                    background-color: #393939;
+                                }
+
+                                .name {
+                                    font-size: 11pt;
+                                    font-variation-settings: "wght" 600;
+                                }
+
+                                .action {
+                                    font-variation-settings: "wght" 700;
+                                    font-size: 10pt;
+                                    color: #a1a1a1;
+                                }
+
+                                .description {
+                                    margin: 0 0 0 6px;
+                                    font-size: 11pt;
+                                }
+                            }
+
+                        }
+
+                    }
+                }
             }
 
-            .feats {
+            /* .feats {
                 max-width: 350px;
 
                 .body {
@@ -1260,8 +1387,9 @@ textarea {
                             font-size: 11pt;
                         }
                     }
+
                 }
-            }
+            } */
         }
     }
 
@@ -1270,12 +1398,15 @@ textarea {
         flex-direction: row;
         margin: 0;
 
+
         .header {
             padding: 0;
         }
 
         .main {
             overflow-y: auto;
+
+            max-width: none;
 
             flex-grow: 1;
             flex-direction: column;
@@ -1313,9 +1444,7 @@ textarea {
 
                     width: fit-content;
 
-                    &>span {
-
-                    }
+                    &>span {}
                 }
 
                 .spellcastingList {

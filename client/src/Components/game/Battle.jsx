@@ -1,7 +1,9 @@
 import * as React from 'react';
 import DOMPurify from 'dompurify';
-import { calculateStat } from '../lib/statUtils';
+import { calculateStat } from '../lib/statUtils.js';
 import { ARCHETYPES, CLASSES, EVERYTHING } from '../lib/indexData';
+import { FiPlus, FiMinus } from 'react-icons/fi';
+import HPControl from './HPControl.jsx';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -73,6 +75,10 @@ export default class Battle extends React.Component {
         this.initiative = calculateStat("initiative", this.props.characterData);
         this.speed = calculateStat("speed", this.props.characterData);
         this.maxHp = calculateStat("hp", this.props.characterData);
+
+        // TODO: remove
+        // TEMPORARY:::::
+        this.maxHp = 20;
 
         // Skills
         const skills = [
@@ -157,7 +163,7 @@ export default class Battle extends React.Component {
             return (<>No character selected</>)
         }
 
-        this.miscTabs = ['Actions', 'Backstory', 'Feats & Features', 'Notes'];
+        this.miscTabs = ['Actions', 'Backstory', 'Features', 'Notes'];
         this.miscTabBodies = {
             Actions: (
                 <div className="hello">hello</div>
@@ -171,7 +177,7 @@ export default class Battle extends React.Component {
                     </div>
                 </div>
             ),
-            "Feats & Features": (
+            "Features": (
                 this.processedFeats.map(feat => {
                     return (
                         <div className='feat' key={feat.id}>
@@ -195,10 +201,8 @@ export default class Battle extends React.Component {
                     </div>
                     <div className="divider"></div>
                     <div className="right">
-                        <div className="ac card miscStat">
-                            <div className="title">AC</div>
-                            <div className="value">{this.ac}</div>
-                        </div>
+
+                        <HPControl hp={this.props.characterData.hp} maxHp={this.maxHp} updateHp={(newHp) => this.props.updateCharacterData({ hp: newHp })} />
                     </div>
                 </div>
                 <div className="main">
@@ -246,6 +250,10 @@ export default class Battle extends React.Component {
                     </div>
                     <div className="misc col">
                         <div className="topRow">
+                            <div className="ac card miscStat">
+                                <div className="title">AC</div>
+                                <div className="value">{this.ac}</div>
+                            </div>
                             <div className="initiative card miscStat">
                                 <div className="title">Initiative</div>
                                 <div className="value">{this.plusify(this.initiative)}</div>
@@ -260,18 +268,18 @@ export default class Battle extends React.Component {
                                 <div className="title">Bonus</div>
                             </div>
                         </div>
-                        <div className="actions card tabbed">
+                        <div className="miscTabs card tabbed">
                             <div className="navbar radioGroup">
                                 {this.miscTabs.map(tab => {
                                     return <button type="button" key={tab} className={this.state.miscTab === tab ? 'checked' : ''} onClick={() => this.setState({ miscTab: tab })}>{tab}</button>
                                 })}
                             </div>
-                            <div className="body">
+                            <div className={"body " + this.state.miscTab}>
                                 {this.miscTabBodies[this.state.miscTab]}
                             </div>
                         </div>
                     </div>
-                    <div className="feats col card">
+                    {/* <div className="feats col card">
                         <span className="title">Feats & Features</span>
                         <div className="body">
                             {this.processedFeats.map(feat => {
@@ -283,7 +291,7 @@ export default class Battle extends React.Component {
                                 )
                             })}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         )

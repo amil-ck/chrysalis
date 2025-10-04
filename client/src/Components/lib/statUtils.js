@@ -4,7 +4,11 @@ export function calculateStat(statName, characterData) {
     if (!characterData.stats) return 0;
 
     // Check reserved first
+
     const names = statName.split(":");
+
+    // TEMPORARY
+    if (statName === 'proficiency') return 2;
     
     // Check for halving
     const halfIdx = names.indexOf("half");
@@ -19,10 +23,10 @@ export function calculateStat(statName, characterData) {
     }
 
     // Check level
-    if (statName === "level") return characterData.level;
+    if (statName === "level") return Number(characterData.level);
     if (names[0] === "level") {
         // TODO: deal with multiclassing
-        return characterData.level;
+        return Number(characterData.level);
     }
 
     // Check speed (apply innate speed)
@@ -67,8 +71,6 @@ export function calculateStat(statName, characterData) {
                 return 20 + calculateGenericStat(statName, characterData);
             }
         }
-
-        // TODO: proficiency?? i.e. value: proficiency
     }
 
     // Check skills
@@ -86,7 +88,7 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
     
 
     const matchingStats = characterData.stats.filter(i => [...altNames, statName, `${statName}:misc`].includes(i.name));
-    console.log(matchingStats)
+    console.log(statName, matchingStats)
     let finalValue = 0;
     const bonuses = {};
 
@@ -139,7 +141,6 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
 }
 
 function checkRequirements(reqs, characterData) {
-    // TODO: CHECK REQUIREMENTS????
     return supportUtils.checkRequirments(reqs, characterData.grants.map(g => g.id));
 
     //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 

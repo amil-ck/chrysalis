@@ -6,9 +6,14 @@ export default class SpellcastingList extends React.Component {
         super();
         this.props = props;
 
+        this.state = {
+            levelCollapse: []
+        }
+
         // PROPS: data: [{}], spellSlots: number[], usedSpellSlots=[], onItemSelected: function(id), selectedItemID: string, 
         this.onUnprepareClick = this.onUnprepareClick.bind(this);
         this.onCastClick = this.onCastClick.bind(this);
+        this.onCollapseLevel = this.onCollapseLevel.bind(this);
     }
 
     onUnprepareClick(e, id) {
@@ -24,6 +29,13 @@ export default class SpellcastingList extends React.Component {
     onUpcastUpdate(e, id) {
         e.stopPropagation();
         this.props.updateCastLevel(id, e.target.value);
+    }
+
+    onCollapseLevel(lvl) {
+        const prev = this.state.levelCollapse[lvl];
+        this.setState({
+            levelCollapse: {...this.state.levelCollapse, [lvl]: !prev}
+        })
     }
 
     render() {
@@ -64,9 +76,9 @@ export default class SpellcastingList extends React.Component {
                                 </div>
 
                             }
-                            <button type="button"><FiChevronDown /></button>
+                            <button type="button" className={this.state.levelCollapse[lvl] ? "collapse collapsed" : "collapse"} onClick={() => this.onCollapseLevel(lvl)}><FiChevronDown /></button>
                         </div>
-                        <div className="list">
+                        <div className={this.state.levelCollapse[lvl] ? "list collapsible collapsed" : "list collapsible"}>
                             {list.map(spell =>
                                 <div className="spell" key={spell.id} onClick={() => this.props.onItemSelected(spell.id)}>
                                     <div className="left">
