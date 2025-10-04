@@ -30,6 +30,19 @@ export default class Main extends React.Component {
         this.closeModal = this.closeModal.bind(this);
     }
 
+    async componentDidMount() {
+        // Remember recent character
+        if (this.state.characterData.id === undefined) {
+            // No character selected
+            const recentCharID = await window.appSettings.get("recentCharacterID");
+            if (recentCharID) {
+                this.setState({
+                    characterData: (await loadCharacter(recentCharID))
+                })
+            }
+        }
+    }
+
     async handlePageNavigate(page, subTab='') {
         // save data
         if (this.state.characterData.id !== undefined) {

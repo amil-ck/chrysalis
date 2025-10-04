@@ -9,8 +9,7 @@ export default class CreationFlow extends React.Component {
         this.props = props;
 
         this.state = {
-            navigationTab: 'Details',
-            characterData: {}
+            navigationTab: 'Details'
         }
 
         if (this.props.navigationTab.length > 0) this.state.navigationTab = this.props.navigationTab;
