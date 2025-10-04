@@ -206,9 +206,7 @@ export default class SpellCreation extends React.Component {
     getSpellSupports(spell) {
         const supports = [...spell.supports || [], spell.setters.school, spell.id];
 
-        console.log(spell.setters.level);
-
-        if (spell.setters.level == 0) {
+        if (spell.setters.level == 0 || spell.setters.level == " Cantrip") {
             supports.push("0", "Cantrip");
         } else {
             // For every spell that isn't a cantrip, it adds the level of the spell and every number up to 20 (normal dnd spells max out at level 12)
@@ -227,6 +225,7 @@ export default class SpellCreation extends React.Component {
         supportList = supportList.map(e => e.replace("$(spellcasting:slots)", "("+spellSlot+")"));
 
         console.log(supportList);
+        console.log(SPELLS);
 
         let filteredSpells = SPELLS.filter(e => checkRequirments(supportList, this.getSpellSupports(e)));
 
@@ -303,9 +302,7 @@ export default class SpellCreation extends React.Component {
         obj2 = {...obj2};
         delete obj1.spellId; delete obj1.spellName; delete obj2.spellId; delete obj2.spellName; delete obj1.id; delete obj2.id;
         delete obj1.prepare; delete obj2.prepare; delete obj1.data; delete obj2.data;
-        console.log(JSON.stringify(obj1));
-        console.log(JSON.stringify(obj2));
-        console.log(JSON.stringify(obj1) === JSON.stringify(obj2));
+
         return (JSON.stringify(obj1) === JSON.stringify(obj2));
     }
 

@@ -221,7 +221,11 @@ export default class DefaultSelection extends React.Component {
             if (same !== undefined) {
                 console.log(same, newSelect);
                 newSelect.data = [...same.data];
-                newSelects.push(...same.data.flatMap(e => this.getSelects(e)));
+                newSelects.push(...same.data.flatMap(e => {
+                    let sels = this.getSelects(e);
+                    sels = sels.map(sel => {sel.from = e; return sel});
+                    return sels;
+                }));
             }
 
             index++;
