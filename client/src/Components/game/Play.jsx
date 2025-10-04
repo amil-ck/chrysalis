@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Battle from './Battle.jsx';
 import Magic from './Magic.jsx';
+import Inventory from "./Inventory.jsx";
 
 export default class Play extends React.Component {
     constructor(props) {
@@ -165,7 +166,7 @@ export default class Play extends React.Component {
                     })}
                 </div>
                 {this.state.tab === 'battle' && <Battle characterData={this.props.characterData} openModal={this.props.openModal} />}
-                {this.state.tab === 'inventory' && <div className="tab inventory">no inventory :(</div>}
+                {this.state.tab === 'inventory' && <div className="tab inventory"><Inventory /> </div>}
                 {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.state.fakeCharacterData} updateCharacterData={this.updateFakeCharacterData} openModal={this.props.openModal} />}
             </div>
 

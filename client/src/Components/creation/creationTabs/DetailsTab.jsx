@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { EVERYTHING } from '../../lib/indexData';
 
 export default class DetailsTab extends React.Component {
     constructor(props) {
@@ -41,9 +42,83 @@ export default class DetailsTab extends React.Component {
     }
 
     handleLevelChange(level) {
-        this.props.updateCharacterData({
-            level: level
+        let grants = EVERYTHING.filter(e => e.type === "Level" && e.name <= level).map(e => e.id);
+        grants = grants.flatMap(e => this.getGrants(e, level));
+        console.log(grants);
+
+        const stats = this.getStats(grants, level);
+
+        const grantDict =  {...this.props.characterData.creationData.grants, level: grants};
+        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+
+        const statDict =  {...this.props.characterData.creationData.stats, level: stats};
+        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+
+        console.log(grantDict);
+        console.log(allGrants);
+        
+        console.log(statDict);
+        console.log(allStats);
+
+        allGrants = allGrants.map(id => {
+            return {"id": id, "type": this.getFromId(id)?.type};
         });
+
+        this.props.updateCharacterData(
+            {
+                creationData: {...this.props.characterData.creationData,
+                    grants: grantDict,
+                    stats: statDict
+                },
+                grants: allGrants,
+                stats: allStats,
+                level: level
+            }
+        )
+    }
+
+    getFromId(id) {
+        return EVERYTHING.find(e => e.id === id);
+    }
+
+    getGrants(id, level) {
+        let idList = [id];
+        const grant = EVERYTHING.find(e => e.id === id)?.rules?.grant;
+        if (grant !== undefined) {
+            grant.forEach(
+                e => {
+                    console.log(e);
+                    if ((e.level === undefined || parseInt(e.level) <= level)) {
+                        if (e.number === undefined) {
+                            idList = idList.concat(this.getGrants(e.id));
+                        } else {    
+                            for (let i = 0; i < parseInt(e.number); i++) {
+                                idList = idList.concat(this.getGrants(e.id));
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        return idList;
+    }
+
+    getStats(grantList, level) {
+        let statList = [];
+
+        for (const id of grantList) {
+            let stats = EVERYTHING.find(e => e.id === id)?.rules?.stat;
+            if (stats !== undefined) {
+                if (!Array.isArray(stats)) {
+                    stats = [stats];
+                }
+                stats = stats.filter(stat => stat.level === undefined || stat.level <= level);
+                statList.push(...stats);
+            }
+        }
+        
+        return statList;
     }
 
     render() {

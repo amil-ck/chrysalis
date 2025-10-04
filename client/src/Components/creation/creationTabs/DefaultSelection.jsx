@@ -63,7 +63,7 @@ export default class DefaultSelection extends React.Component {
                                 doubleSelectedItems={[...select.data]}
                                 maxDoubleSelected={select.number || 1}
                                 // presetFilters={{Supports: e}}
-                                title={select.name}
+                                title={select.name + (select.optional ? " (Optional)" : "")}
                                 data={this.getDataForSelect(select)}
                             />
                     })}
