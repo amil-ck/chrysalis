@@ -10,6 +10,7 @@
 }
 
 * {
+    transition: all 0.05s ease;
     scrollbar-color: #999 transparent;
     scrollbar-width: thin;
 
@@ -34,12 +35,38 @@ body {
     height: 100vh;
     scrollbar-gutter: auto;
 
+    /* VARIABLES */
     --accent-color: rgb(13, 98, 104);
+
+    --bg-0: #1e1e1e;
+    --bg-1: #232323;
+    --bg-2: #282828;
+    --bg-3: #2c2c2c;
+    --bg-4: #303030;
+    --bg-5: #353535;
+    --bg-6: #393939;
+    --bg-7: #404040;
+
+    --bg-card: var(--bg-3);
+    --bg-control: var(--bg-7);
+    --bg-control-hover: var(--bg-6);
+
+    --text-0: white;
+    --text-1: #e9e9e9;
+    --text-2: #c9c9c9;
+    --text-3: #c2c2c2;
+    --text-4: #a1a1a1;
+    --text-5: #909090;
+
+    --text-primary: var(--text-1);
+    --text-secondary: var(--text-4);
+
+    /* END VARIABLES */
 }
 
 div#root {
-    background-color: #1e1e1e;
-    color: #e9e9e9;
+    background-color: var(--bg-0);
+    color: var(--text-primary);
     font-family: "Open Sans", serif;
     overflow-y: hidden;
     height: 100%;
@@ -58,7 +85,7 @@ textarea {
 input {
     appearance: none;
 
-    background-color: #404040;
+    background-color: var(--bg-control);
     border: none;
     border-radius: 4px;
     padding: 4px 14px;
@@ -66,21 +93,21 @@ input {
     font-size: 12pt;
 
     &:hover {
-        background-color: #393939;
+        background-color: var(--bg-control-hover);
     }
 
     &:active {
-        background-color: #303030;
+        background-color: var(--bg-0);
     }
 
     &:focus {
         outline: none;
-        background-color: #1e1e1e;
+        background-color: var(--bg-1);
     }
 }
 
 button {
-    background-color: #404040;
+    background-color: var(--bg-control);
     border: none;
     border-radius: 4px;
     padding: 2px 14px;
@@ -90,22 +117,25 @@ button {
 
     &:hover {
         cursor: pointer;
-        background-color: #393939;
+        background-color: var(--bg-control-hover);
     }
 
     &:active {
-        color: #a1a1a1;
+        color: var(--text-secondary);
     }
 
     &.square {
         aspect-ratio: 1 / 1;
         height: auto;
-        padding: 2px 10px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
 select {
-    background-color: #404040;
+    background-color: var(--bg-control);
     border: none;
     border-radius: 4px;
     padding: 2px 14px;
@@ -115,7 +145,7 @@ select {
 
     &:hover {
         cursor: pointer;
-        background-color: #393939;
+        background-color: var(--bg-control-hover);
     }
 
     &:focus {
@@ -124,7 +154,7 @@ select {
 }
 
 textarea {
-    background-color: #404040;
+    background-color: var(--bg-control);
     border: none;
     border-radius: 4px;
     padding: 4px 10px;
@@ -133,17 +163,20 @@ textarea {
 
     resize: vertical;
 
+    transition: none;
+    transition: background-color 0.05s ease;
+
     &:hover {
-        background-color: #393939;
+        background-color: var(--bg-control-hover);
     }
 
     &:active {
-        background-color: #303030;
+        background-color: var(--bg-0);
     }
 
     &:focus {
         outline: none;
-        background-color: #1e1e1e;
+        background-color: var(--bg-1);
     }
 }
 
@@ -152,22 +185,22 @@ textarea {
     flex-direction: row;
     width: min-content;
 
-    background-color: #1e1e1e;
+    background-color: var(--bg-1);
     border-radius: 4px;
 
     button {
         background-color: transparent;
 
         &:hover {
-            background-color: #393939;
+            background-color: var(--bg-control-hover);
         }
 
         &:active {
-            color: #a1a1a1;
+            color: var(--text-secondary);
         }
 
         &.checked {
-            background-color: #404040;
+            background-color: var(--bg-control);
         }
     }
 }
@@ -197,9 +230,9 @@ button.collapse {
     bottom: 0;
     right: 0;
     font-size: 9pt;
-    color: #a1a1a1;
+    color: var(--text-secondary);
     padding: 2px 4px;
-    background-color: #282828;
+    background-color: var(--bg-2);
     border-radius: 4px 0 0 0;
 }
 
@@ -236,7 +269,7 @@ button.collapse {
             border: none;
 
             font-size: 12pt;
-            color: #a1a1a1;
+            color: var(--text-secondary);
 
             padding: 10px 28px;
 
@@ -244,7 +277,11 @@ button.collapse {
 
             &:hover {
                 cursor: pointer;
-                background-color: #282828;
+                background-color: var(--bg-2);
+            }
+
+            &:active {
+                color: var(--text-5);
             }
 
             &.standalone {
@@ -252,8 +289,8 @@ button.collapse {
             }
 
             &.current {
-                background-color: #2c2c2c;
-                color: white;
+                background-color: var(--bg-card);
+                color: var(--text-1);
             }
         }
     }
@@ -269,7 +306,7 @@ button.collapse {
             display: flex;
             flex-direction: row;
             cursor: pointer;
-            background-color: #2c2c2c;
+            background-color: var(--bg-card);
         }
 
         .info {
@@ -280,12 +317,12 @@ button.collapse {
 
             .name {
                 font-size: 12pt;
-                color: #e9e9e9;
+                color: var(--text-1);
             }
 
             .details {
                 font-size: 10pt;
-                color: #a1a1a1;
+                color: var(--text-secondary);
                 font-variation-settings: "wght" 600;
             }
         }
@@ -295,25 +332,64 @@ button.collapse {
 /* CHIP STYLING */
 
 .chip {
-    background-color: #404040;
+    background-color: var(--bg-control);
     border-radius: 4px;
-    padding: 2px 6px;
     margin: 0 3px;
 
     cursor: pointer;
 
     white-space: nowrap;
 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
+
+    &>span {
+        padding: 2px 8px;
+
+        &:not(:last-child) {
+            border-right: 1px solid rgba(255, 255, 255, 15%);
+        }
+
+    }
+
+    &:not(.disabled)>span {
+        &:hover {
+            color: rgba(255, 255, 255, 70%);
+        }
+
+        &:active {
+            color: rgba(255, 255, 255, 60%);
+        }
+
+    }
+
+    &.disabled {
+        background-color: var(--bg-0);
+        color: var(--text-secondary);
+        font-style: italic;
+        cursor: default;
+
+    }
+
+
+    button {
+        background-color: transparent;
+        border-radius: 0 4px 4px 0;
+        height: 100%;
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        margin: 0;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 10%);
+        }
+    }
 }
-
-.chip.disabled {
-    background-color: #1e1e1e;
-    color: #a1a1a1;
-    font-style: italic;
-    cursor: default;
-}
-
 
 /* END CHIP STYLING */
 
@@ -321,7 +397,7 @@ button.collapse {
 /* LIST STYLING */
 
 .listWrapper {
-    background-color: #2c2c2c;
+    background-color: var(--bg-card);
 
     border-radius: 8px;
     margin-bottom: 20px;
@@ -356,9 +432,9 @@ button.collapse {
                 .selectedChip {
                     background-color: var(--accent-color);
 
-                    &:hover {
+                    /* &:hover {
                         text-decoration: line-through;
-                    }
+                    } */
 
                     &.disabled:hover {
                         text-decoration: none;
@@ -368,10 +444,6 @@ button.collapse {
 
             .filters {
                 margin-top: 6px;
-
-                .filterChip:hover {
-                    text-decoration: line-through;
-                }
 
                 .addFilterBtn,
                 select {
@@ -414,10 +486,10 @@ button.collapse {
         overflow-y: scroll;
 
         thead {
-            background-color: #393939;
+            background-color: var(--bg-6);
 
             tr:hover {
-                background-color: #393939;
+                background-color: var(--bg-6);
             }
         }
 
@@ -432,7 +504,7 @@ button.collapse {
 
             select {
                 margin: 0 0 6px 0;
-                background-color: #2e2e2e;
+                background-color: var(--bg-2);
             }
         }
 
@@ -444,11 +516,11 @@ button.collapse {
             cursor: pointer;
 
             &:hover {
-                background-color: #353535;
+                background-color: var(--bg-5);
             }
 
             &.selected {
-                background-color: #404040;
+                background-color: var(--bg-7);
             }
 
             &.doubleSelected {
@@ -487,7 +559,7 @@ button.collapse {
     overflow-x: hidden;
     border-radius: 6px 0 0 0;
 
-    background-color: #2c2c2c;
+    background-color: var(--bg-card);
 
     scrollbar-color: #999 transparent;
 
@@ -512,11 +584,11 @@ button.collapse {
         table {
             table-layout: auto;
 
-            background-color: #1e1e1e;
+            background-color: var(--bg-0);
             font-size: 10pt;
 
             border-collapse: collapse;
-            border: 1px solid #1e1e1e;
+            border: 1px solid var(--bg-0);
 
             overflow-x: auto;
             width: 99%;
@@ -526,7 +598,7 @@ button.collapse {
             }
 
             tr {
-                border: 1px solid #353535;
+                border: 1px solid var(--bg-5);
             }
 
             td {
@@ -583,7 +655,7 @@ button.collapse {
 .infoPane .header .subtitle {
     font-size: 12pt;
     font-weight: 700;
-    color: #a1a1a1;
+    color: var(--text-secondary);
 }
 
 .infoPane .header .closeButton {}
@@ -613,10 +685,10 @@ button.collapse {
 /* NAVBAR STYLING */
 
 .creationNavbar {
-    background-color: #2c2c2c;
+    background-color: var(--bg-card);
     width: 100%;
 
-    padding: 14px;
+    padding: 0 14px;
     margin-bottom: 18px;
 
     display: flex;
@@ -624,30 +696,33 @@ button.collapse {
     justify-content: space-evenly;
 
     height: 60px;
-}
+    min-height: 60px;
 
-.creationNavbar button {
-    background-color: transparent;
-    border: none;
+    &>button {
+        background-color: transparent;
+        border: none;
 
-    font-size: 14pt;
-    font-weight: 600;
-    color: #a1a1a1;
+        padding: 14px 0;
 
-}
+        font-size: 14pt;
+        font-weight: 600;
+        color: var(--text-secondary);
 
-.creationNavbar button:hover {
-    cursor: pointer;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
+        height: 100%;
+        flex-grow: 1;
 
-}
+        &:hover {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+        }
 
-.creationNavbar button.current {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-
+        &.current {
+            color: inherit;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+        }
+    }
 }
 
 /* END NAVBAR STYLING */
@@ -668,6 +743,7 @@ button.collapse {
     flex-direction: column;
     padding: 0 20px;
     height: 100%;
+
 }
 
 .tab .main>.listWrapper {}
@@ -694,7 +770,6 @@ button.collapse {
             .searchWrapper {
                 width: 60%;
                 max-width: 500px;
-                /* background-color: #2c2c2c; */
                 border-radius: 6px;
 
                 label {
@@ -704,7 +779,7 @@ button.collapse {
                     font-variation-settings: "wght" 400;
                     color: #c2c2c2;
                     padding: 4px 18px;
-                    background-color: #2c2c2c;
+                    background-color: var(--bg-card);
                     border-radius: 6px 6px 0 0;
                 }
 
@@ -713,27 +788,27 @@ button.collapse {
                 }
 
                 input {
-                    background-color: #393939;
+                    background-color: var(--bg-6);
                     border-radius: 0 6px 6px 6px;
 
                     font-size: 14pt;
                     padding: 12px 16px;
 
-                    color: #e9e9e9;
+                    color: var(--text-primary);
                     border: none;
 
                     width: 100%;
 
                     &:focus {
                         outline: none;
-                        background-color: #353535;
+                        background-color: var(--bg-5);
                     }
                 }
             }
 
             span.or {
                 margin: 20px 0;
-                color: #a1a1a1;
+                color: var(--text-secondary);
             }
         }
 
@@ -747,9 +822,9 @@ button.collapse {
 
             button,
             select {
-                background-color: #2c2c2c;
+                background-color: var(--bg-card);
                 border: none;
-                color: #a1a1a1;
+                color: var(--text-secondary);
 
                 margin-right: 6px;
                 padding: 8px 16px;
@@ -760,13 +835,13 @@ button.collapse {
 
 
                 &:hover {
-                    background-color: #303030;
+                    background-color: var(--bg-4);
                     cursor: pointer;
                     color: inherit;
                 }
 
                 &.current {
-                    background-color: #404040;
+                    background-color: var(--bg-control);
                     color: inherit;
                 }
 
@@ -808,7 +883,7 @@ button.collapse {
             color: inherit;
 
             &:hover {
-                background-color: #404040;
+                background-color: var(--bg-7);
                 cursor: pointer;
             }
 
@@ -847,7 +922,7 @@ button.collapse {
         max-width: 300px;
         height: 100%;
 
-        background-color: #2c2c2c;
+        background-color: var(--bg-card);
         border-radius: 0 8px 0 0;
 
         .titleWrapper {
@@ -865,7 +940,7 @@ button.collapse {
             .subtitle {
                 font-size: 13pt;
                 font-variation-settings: "wght" 600;
-                color: #a1a1a1;
+                color: var(--text-secondary);
             }
         }
 
@@ -873,7 +948,7 @@ button.collapse {
             width: 98%;
 
             border: none;
-            border: 1px solid #393939;
+            border: 1px solid var(--bg-6);
         }
 
         .buttonList {
@@ -888,7 +963,7 @@ button.collapse {
                 border-radius: 0 4px 4px 0;
                 font-size: 12pt;
                 text-align: start;
-                color: #a1a1a1;
+                color: var(--text-secondary);
                 font-variation-settings: "wght" 600;
 
                 padding: 4px 6px 4px 18px;
@@ -898,12 +973,12 @@ button.collapse {
                 &:hover {
                     cursor: pointer;
 
-                    background-color: #393939;
+                    background-color: var(--bg-6);
                     color: inherit;
                 }
 
                 &:active {
-                    color: #a1a1a1;
+                    color: var(--text-secondary);
                 }
             }
         }
@@ -925,7 +1000,7 @@ button.collapse {
                 button.externalLink {
                     background-color: transparent;
                     border: none;
-                    color: #a1a1a1;
+                    color: var(--text-secondary);
 
                     width: min-content;
                     aspect-ratio: 1 / 1;
@@ -959,7 +1034,7 @@ button.collapse {
             .title {
                 font-size: 20pt;
                 font-variation-settings: "wght" 350;
-                color: #c9c9c9;
+                color: var(--text-2);
             }
         }
 
@@ -981,16 +1056,16 @@ button.collapse {
 
                 &:hover {
                     cursor: pointer;
-                    background-color: #303030;
+                    background-color: var(--bg-3);
                 }
 
                 &.current {
-                    background-color: #393939;
+                    background-color: var(--bg-6);
                 }
 
                 .id {
                     font-size: 8pt;
-                    color: #a1a1a1;
+                    color: var(--text-secondary);
                 }
 
                 .actions {
@@ -1022,7 +1097,7 @@ button.collapse {
 
     label {
         font-variation-settings: "wght" 500;
-        color: #c9c9c9;
+        color: var(--text-2);
         margin: 6px 0;
     }
 
@@ -1036,10 +1111,19 @@ button.collapse {
     flex-direction: column;
     width: 100%;
 
-    background-color: #2c2c2c;
+    background-color: var(--bg-card);
     border-radius: 8px;
     margin-bottom: 20px;
     height: fit-content;
+
+    &>.title {
+        font-size: 20pt;
+        font-variation-settings: "wght" 350;
+        padding: 12px 16px;
+
+        border-bottom: 2px solid var(--bg-7);
+        color: var(--text-2);
+    }
 
     .inputWrapper {
         margin: 8px 16px;
@@ -1058,7 +1142,7 @@ button.collapse {
     min-height: none;
 
     .card {
-        background-color: #2c2c2c;
+        background-color: var(--bg-card);
         border-radius: 4px;
 
         height: fit-content;
@@ -1066,7 +1150,7 @@ button.collapse {
         .title {
             font-size: 11pt;
             font-variation-settings: "wght" 600;
-            color: #a1a1a1;
+            color: var(--text-secondary);
             margin: 4px 4px 4px 6px;
         }
 
@@ -1124,7 +1208,7 @@ button.collapse {
 
                     .details {
                         font-size: 12pt;
-                        color: #a1a1a1;
+                        color: var(--text-secondary);
                         font-weight: 600;
                     }
                 }
@@ -1145,7 +1229,7 @@ button.collapse {
                     flex-direction: row;
 
                     .change {
-                        border-right: 2px solid #353535;
+                        border-right: 2px solid var(--bg-5);
 
                         display: flex;
                         flex-direction: column;
@@ -1156,7 +1240,7 @@ button.collapse {
                         .value {
 
                             .max {
-                                color: #a1a1a1;
+                                color: var(--text-secondary);
                                 font-size: 11pt;
                                 margin-left: 6px;
                             }
@@ -1216,15 +1300,15 @@ button.collapse {
                         min-width: 185px;
                         padding: 3px 6px;
 
-                        border-top: 2px solid #353535;
+                        border-top: 2px solid var(--bg-5);
 
                         font-size: 12pt;
 
                         &:hover {
-                            background-color: #353535;
+                            background-color: var(--bg-5);
                         }
 
-                        /* background-color: #353535; */
+                        /* background-color: var(--bg-5); */
 
                         .value {
                             border-radius: 4px;
@@ -1232,7 +1316,7 @@ button.collapse {
                             padding: 4px;
                             height: 100%;
                             width: auto;
-                            background-color: #404040;
+                            background-color: var(--bg-control);
                             display: flex;
                             justify-content: center;
                             align-items: center;
@@ -1262,7 +1346,7 @@ button.collapse {
                         flex-direction: column;
                         align-items: center;
 
-                        background-color: #353535;
+                        background-color: var(--bg-5);
                         border-radius: 4px;
 
                         /* margin: 0 0 6px 0; */
@@ -1276,7 +1360,7 @@ button.collapse {
                         .modifier {
                             font-size: 18pt;
                             height: auto;
-                            background-color: #404040;
+                            background-color: var(--bg-control);
                             padding: 4px;
                             font-family: monospace;
                         }
@@ -1352,7 +1436,7 @@ button.collapse {
                                 .action {
                                     font-variation-settings: "wght" 700;
                                     font-size: 10pt;
-                                    color: #a1a1a1;
+                                    color: var(--text-secondary);
                                 }
 
                                 .description {
@@ -1395,7 +1479,7 @@ button.collapse {
                         .action {
                             font-variation-settings: "wght" 700;
                             font-size: 10pt;
-                            color: #a1a1a1;
+                            color: var(--text-secondary);
                         }
 
                         .description {
@@ -1453,7 +1537,7 @@ button.collapse {
 
                 .stats {
                     margin-bottom: 8px;
-                    background-color: #2c2c2c;
+                    background-color: var(--bg-card);
                     border-radius: 6px;
 
                     display: flex;
@@ -1464,9 +1548,9 @@ button.collapse {
                     &>span {}
 
                     .sorceryPoints {
-                        display: flex;
+                        /* display: flex;
                         flex-direction: row;
-                        background-color: #303030;
+                        background-color: var(--bg-4);
                         border-radius: 4px;
                         align-items: center;
                         padding: 4px 6px;
@@ -1476,7 +1560,7 @@ button.collapse {
                         .label {
                             font-size: 10pt;
                             font-variation-settings: "wght" 600;
-                            color: #a1a1a1;
+                            color: var(--text-secondary);
                             margin-right: 4px;
                         }
 
@@ -1490,7 +1574,7 @@ button.collapse {
                             &.used {
                                 background-color: var(--accent-color);
                             }
-                        }
+                        } */
                     }
 
                 }
@@ -1510,6 +1594,37 @@ button.collapse {
 
 /* SPELLCASTING LIST STYLING */
 
+.slotWrapper {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--bg-4);
+    border-radius: 4px;
+    align-items: center;
+    padding: 4px 6px;
+    gap: 4px;
+    margin-right: 12px;
+
+    .label {
+        font-size: 10pt;
+        font-variation-settings: "wght" 600;
+        color: var(--text-secondary);
+        margin-right: 4px;
+    }
+
+    .slot {
+        background-color: var(--bg-0);
+        border-radius: 100%;
+        width: 15px;
+        height: 15px;
+        display: block;
+
+        &.used {
+            background-color: var(--accent-color);
+        }
+    }
+
+}
+
 .spellcastingList {
     display: flex;
     flex-direction: column;
@@ -1528,46 +1643,19 @@ button.collapse {
 
             .title {
                 font-size: 12pt;
-                color: #c9c9c9;
+                color: var(--text-2);
                 font-variation-settings: "wght" 600;
             }
 
             hr {
                 flex-grow: 1;
                 height: 0;
-                border: 1.5px solid #303030;
+                border: 1.5px solid var(--bg-4);
                 margin: 0 12px;
             }
 
             .slots {
-                display: flex;
-                flex-direction: row;
-                background-color: #303030;
-                border-radius: 4px;
-                align-items: center;
-                padding: 4px 6px;
-                gap: 4px;
                 margin-right: 12px;
-
-                .label {
-                    font-size: 10pt;
-                    font-variation-settings: "wght" 600;
-                    color: #a1a1a1;
-                    margin-right: 4px;
-                }
-
-                .slot {
-                    background-color: #1e1e1e;
-                    border-radius: 100%;
-                    width: 15px;
-                    height: 15px;
-                    display: block;
-
-
-                    &.used {
-                        background-color: var(--accent-color);
-                    }
-                }
             }
         }
 
@@ -1578,7 +1666,7 @@ button.collapse {
             gap: 8px;
 
             .spell {
-                background-color: #2c2c2c;
+                background-color: var(--bg-card);
                 border-radius: 6px;
 
                 display: flex;
@@ -1603,7 +1691,7 @@ button.collapse {
 
                     .range {
                         font-size: 10pt;
-                        color: #a1a1a1;
+                        color: var(--text-secondary);
                         font-variation-settings: "wght" 600;
                     }
                 }
@@ -1622,7 +1710,7 @@ button.collapse {
                         border-radius: 0 6px 6px 0;
 
                         &:hover {
-                            background-color: #353535;
+                            background-color: var(--bg-5);
                         }
                     }
                 }
@@ -1654,7 +1742,7 @@ button.collapse {
         display: flex;
         flex-direction: column;
 
-        background-color: #2c2c2c;
+        background-color: var(--bg-card);
         border-radius: 8px;
 
         .title {
