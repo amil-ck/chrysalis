@@ -14,6 +14,23 @@ export default class Magic extends React.Component {
 
         const availableSpells = this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : SPELLS.filter(spell => this.props.characterData.knownSpells.find(s => s.id === spell.id));
 
+        const relevantExtents = this.props.extents.filter(e => e.name === this.props.spellcasting.name || e.all == true);
+        for (const extent of relevantExtents) {
+            // Check whether list of spells, or reference to class
+            // --- THIS MIGHT BREAK --- 
+            // THIS IS ALSO HIGHLY INEFFICIENT AND CAN BE EASILY OPTIMISED IF I USE MY BRAIN
+            if (extent.extend[1].text.toUpperCase() === extent.extend[1].text) {
+                // Text is in all uppercase, hopefully an ID
+                // Get rid of silly .text
+                const ids = extent.extend.map(e => e.text ? e.text : e);
+                availableSpells.push(...SPELLS.filter(s => ids.includes(s.id)).filter(s => !availableSpells.find(spell => spell.id === s.id)));
+
+            } else {
+                // Text is hopefully a class name
+                availableSpells.push(...this.filterBySupports(extent.extend[1].text, SPELLS).filter(s => !availableSpells.find(spell => spell.id === s.id)));
+            }
+        }
+
         this.state = {
             selectedItemData: undefined,
             selectedItemID: '',
