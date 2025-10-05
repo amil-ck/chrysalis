@@ -333,7 +333,7 @@ export default class GenericList extends React.Component {
                             <span className='selectedItems'>
                                 Selected{this.props.maxDoubleSelected > 0 && <> ({this.props.doubleSelectedItems.length}/{this.props.maxDoubleSelected})</>}:
                                 {this.props.doubleSelectedItems.map((value) => {
-                                    return <Chip onClick={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={(this.props.data.find(i => i.id === value) ? this.props.data.find(i => i.id === value).name : 'error')} />
+                                    return <Chip onClick={_ => this.props.onItemSelected(value)} onRemove={e => this.props.onItemDoubleSelected(value)} className="selectedChip" key={value} text={(this.props.data.find(i => i.id === value) ? this.props.data.find(i => i.id === value).name : 'error')} />
                                 })}
                                 {this.props.maxDoubleSelected > 0 && this.props.maxDoubleSelected > this.props.doubleSelectedItems.length &&
                                     [...Array(this.props.maxDoubleSelected - this.props.doubleSelectedItems.length)].map(() => {
@@ -347,7 +347,7 @@ export default class GenericList extends React.Component {
                                 Filters:
                                 {Object.entries(this.state.columnFilters).map(([key, value]) => {
                                     if (value && value !== 'remove') {
-                                        return <Chip key={key} className='filterChip' onClick={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
+                                        return <Chip key={key} className='filterChip' onRemove={(e) => this.onRemoveFilter(key)} text={<><b>{key}</b>: {value}</>} />
                                     }
                                 })}
                                 {this.state.addingFilter &&
