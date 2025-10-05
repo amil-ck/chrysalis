@@ -45,6 +45,7 @@ export default class Home extends React.Component {
         // Update current character data
         await window.appSettings.set("recentCharacterID", id);
         this.props.setCharacterData(await loadCharacter(id));
+        this.props.navigateToPage("creation");
     }
 
     async onImportCharacterClick() {

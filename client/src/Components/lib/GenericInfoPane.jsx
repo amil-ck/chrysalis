@@ -1,5 +1,6 @@
 import * as React from 'react';
 import DOMPurify from 'dompurify';
+import { FiX } from 'react-icons/fi';
 
 export default class GenericInfoPane extends React.Component {
     constructor(props) {
@@ -26,7 +27,7 @@ export default class GenericInfoPane extends React.Component {
                             <span className='title'>{this.props.data.title}</span>
                             <span className='subtitle'>{this.props.data.subtitle}</span>
                         </div>
-                        <button className='closeButton' onClick={() => { if (this.props.onClose) this.props.onClose() }}>x</button>
+                        <button className='closeButton square' onClick={() => { if (this.props.onClose) this.props.onClose() }}><FiX size={18} /></button>
                     </div>
                     {this.props.showAddButton &&
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { FiChevronDown, FiTrash2 } from 'react-icons/fi';
+import Slots from '../lib/Slots.jsx';
 
 export default class SpellcastingList extends React.Component {
     constructor(props) {
@@ -60,16 +61,7 @@ export default class SpellcastingList extends React.Component {
                             <span className="title">{lvl === "0" ? "Cantrips" : `Level ${lvl}`}</span>
                             <hr />
                             {lvl !== "0" &&
-
-                                <div className="slots">
-                                    <div className="label">Spell slots: </div>
-                                    {[...Array(this.props.spellSlots[lvl]).keys()].map(i =>
-
-                                        <div key={i} className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"} onClick={() => i < this.props.usedSpellSlots[lvl] && this.props.clearSpellSlot(lvl)}></div>
-
-                                    )}
-                                </div>
-
+                                <Slots label={"Spell slots: "} value={this.props.usedSpellSlots[lvl]} max={this.props.spellSlots[lvl]} onChange={(value) => this.props.updateSpellSlots(lvl, value)} />
                             }
                             <button type="button" className={this.state.levelCollapse[lvl] ? "collapse collapsed" : "collapse"} onClick={() => this.onCollapseLevel(lvl)}><FiChevronDown /></button>
                         </div>

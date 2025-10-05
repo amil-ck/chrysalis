@@ -4,6 +4,7 @@ import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
 import { calculateStat } from '../lib/statUtils.js';
+import Slots from '../lib/Slots.jsx';
 
 export default class Magic extends React.Component {
     constructor(props) {
@@ -50,7 +51,8 @@ export default class Magic extends React.Component {
         this.getUsedSpellSlots = this.getUsedSpellSlots.bind(this);
         this.castSpellAtLevel = this.castSpellAtLevel.bind(this);
         this.updateCastLevel = this.updateCastLevel.bind(this);
-        console.log('constructor running')
+        this.updateSorceryPoints = this.updateSorceryPoints.bind(this);
+        this.updateSpellSlots = this.updateSpellSlots.bind(this);
 
         this.maxSorceryPoints = calculateStat("sorcery-points", this.props.characterData);
 
@@ -233,6 +235,21 @@ export default class Magic extends React.Component {
         }
     }
 
+    updateSorceryPoints(newValue) {
+        this.props.updateCharacterData({
+            usedSorceryPoints: newValue
+        })
+    }
+
+    updateSpellSlots(level, newValue) {
+        const newSlots = [...this.getUsedSpellSlots()];
+        newSlots[level] = Math.max(0, Math.min(newValue, this.getSpellSlots()[level]))
+        console.log(newSlots, this.getUsedSpellSlots())
+        this.props.updateCharacterData({
+            usedSpellSlots: { ...this.props.characterData.usedSpellSlots, [this.props.spellcasting.name]: newSlots }
+        })
+    }
+
     render() {
 
         const spellSlots = this.getSpellSlots();
@@ -262,33 +279,26 @@ export default class Magic extends React.Component {
                             Your spells
                             {this.props.spellcasting.prepare && <span className="preparedCount">&bull; {this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span>}
                         </div>
-                        <div className="stats">
-                            <span>
-                                <span className="name">Spellcasting modifier ({this.props.spellcasting.ability}):</span>
-                                <span className="value">{this.plusify(spellcastingModifier)}</span>
-                            </span>
-                            <span>
-                                <span className="name">Spell attack modifier:</span>
-                                <span className="value">{this.plusify(spellAttack)}</span>
-                            </span>
-                            <span>
-                                <span className="name">Spell save DC:</span>
-                                <span className="value">{spellSaveDC}</span>
-                            </span>
-                            {this.maxSorceryPoints > 0 &&
-
-                                <div className="sorceryPoints">
-                                    <div className="label">Sorcery points: </div>
-                                    {[...Array(this.maxSorceryPoints).keys()].map(i =>
-
-                                        <div key={i} className={i < this.props.characterData.usedSorceryPoints ? "slot used" : "slot"} onClick={() => this.toggleSorceryPoint(i)}></div>
-
-                                    )}
+                        <div className="stats list card">
+                            <div className="body">
+                                <div>
+                                    <span className="name">Spellcasting modifier ({this.props.spellcasting.ability})</span>
+                                    <span className="value">{this.plusify(spellcastingModifier)}</span>
                                 </div>
-
+                                <div>
+                                    <span className="name">Spell attack modifier</span>
+                                    <span className="value">{this.plusify(spellAttack)}</span>
+                                </div>
+                                <div>
+                                    <span className="name">Spell save DC</span>
+                                    <span className="value">{spellSaveDC}</span>
+                                </div>
+                            </div>
+                            {this.maxSorceryPoints > 0 &&
+                                <Slots className={"sorceryPoints"} label={"Sorcery points: "} value={this.props.characterData.usedSorceryPoints} max={this.maxSorceryPoints} onChange={this.updateSorceryPoints} />
                             }
                         </div>
-                        <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} clearSpellSlot={this.clearSpellSlot} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
+                        <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} updateSpellSlots={this.updateSpellSlots} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
                     </div>
 
                     {this.props.spellcasting.prepare &&

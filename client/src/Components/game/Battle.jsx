@@ -124,6 +124,13 @@ export default class Battle extends React.Component {
         const toUpdate = {};
         if (this.props.characterData.hp === undefined) {
             toUpdate.hp = calculateStat("hp", this.props.characterData);
+        }
+
+        if (this.props.characterData.actionUsage === undefined) {
+            toUpdate.actionUsage = {};
+        }
+
+        if (Object.keys(toUpdate).length > 0) {
             return this.props.updateCharacterData(toUpdate);
         }
     }
@@ -174,7 +181,7 @@ export default class Battle extends React.Component {
             Actions: (
                 <div className="actionList">
                     {this.processedActions.map(a => (
-                        <div className="action">
+                        <div className="action" key={a.name}>
                             <span className="name">{a.name} ({a.action})</span>
                             
                         </div>
