@@ -9,7 +9,7 @@ import { EVERYTHING } from '../lib/indexData.js';
     // {id: "Armor", name:"Armor"}
 // ]
 
-const CATEGORYLIST = ["Armor", "Weapon"];
+const CATEGORYLIST = ["Armor", "Weapon", "Tools", "Potion", "Adventuring Gear", "Treasure"];
 const CATEGORIES = CATEGORYLIST.map(id => {return {id: id, name: id}});
 
 export default class Inventory extends React.Component {
@@ -18,7 +18,7 @@ export default class Inventory extends React.Component {
         this.props = props;
 
         this.state = {
-            items: [],
+            items: this.props.characterData.inventory || [],
 
             currentlyAdding: false,
             currentlyAddEquip: false,
@@ -154,7 +154,7 @@ export default class Inventory extends React.Component {
 
     addItem() {
         this.setState({items: [...this.state.items, {name: this.state.name, description: this.state.description, id: this.state.id, action: this.state.action}], id: this.state.id + 1},
-            () => console.log(this.state.items));
+            this.saveData);
     }
 
     addEquipItem(id) {
@@ -163,11 +163,15 @@ export default class Inventory extends React.Component {
         item.id = this.state.id;
         
         this.setState({items: [...this.state.items, item], id: this.state.id + 1},
-            () => console.log(this.state.items));
+            this.saveData);
     }
 
     deleteItem(id) {
         this.setState({items: this.state.items.filter(e => e.id !== id)});
+    }
+
+    saveData() {
+        this.props.updateCharacterData({inventory: this.state.items});
     }
 
 
