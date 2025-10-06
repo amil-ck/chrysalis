@@ -55,7 +55,7 @@ export default class Battle extends React.Component {
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type.includes('Feature')).map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
@@ -78,15 +78,11 @@ export default class Battle extends React.Component {
         this.maxHp = calculateStat("hp", this.props.characterData);
 
         this.hitDice = "";
-        const hdType = characterClassData.setters?.hd;
+        const hdType = characterClassData?.setters?.hd;
         console.log(hdType);
         if (hdType) {
             this.hitDice = `${this.props.characterData.level}${hdType}`;
         }
-
-        // TODO: remove
-        // TEMPORARY:::::
-        this.maxHp = 20;
 
         // Skills
         const skills = [
@@ -118,6 +114,8 @@ export default class Battle extends React.Component {
             }
         })
 
+        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined)];
+
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
     }
@@ -126,6 +124,13 @@ export default class Battle extends React.Component {
         const toUpdate = {};
         if (this.props.characterData.hp === undefined) {
             toUpdate.hp = calculateStat("hp", this.props.characterData);
+        }
+
+        if (this.props.characterData.actionUsage === undefined) {
+            toUpdate.actionUsage = {};
+        }
+
+        if (Object.keys(toUpdate).length > 0) {
             return this.props.updateCharacterData(toUpdate);
         }
     }
@@ -174,7 +179,14 @@ export default class Battle extends React.Component {
         this.miscTabs = ['Actions', 'Backstory', 'Features', 'Notes'];
         this.miscTabBodies = {
             Actions: (
-                <div className="hello">hello</div>
+                <div className="actionList">
+                    {this.processedActions.map(a => (
+                        <div className="action" key={a.name}>
+                            <span className="name">{a.name} ({a.action})</span>
+                            
+                        </div>
+                    ))}
+                </div>
             ),
             Backstory: <></>,
             Notes: (
