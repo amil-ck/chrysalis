@@ -31,13 +31,21 @@ export function calculateStat(statName, characterData) {
     }
 
     // Check max hp
+    // WARNING: this might be an incorrect formula?
+    // max of hit dice for first level, then for every level above 1 add the average of the hit dice
+    // plus level * constitution modifier
     if (statName === 'hp') {
         const hdType = getHitDie(characterData);
 
         if (isNaN(hdType)) return 0;
 
-        const avgRoll = hdType * Number(characterData.level) / 2;
-        return avgRoll + calculateGenericStat("hp", characterData);
+        const baseMax = hdType;
+
+        const avgSingleRoll = (hdType + 1) / 2;
+        const conBonus = calculateGenericStat("hp", characterData);
+        console.log(baseMax, avgSingleRoll, conBonus);
+
+        return Math.ceil(baseMax + (Number(characterData.level) - 1) * avgSingleRoll + conBonus);
     }
 
     // Check speed (apply innate speed)
