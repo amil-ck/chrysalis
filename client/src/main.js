@@ -25,6 +25,9 @@ const createWindow = async () => {
     try {
         if (!fsOld.existsSync(path.join(app.getPath("userData"), "chrysalis_data"))) {
             fsOld.mkdirSync(path.join(app.getPath("userData"), "chrysalis_data"));
+
+            // also create content_files folder
+            fsOld.mkdirSync(path.join(app.getPath("userData"), "chrysalis_data", "content_files"));
         }
     } catch (err) {
         console.error(err);
