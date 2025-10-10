@@ -12,6 +12,17 @@
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
+  "authors": [
+    {
+        "name": "Amil Chenganakkattil",
+        "email": "amil.ck@icloud.com"
+    },
+    {
+        "name": "Charlie Appleton",
+        "email": "xjarlie@gmail.com",
+        "url": "https://charlieappleton.dev"
+    }
+  ],
   "contributors": [
     {
         "name": "Amil Chenganakkattil",
