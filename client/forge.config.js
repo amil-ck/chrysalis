@@ -17,11 +17,20 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        options: {
+          maintainer: 'Chrysalis Team',
+          homepage: 'https://github.com/amil-ck/chrysalis'
+        }
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        options: {
+          homepage: 'https://github.com/amil-ck/chrysalis'
+        }
+      },
     },
   ],
   plugins: [

@@ -1,6 +1,6 @@
 {
   "name": "chrysalis",
-  "productName": "Chrysalis",
+  "productName": "chrysalis",
   "version": "0.1.0-alpha",
   "description": "TTRPG Character Creator",
   "main": ".webpack/main",
@@ -12,17 +12,24 @@
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
-  "author": {
-    "name": "Charlie Appleton",
-    "email": "xjarlie@gmail.com"
-  },
-  "license": "MIT",
+  "contributors": [
+    {
+        "name": "Amil Chenganakkattil",
+        "email": "amil.ck@icloud.com"
+    },
+    {
+        "name": "Charlie Appleton",
+        "email": "xjarlie@gmail.com",
+        "url": "https://charlieappleton.dev"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@babel/core": "^7.27.1",
     "@babel/preset-react": "^7.27.1",
     "@electron-forge/cli": "^7.8.1",
-    "@electron-forge/maker-deb": "^7.8.3",
-    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.10.2",
+    "@electron-forge/maker-rpm": "^7.10.2",
     "@electron-forge/maker-squirrel": "^7.8.1",
     "@electron-forge/maker-zip": "^7.8.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.1",
