@@ -35,7 +35,7 @@ function checkNot(support, parentArray) {
     }
 }
 
-export function checkRequirments(bool, grantArray) {
+export function checkRequirments(testString, grantArray) {
     // console.log(grantArray);
     // if (grantArray) {
     //     console.log(jsep(bool.toString()));
@@ -44,7 +44,7 @@ export function checkRequirments(bool, grantArray) {
     // }
 
 
-    return recurse(jsep(bool.toString()), grantArray);
+    return recurse(jsep(testString.toString()), grantArray);
 }
 
 export function test() {

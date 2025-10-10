@@ -189,8 +189,8 @@ export default class Magic extends React.Component {
             const options = filter.split("||");
             filteredList = filteredList.filter(i => options.includes(i.setters.school));
         }
-
-        return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] !== 0);
+        
+        return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] > 0);
     }
 
     getSpellByID(id) {

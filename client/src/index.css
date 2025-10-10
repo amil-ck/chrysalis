@@ -1028,6 +1028,8 @@ button.collapse {
         flex-direction: column;
         padding: 0 24px;
 
+        overflow: auto;
+
         .titleWrapper {
             margin: 12px 0;
 

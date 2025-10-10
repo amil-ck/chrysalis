@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { createCharacter, deleteCharacter, exportCharacter, importCharacter, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
+import { createCharacter, deleteCharacter, exportCharacter, importCharacter, importContent, loadAllCharacters, loadCharacter } from '../lib/fileUtils.js';
 import GenericInfoPane from '../lib/GenericInfoPane.jsx';
 import { FaGithub } from 'react-icons/fa';
-import { FiUpload, FiTrash2 } from 'react-icons/fi';
+import { FiUpload, FiTrash2, FiPlus, FiRefreshCw } from 'react-icons/fi';
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -11,7 +11,8 @@ export default class Home extends React.Component {
 
         this.state = {
             characters: [],
-            currentInfoPaneData: undefined
+            currentInfoPaneData: undefined,
+            contentFileList: []
         }
 
         this.onNewCharacterClick = this.onNewCharacterClick.bind(this);
@@ -20,10 +21,16 @@ export default class Home extends React.Component {
         this.onExportCharacterClick = this.onExportCharacterClick.bind(this);
         this.onDeleteCharacterClick = this.onDeleteCharacterClick.bind(this);
         this.onDeleteCharacterConfirm = this.onDeleteCharacterConfirm.bind(this);
+        this.onImportContentClick = this.onImportContentClick.bind(this);
+        this.onRefreshContentClick = this.onRefreshContentClick.bind(this);
+
+        this.contentFilePath = '';
     }
 
     async componentDidMount() {
         const characters = await loadAllCharacters();
+        this.contentFilePath = `${await window.electronAPI.getDataPath()}/content_files/`.replaceAll("\\", "/");
+        this.onRefreshContentClick();
         this.setState({ characters: characters });
     }
 
@@ -91,6 +98,19 @@ export default class Home extends React.Component {
         }, 200)
     }
 
+    async onImportContentClick() {
+        const fileName = await importContent();
+        console.log(fileName);
+        this.onRefreshContentClick();
+    }
+
+    async onRefreshContentClick() {
+        const fileList = await window.electronAPI.readdir(this.contentFilePath);
+        this.setState({
+            contentFileList: fileList
+        })
+    }
+
     render() {
 
         return (
@@ -132,6 +152,20 @@ export default class Home extends React.Component {
                                     </span>
                                 </div>)
                         })}
+                    </div>
+                    <div className="titleWrapper">
+                        <span className="title">Content files</span>
+                        <button type="button" onClick={this.onImportContentClick}><FiPlus size={18} /></button>
+                        <button type="button" onClick={this.onRefreshContentClick}><FiRefreshCw size={18} /></button>
+                        <span className="path">Path: {this.contentFilePath}</span>
+
+                    </div>
+                    <div className="fileList characterList">
+                        {this.state.contentFileList.map(fileName => (
+                            <div key={fileName} className='character'>
+                                <span className="name">{fileName}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
                 <GenericInfoPane data={this.state.currentInfoPaneData} />
