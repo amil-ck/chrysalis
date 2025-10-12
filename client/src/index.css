@@ -1235,7 +1235,11 @@ button.collapse {
 
                         display: flex;
                         flex-direction: column;
-                        width: 5rem;
+                        width: 4rem;
+
+                        input {
+                            background-color: transparent;
+                        }
                     }
 
                     .display {
@@ -1413,6 +1417,53 @@ button.collapse {
                         width: 100%;
                         flex-grow: 1;
 
+                        .actionList {
+
+                            .action {
+                                display: flex;
+                                flex-direction: column;
+
+                                .heading {
+                                    display: flex;
+                                    flex-direction: row;
+                                    justify-content: space-between;
+                                    width: 100%;
+
+                                    .left {
+                                        display: flex;
+                                        flex-direction: column;
+
+                                        .subtitle {
+                                            display: flex;
+                                            flex-direction: row;
+                                            align-items: center;
+
+                                            .actionStr {
+                                                font-variation-settings: "wght" 700;
+                                                font-size: 11pt;
+                                                color: var(--text-secondary);
+                                            }
+
+                                            .slotWrapper {
+                                                margin-left: 6px;
+                                            }
+
+
+                                        }
+                                    }
+                                }
+
+                                .description {
+                                    padding: 6px;
+                                    font-size: 11pt;
+
+                                    width: 100%;
+                                }
+                            }
+
+                        }
+
+
                         &.Features {
                             display: flex;
                             flex-direction: column;
@@ -1423,7 +1474,7 @@ button.collapse {
                                 display: flex;
                                 flex-direction: column;
 
-                                padding: 0 0 0 6px;
+                                padding: 6px 12px;
 
 
                                 &:hover {

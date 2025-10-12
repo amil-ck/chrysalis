@@ -1,9 +1,10 @@
 import * as React from 'react';
 import DOMPurify from 'dompurify';
 import { calculateStat } from '../lib/statUtils.js';
-import { ARCHETYPES, CLASSES, EVERYTHING } from '../lib/indexData';
-import { FiPlus, FiMinus } from 'react-icons/fi';
+import { ARCHETYPES, CLASSES, EVERYTHING, RACES } from '../lib/indexData';
 import HPControl from './HPControl.jsx';
+import Slots from '../lib/Slots.jsx';
+import Action from './Action.jsx';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -53,6 +54,8 @@ export default class Battle extends React.Component {
         this.characterClass = characterClassData?.name || undefined;
         const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
+        const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
+        const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
 
         // Feats and features
         const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
@@ -61,13 +64,16 @@ export default class Battle extends React.Component {
         this.processedFeats = featsFeatures.map(feat => {
             const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
             const descriptionWithStats = this.insertStats(sanitisedDescription);
-
+            const maxUsage = feat.sheet?.usage?.split("/")[0];
+            const resetOn = feat.sheet?.usage?.split("/")[1];
             return {
                 id: feat.id,
                 name: feat.sheet?.alt || feat.name,
                 description: descriptionWithStats,
                 action: feat.sheet?.action,
-                usage: feat.sheet?.usage
+                usageStr: feat.sheet?.usage,
+                maxUsage,
+                resetOn
             }
         })
 
@@ -114,7 +120,7 @@ export default class Battle extends React.Component {
             }
         })
 
-        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined)];
+        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
 
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
@@ -128,6 +134,10 @@ export default class Battle extends React.Component {
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
+        }
+
+        if (this.props.characterData.temporaryHp === undefined) {
+            toUpdate.temporaryHp = [];
         }
 
         if (Object.keys(toUpdate).length > 0) {
@@ -171,6 +181,12 @@ export default class Battle extends React.Component {
         });
     }
 
+    handleActionUse(id, value) {
+        this.props.updateCharacterData({
+            actionUsage: {...this.props.characterData.actionUsage, [id]: value}
+        })
+    }
+
     render() {
         if (this.props.characterData.id === undefined) {
             return (<>No character selected</>)
@@ -179,13 +195,12 @@ export default class Battle extends React.Component {
         this.miscTabs = ['Actions', 'Backstory', 'Features', 'Notes'];
         this.miscTabBodies = {
             Actions: (
-                <div className="actionList">
-                    {this.processedActions.map(a => (
-                        <div className="action" key={a.name}>
-                            <span className="name">{a.name} ({a.action})</span>
-                            
-                        </div>
-                    ))}
+                <div className="actionList card list">
+                    <div className="body">
+                        {this.processedActions.map(a => (
+                            <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
+                        ))}
+                    </div>
                 </div>
             ),
             Backstory: <></>,
