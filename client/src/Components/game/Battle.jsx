@@ -123,6 +123,7 @@ export default class Battle extends React.Component {
 
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
+        this.updateHp = this.updateHp.bind(this);
     }
 
     async componentDidMount() {
@@ -218,7 +219,7 @@ export default class Battle extends React.Component {
                 <div className="actionList card list">
                     <div className="body">
                         {this.processedActions.map(a => (
-                            <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
+                            <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
                         ))}
                     </div>
                 </div>
@@ -264,7 +265,8 @@ export default class Battle extends React.Component {
                             <div className="title">Hit dice</div>
                             <div className="value">{this.hitDice}</div>
                         </div>
-                        <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} />
+                        {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
+                        <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} />
                     </div>
                 </div>
                 <div className="main">
