@@ -13,8 +13,7 @@ export default class Battle extends React.Component {
 
         this.state = {
             miscTab: 'Actions',
-            notes: this.props.characterData.notes || { general: '', conditions: '' },
-            hp: this.props.characterData.hp
+            notes: this.props.characterData.notes || { general: '', conditions: '' }
         }
 
         if (this.props.characterData.id === undefined) {
@@ -126,18 +125,28 @@ export default class Battle extends React.Component {
         this.handleInputBlur = this.handleInputBlur.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const toUpdate = {};
-        if (this.props.characterData.hp === undefined) {
-            toUpdate.hp = calculateStat("hp", this.props.characterData);
+        const maxHp = await calculateStat("hp", this.props.characterData);
+        if (this.props.characterData.hps === undefined) {
+            let newHp = maxHp;
+            if (typeof this.props.characterData.hp === 'number') newHp = this.props.characterData.hp; 
+
+            toUpdate.hps = {
+                hp: {
+                    name: 'HP',
+                    value: newHp,
+                    max: maxHp
+                }
+            };
+            console.log("bing bong", toUpdate)
+        } else if (maxHp !== this.props.characterData.hps.hp.maxHp) {
+            toUpdate.hps = structuredClone(this.props.characterData.hps);
+            toUpdate.hps.hp.max = maxHp;
         }
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
-        }
-
-        if (this.props.characterData.temporaryHp === undefined) {
-            toUpdate.temporaryHp = [];
         }
 
         if (Object.keys(toUpdate).length > 0) {
@@ -184,6 +193,17 @@ export default class Battle extends React.Component {
     handleActionUse(id, value) {
         this.props.updateCharacterData({
             actionUsage: {...this.props.characterData.actionUsage, [id]: value}
+        })
+    }
+
+    updateHp(id, newValue) {
+        console.log("hp update", id, newValue);
+        const newObj = {
+            ...this.props.characterData.hps[id],
+            value: newValue
+        }
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: newObj}
         })
     }
 
@@ -244,7 +264,7 @@ export default class Battle extends React.Component {
                             <div className="title">Hit dice</div>
                             <div className="value">{this.hitDice}</div>
                         </div>
-                        <HPControl hp={this.props.characterData.hp} maxHp={this.maxHp} updateHp={(newHp) => this.props.updateCharacterData({ hp: newHp })} />
+                        <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} />
                     </div>
                 </div>
                 <div className="main">
