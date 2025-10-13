@@ -5,6 +5,7 @@ import { ARCHETYPES, CLASSES, EVERYTHING, RACES } from '../lib/indexData';
 import HPControl from './HPControl.jsx';
 import Slots from '../lib/Slots.jsx';
 import Action from './Action.jsx';
+import Modal from '../lib/BetterModal.jsx';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -13,7 +14,23 @@ export default class Battle extends React.Component {
 
         this.state = {
             miscTab: 'Actions',
-            notes: this.props.characterData.notes || { general: '', conditions: '' }
+            notes: this.props.characterData.notes || { general: '', conditions: '' },
+            showModal: false,
+            modalText: {
+                name: '',
+                value: '0',
+                max: ''
+            },
+            onModalPositive: () => {
+                if (this.state.modalText.name.length > 0) {
+                    this.addTempHp(
+                        this.state.modalText.name.toLowerCase(), 
+                        this.state.modalText.name,
+                        Number(this.state.modalText.value) || 0,
+                        Number(this.state.modalText.max) || -1
+                    )
+                }
+            }
         }
 
         if (this.props.characterData.id === undefined) {
@@ -124,6 +141,7 @@ export default class Battle extends React.Component {
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
         this.updateHp = this.updateHp.bind(this);
+        this.onModalInputChange = this.onModalInputChange.bind(this);
     }
 
     async componentDidMount() {
@@ -207,6 +225,32 @@ export default class Battle extends React.Component {
             hps: {...this.props.characterData.hps, [id]: newObj}
         })
     }
+    
+    addTempHp(id, name, value, max=-1) {
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: {
+                name, value, max
+            }}
+        })
+    }
+
+    removeTempHp(id) {
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: undefined}
+        })
+    }
+
+    onAddTempHpClicked() {
+        this.setState({
+            showModal: true
+        })
+    }
+
+    onModalInputChange(e) {
+        this.setState({
+            modalText: {...this.state.modalText, [e.target.name]: e.target.value}
+        })
+    }
 
     render() {
         if (this.props.characterData.id === undefined) {
@@ -265,8 +309,11 @@ export default class Battle extends React.Component {
                             <div className="title">Hit dice</div>
                             <div className="value">{this.hitDice}</div>
                         </div>
+                        <div className="addTemp card">
+                            <button type="button" onClick={() => this.onAddTempHpClicked()}>ADD</button>
+                        </div>
                         {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
-                        <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} />
+                        <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} removeTempHp={(id) => this.removeTempHp(id)} />
                     </div>
                 </div>
                 <div className="main">
@@ -357,6 +404,22 @@ export default class Battle extends React.Component {
                         </div>
                     </div> */}
                 </div>
+                <Modal show={this.state.showModal} title="Add Temporary HP" positiveText="Add" negativeText="Cancel" onPositive={this.state.onModalPositive} onClose={() => {this.setState({showModal: false, modalText: {name:'',value:'0',max:''}})}}>
+                    <div className="inputList">
+                        <div className="inputWrapper">
+                            <label htmlFor="name">Name</label>
+                            <input type='text' name='name' placeholder='Temporary, Wild Shape...' value={this.state.modalText.name} onChange={this.onModalInputChange} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="value">Value</label>
+                            <input type="number" name="value" placeholder='Current value' value={this.state.modalText.value} onChange={this.onModalInputChange} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="max">Maximum</label>
+                            <input type="number" name="max" placeholder='Leave blank for no maximum' value={this.state.modalText.max} onChange={this.onModalInputChange} />
+                        </div>
+                    </div>
+                </Modal>
             </div>
         )
     }

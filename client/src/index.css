@@ -1230,6 +1230,10 @@ button.collapse {
                     display: flex;
                     flex-direction: row;
 
+                    &:not(.base) {
+                        background-color: var(--accent-color);
+                    }
+
                     .change {
                         border-right: 2px solid var(--bg-5);
 
@@ -1780,10 +1784,12 @@ button.collapse {
 /* MODAL STYLING */
 
 .modalOverlay {
-    position: fixed;
+    position: absolute;
     background-color: rgba(0, 0, 0, 25%);
     width: 100%;
     height: 100%;
+    top: 0;
+    left: 0;
 
     display: flex;
     justify-content: center;
