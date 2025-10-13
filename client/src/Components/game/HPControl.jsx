@@ -103,7 +103,7 @@ export default class HPControl extends React.Component {
                                     </div>
                                     {t.id !== "hp" &&
 
-                                        <button type="button" onClick={() => this.props.removeTempHp(t.id)}></button>
+                                        <button type="button" onClick={() => this.props.removeTempHp(t.id)}>x</button>
 
                                     }
                                 </div>
