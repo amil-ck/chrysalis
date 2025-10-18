@@ -26,7 +26,7 @@ export default class BackgroundList extends React.Component {
             columnLocations: ["name", "source"],
             multiValueColumns: [],
             presetFilters: {
-                // Source: "Player’s Handbook"
+                
             },
             ...this.props
         }

@@ -5,7 +5,7 @@ export default class ChrysalisInfoPane extends React.Component {
     constructor(props) {
         super();
 
-        // Props: type: string, data: obj
+        // Props: data: obj
 
         this.props = props;
 
@@ -63,6 +63,12 @@ export default class ChrysalisInfoPane extends React.Component {
             dataToRender.attributes = {
                 Speakers: this.props.data.setters?.speakers,
                 Script: this.props.data.setters?.script
+            }
+        } else if (type === 'Weapon') {
+            dataToRender.attributes = {
+                Damage: `${this.props.data.setters?.damage} ${this.props.data.setters?.versatile ? "(" + this.props.data.setters.versatile + ")" : ""}`,
+                Cost: this.props.data.setters?.cost,
+                Weight: this.props.data.setters?.weight
             }
         }
 

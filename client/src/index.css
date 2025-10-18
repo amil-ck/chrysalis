@@ -444,6 +444,8 @@ button.collapse {
 
             .filters {
                 margin-top: 6px;
+                display: flex;
+                flex-direction: row;
 
                 .addFilterBtn,
                 select {
@@ -1804,6 +1806,10 @@ button.collapse {
         background-color: var(--bg-card);
         border-radius: 8px;
 
+        max-height: 80%;
+        max-width: 80%;
+        overflow-y: hidden;
+
         .title {
             font-size: 14pt;
             font-variation-settings: "wght" 500;
@@ -1812,6 +1818,7 @@ button.collapse {
 
         .body {
             margin: 12px;
+            overflow-y: auto;
         }
 
         .actions {

@@ -28,8 +28,12 @@ const LANGUAGES = everything.filter(i => i.type === 'Language');
 const BACKGROUNDS = everything.filter(i => i.type === 'Background');
 const CLASS_FEATURES = everything.filter(i => i.type === 'Class Feature');
 const ARCHETYPE_FEATURES = everything.filter(i => i.type === 'Archetype Feature');
+const MAGIC_ITEMS = everything.filter(i => i.type === 'Magic Item');
+const WEAPONS = everything.filter(i => i.type === 'Weapon');
+const ITEMS = everything.filter(i => i.type === 'Item');
+const ARMOR = everything.filter(i => i.type === 'Armor');
 
 //const EVERYTHING = everything.concat(internal).concat(chrysalisInternal);
 const EVERYTHING = everything;
 
-export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES };
+export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES, MAGIC_ITEMS, WEAPONS, ARMOR, ITEMS };

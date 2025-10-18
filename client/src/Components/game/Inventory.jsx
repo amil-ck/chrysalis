@@ -1,178 +1,178 @@
 import * as React from 'react';
+import { ARMOR, ITEMS, MAGIC_ITEMS, WEAPONS, EVERYTHING } from '../lib/indexData';
+import Modal from '../lib/BetterModal.jsx';
 import GenericList from '../lib/GenericList.jsx';
-import { FiTrash2 } from 'react-icons/fi';
-import { EVERYTHING } from '../lib/indexData.js';
-// import {Checkbox} from "expo-checkbox";
-// import ExpoCheckbox from 'expo-checkbox/build/ExpoCheckbox.js';
-
-// const CATEGORIES = [
-    // {id: "Armor", name:"Armor"}
-// ]
-
-const CATEGORYLIST = ["Armor", "Weapon", "Tools", "Potion", "Adventuring Gear", "Treasure"];
-const CATEGORIES = CATEGORYLIST.map(id => {return {id: id, name: id}});
+import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
+import { checkRequirments } from '../lib/supportUtils.js';
 
 export default class Inventory extends React.Component {
     constructor(props) {
         super();
         this.props = props;
+        
+        this.groups = ["Weapons", "Armor", "Misc"];
 
         this.state = {
-            items: this.props.characterData.inventory || [],
-
-            currentlyAdding: false,
-            currentlyAddEquip: false,
-
-            category: null,
-
-            name: "",
-            description: "",
-            action: false,
-            id: 0
+            modalType: 'general',
+            showModal: false,
+            modalActions: [],
+            selectedItemID: undefined,
+            selectedItemData: undefined
         }
 
-        this.addItem = this.addItem.bind(this);
+        this.allItems = MAGIC_ITEMS.concat(WEAPONS).concat(ITEMS).concat(ARMOR);
+
+        // Create item lists suitable for checkrequirments:
+        this.searchableWeapons = WEAPONS.map(w => {
+            return [w.id, w.name, ...w.supports]
+        })
+        this.searchableArmor = ARMOR.map(a => {
+            return [a.id, a.name, ...a.supports]
+        })
+
+        this.onModalAddItemClick = this.onModalAddItemClick.bind(this);
     }
 
-    render () {
-        const propsToPass = {
-            data: this.state.items,
-            title: "Inventory",
-            columnNames: ["Name", "description"],
-            shownColumns: ["Name", "description"],
-            allowFilter: [],
-            allowSearch: [],
-            columnLocations: ["name", "description"],
-            multiValueColumns: [],
-            presetFilters: {},
+    componentDidMount() {
+        const toUpdate = {};
 
-            selectedItemID: null,
-            doubleSelectedItems: [],
-        };
-
-
-        return (
-            <div style={{display: 'flex', flexDirection: "column", overflow: "auto"}}>
-                {/* <button type='button' className='minimiseBtn' onClick={this.addItemFrom}>+ Add Item From Equipment </button> */}
-                <button type='button' className='minimiseBtn' onClick={() => this.setState({currentlyAdding: !this.state.currentlyAdding})}>{this.state.currentlyAdding ? "- Minimise Custom Menu" : "+ Add Custom Item"}</button>
-                {this.state.currentlyAdding && this.menuAddItem()}
-
-                <button type='button' className='minimiseBtn' onClick={() => this.setState({currentlyAddEquip: !this.state.currentlyAddEquip})}>{this.state.currentlyAddEquip ? "- Minimise Equipment Menu" : "+ Add Equipment Item"}</button>
-                {this.state.currentlyAddEquip && this.menuEquip()}
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>name</th>
-                            <th>description</th>
-                            <th>delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.state.items.map(
-                                item => {return <tr>
-                                                    <th>{item.name}</th>
-                                                    <th>{item.description}</th>
-                                                    <th><button type="button" className='square' title='Delete character' onClick={() => this.deleteItem(item.id)}><FiTrash2 size={18}/></button></th>
-                                                </tr>}
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        )
-    }
-
-    menuAddItem() {
-        return (
-            <div style={{display: 'flex', flexDirection: "column"}}>
-                Name:
-                <input onChange={text => this.setState({name: text.target.value})}></input>
-                Description:
-                <input onChange={text => this.setState({description: text.target.value})}></input>
-                Action?:
-                <input type="checkbox" style={{height: 50, width: 50, backgroundColor: this.state.action ? "red" : "gray"}} onChange={e => this.setState({action: e.target.checked})}></input>
-                
-                <button type='button' className='minimiseBtn' onClick={this.addItem}>+ Add Item </button>
-            </div>
-        )
-    }
-
-    menuEquip() {
-        const categoryChoice = {
-            data: CATEGORIES,
-            title: "category choice",
-            columnNames: ["Name"],
-            shownColumns: ["Name"],
-            allowFilter: [],
-            allowSearch: [],
-            columnLocations: ["id"],
-            multiValueColumns: [],
-            presetFilters: {},
-
-            selectedItemID: null,
-            doubleSelectedItems: (this.state.category !== null) ? [this.state.category] : [],
-
-            onItemSelected: (id) => this.setState({category: id}, console.log(this.state.category)),
-            onItemDoubleSelected: (id) => (this.state.category === id) ? this.setState({category: null}) : this.setState({category: id})
+        if (this.props.characterData.inventory?.length > 0) {
+            if (typeof this.props.characterData.inventory[0].id === 'number') {
+                toUpdate.inventory = [];
+            }
+        } else if (this.props.characterData.inventory === undefined) {
+            toUpdate.inventory = [];
         }
 
-        // const categoryName = CATEGORIES.find(e => e.id === this.state.category)?.name;
-        const categoryName = this.state.category;
+        if (Object.keys(toUpdate).length > 0) {
+            return this.props.updateCharacterData(toUpdate);
+        }
+    }
 
-        console.log(categoryName);
+    openAddModal() {
+        this.setState({
+            showModal: true,
+            modalType: 'general',
+            modalActions: [
+                {text: 'Cancel', action: ()=>{}},
+                {text: 'Add', action: this.onModalAddItemClick}
+            ]
+        })
+    }
 
-        const itemChoice = {
-            data: EVERYTHING.filter(e => e.type === categoryName),
-            title: categoryName,
-            columnNames: ["Name"],
-            shownColumns: ["Name"],
-            allowFilter: [],
-            allowSearch: [],
-            columnLocations: ["name"],
-            multiValueColumns: [],
-            presetFilters: {},
+    onModalAddItemClick() {
+        if (this.state.selectedItemID === undefined) return;
 
-            selectedItemID: null,
-            doubleSelectedItems: [],
+        const item = this.allItems.find(i => i.id === this.state.selectedItemID);
+        if (!item) return;
 
-            onItemSelected: (id) => {},
-            onItemDoubleSelected: (id) => this.addEquipItem(id)
+        if (item.type === 'Magic Item') {
+            this.addMagicItem(item);
+        } else {
+            this.addToInventory(item);
         }
 
 
+        this.setState({
+            selectedItemData: undefined,
+            selectedItemID: undefined
+        })
+    }
+
+    addMagicItem(item) {
+        if (['Weapon', 'Armor'].includes(item.setters?.type)) {
+            const baseFilterString = item.setters[item.setters.type.toLowerCase()];
+            const searchList = item.setters.type === 'Weapon' ? this.searchableWeapons : this.searchableArmor;
+            
+            const availableBases = this.filterBases(baseFilterString, searchList);
+            
+            if (availableBases.length === 1) {
+                // No choices necessary
+                const baseData = this.allItems.find(i => i.id === availableBases[0]);
+
+                const combinedItem = {
+                    ...item,
+                    setters: {...baseData.setters, ...item.setters},
+                    base: baseData
+                }
+
+                this.addToInventory(combinedItem);
+
+            } else {
+                // TODO: give user a choice of bases
+                console.log('not supported yet lol')
+            }
+
+        } else if (item.setters?.type === 'Armor') {
+        } else {
+            this.addToInventory(item);
+        }
+    }
+
+    filterBases(filterStr, list) {
+        // TODO: incorporate checkRequirments
+        const results = [];
+        for (const o of list) {
+            if (checkRequirments(filterStr, o)) {
+                results.push(o[0]); // add ID to list
+            }
+        }
+
+        return results;
+    }
+
+    addToInventory(item, group = 'Misc', action) {
+        let itemID = crypto.randomUUID();
+
+        // Make sure itemID is unique in inventory:
+        while (this.props.characterData.inventory.find(i => i.itemID === itemID) !== undefined) {
+            itemID = crypto.randomUUID();
+        }
+
+        // TODO: add item's stats and grants (should be on equip really)
+
+        this.props.updateCharacterData({
+            inventory: [...this.props.characterData.inventory, {...item, group, action: action, itemID}]
+        })
+    }
+    
+    render() {
+
+        
+        const generalListOptions = {
+            data: this.allItems,
+            title: 'Items',
+            columnNames: ["Name", "Type", "Source"],
+            shownColumns: ["Name", "Type", "Source"],
+            allowFilter: ["Type", "Source"],
+            allowSearch: ["Name"],
+            columnLocations: ["name", "type", "source"],
+            multiValueColumns: [],
+            presetFilters: {
+                // Source: "Player’s Handbook"
+            },
+            onItemSelected: (id) => this.setState({selectedItemID: id, selectedItemData: this.allItems.find(i => i.id === id)}),
+            onItemDoubleSelected: () => {},
+            doubleSelectedItems: [this.state.selectedItemID]
+        }
+
         return (
-            // <div style={{display: 'flex', flexDirection: "column"}}>
-            //     Hello equpi time
-            // </div>
             <>
-                <GenericList {...categoryChoice}/>
-                <GenericList {...itemChoice}/>
+                <div className="tab inventory">
+                    <div className="main">
+                        <button type="button" onClick={() => this.openAddModal()}>Add item</button>
+                    </div>
+                </div>
+
+                <Modal show={this.state.showModal} title="Add item" actions={this.state.modalActions} onClose={() => {this.setState({showModal: false})}}>
+                    {this.state.modalType === 'general' &&
+                    
+                    <GenericList {...generalListOptions} />
+                    
+                    }
+                    <ChrysalisInfoPane data={this.state.selectedItemData} />
+                </Modal>
             </>
         )
     }
-
-
-    addItem() {
-        this.setState({items: [...this.state.items, {name: this.state.name, description: this.state.description, id: this.state.id, action: this.state.action}], id: this.state.id + 1},
-            this.saveData);
-    }
-
-    addEquipItem(id) {
-        const item = EVERYTHING.find(e => e.id === id);
-        item.itemId = item.id;
-        item.id = this.state.id;
-        
-        this.setState({items: [...this.state.items, item], id: this.state.id + 1},
-            this.saveData);
-    }
-
-    deleteItem(id) {
-        this.setState({items: this.state.items.filter(e => e.id !== id)});
-    }
-
-    saveData() {
-        this.props.updateCharacterData({inventory: this.state.items});
-    }
-
-
 }
