@@ -4,6 +4,8 @@ export default class Modal extends React.Component {
     constructor(props) {
         super();
         this.props = props;
+
+        // Takes action buttons as array of {text:string, action: () => {}, className?: string}
     }
 
     onClose(then = () => {}) {
@@ -20,10 +22,13 @@ export default class Modal extends React.Component {
                     <span className="title">{this.props.title}</span>
                     <div className="body">{this.props.children}</div>
                     <div className="actions">
-                        {this.props.negativeText &&
+                        {/* {this.props.negativeText &&
                             <button type="button" className="negative" onClick={() => this.onClose(this.props.onNegative)}>{this.props.negativeText}</button>
                         }
-                        <button type="button" className="positive" onClick={() => this.onClose(this.props.onPositive)}>{this.props.positiveText}</button>
+                        <button type="button" className="positive" onClick={() => this.onClose(this.props.onPositive)}>{this.props.positiveText}</button> */}
+                        {this.props.actions?.map(a => (
+                            <button key={a.text} type="button" className={a.className || "positive"} onClick={() => this.onClose(a.action)}>{a.text}</button>
+                        ))}
                     </div>
                 </div>
             </div>

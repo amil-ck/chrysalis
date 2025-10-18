@@ -404,7 +404,7 @@ export default class Battle extends React.Component {
                         </div>
                     </div> */}
                 </div>
-                <Modal show={this.state.showModal} title="Add Temporary HP" positiveText="Add" negativeText="Cancel" onPositive={this.state.onModalPositive} onClose={() => {this.setState({showModal: false, modalText: {name:'',value:'0',max:''}})}}>
+                <Modal show={this.state.showModal} title="Add Temporary HP" actions={[{text:'Cancel',action:()=>{}}, {text:'Add',action: this.state.onModalPositive}]} onClose={() => {this.setState({showModal: false, modalText: {name:'',value:'0',max:''}})}}>
                     <div className="inputList">
                         <div className="inputWrapper">
                             <label htmlFor="name">Name</label>
