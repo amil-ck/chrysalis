@@ -24,12 +24,6 @@ export default class HPControl extends React.Component {
 
     componentDidUpdate(prevProps) {
         console.log("hp state", this.state)
-        // if (this.props.hp !== prevProps.hp) {
-        //     // hp has changed
-        //     this.setState({
-        //         changeValue: '1'
-        //     })
-        // }
 
         if (this.props.hps !== prevProps.hps) {
             const toUpdate = { changeValues: {} };
@@ -40,8 +34,6 @@ export default class HPControl extends React.Component {
                 ...toUpdate
             })
         }
-
-        // TODO: convert commented code into new system
     }
 
     addHp(id = 'hp') {
@@ -111,21 +103,7 @@ export default class HPControl extends React.Component {
 
                     )}
                 )}
-                {/* <div className="hp card">
-                    <div className="change">
-                        <button type="button" onClick={() => this.addHp()}><FiPlus /></button>
-                        <input type="text" name="hp" value={this.state.changeValue} onChange={this.handleChange} onBlur={() => this.handleBlur()} />
-                        <button type="button" onClick={() => this.subtractHp()}><FiMinus /></button>
-                    </div>
-                    <div className="display miscStat">
-                        <div className="title">HP</div>
-                        <div className="value">
-                            <span className="current">{this.props.hp}</span>
-                            <span className="max">/ {this.props.maxHp}</span>
-                        </div>
-                    </div>
-                </div> */}
-            </>
+            </> 
         )
     }
 }
