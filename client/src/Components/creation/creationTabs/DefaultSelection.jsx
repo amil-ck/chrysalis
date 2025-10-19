@@ -169,7 +169,10 @@ export default class DefaultSelection extends React.Component {
                 e.from = id;
                 return e;
             })
-            this.setState({choices: [...this.state.choices, ...sels]}, this.saveData)
+
+            this.state.choices.splice(this.state.choices.indexOf(select) + 1, 0, ...sels);
+
+            this.setState({choices: [...this.state.choices]}, this.saveData);
 
 
         } else if (select.data.includes(id)) {
