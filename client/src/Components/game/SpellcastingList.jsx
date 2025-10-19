@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { FiChevronDown, FiTrash2 } from 'react-icons/fi';
+import Slots from '../lib/Slots.jsx';
 
 export default class SpellcastingList extends React.Component {
     constructor(props) {
@@ -48,11 +49,6 @@ export default class SpellcastingList extends React.Component {
         }
         for (const o of this.props.data) {
             if (!o || Object.keys(o) === 0) continue;
-
-            if (o.setters.level.trim() === "Cantrip") {
-                spellsByLevel["0"].push(o);
-                continue;
-            }
             
             spellsByLevel[o.setters.level]?.push(o);
         }
@@ -65,16 +61,7 @@ export default class SpellcastingList extends React.Component {
                             <span className="title">{lvl === "0" ? "Cantrips" : `Level ${lvl}`}</span>
                             <hr />
                             {lvl !== "0" &&
-
-                                <div className="slots">
-                                    <div className="label">Spell slots: </div>
-                                    {[...Array(this.props.spellSlots[lvl]).keys()].map(i =>
-
-                                        <div key={i} className={i < this.props.usedSpellSlots[lvl] ? "slot used" : "slot"} onClick={() => i < this.props.usedSpellSlots[lvl] && this.props.clearSpellSlot(lvl)}></div>
-
-                                    )}
-                                </div>
-
+                                <Slots label={"Spell slots: "} value={this.props.usedSpellSlots[lvl]} max={this.props.spellSlots[lvl]} onChange={(value) => this.props.updateSpellSlots(lvl, value)} />
                             }
                             <button type="button" className={this.state.levelCollapse[lvl] ? "collapse collapsed" : "collapse"} onClick={() => this.onCollapseLevel(lvl)}><FiChevronDown /></button>
                         </div>
@@ -89,7 +76,7 @@ export default class SpellcastingList extends React.Component {
                                         {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}><FiTrash2 size={18} /></button>}
 
                                         <select value={this.props.upcasting[spell.id] || lvl} onChange={e => this.onUpcastUpdate(e, spell.id)} onClick={e => e.stopPropagation()}>
-                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == 0 || i === " Cantrip" || i === "Cantrip" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
+                                            {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == "0" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
                                         </select>
                                     
                                         <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>

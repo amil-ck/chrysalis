@@ -2,7 +2,7 @@ import * as React from 'react';
 import CreationFlow from './Components/creation/CreationFlow.jsx';
 import Home from './Components/home/Home.jsx';
 import Reference from './Components/game/Reference.jsx';
-import { loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
+import { doesCharacterExist, loadCharacter, saveCharacter } from './Components/lib/fileUtils.js';
 import Modal from './Components/lib/Modal.jsx';
 import Play from './Components/game/Play.jsx';
 import { CLASSES } from './Components/lib/indexData.js';
@@ -21,7 +21,7 @@ export default class Main extends React.Component {
             modalOptions: {
                 show: false
             },
-            version: 'alpha-0.1.0'
+            version: '0.1.0-alpha'
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
@@ -36,7 +36,7 @@ export default class Main extends React.Component {
         if (this.state.characterData.id === undefined) {
             // No character selected
             const recentCharID = await window.appSettings.get("recentCharacterID");
-            if (recentCharID) {
+            if (recentCharID && await doesCharacterExist(recentCharID)) {
                 this.setState({
                     characterData: (await loadCharacter(recentCharID))
                 })
@@ -44,7 +44,7 @@ export default class Main extends React.Component {
         }
     }
 
-    async handlePageNavigate(page, subTab='') {
+    async handlePageNavigate(page, subTab = '') {
         // save data
         if (this.state.characterData.id !== undefined) {
             await saveCharacter(this.state.characterData.id, this.state.characterData);
@@ -71,8 +71,8 @@ export default class Main extends React.Component {
     }
 
     updateCharacterData(data) {
-        const newData = {...this.state.characterData, ...data};
-        
+        const newData = { ...this.state.characterData, ...data };
+
         this.setState({
             characterData: newData
         }, () => {
@@ -93,7 +93,7 @@ export default class Main extends React.Component {
         })
     }
 
-    openModal(type='default', title='Modal', body=<p>This is a modal</p>, positiveText='Okay', negativeText='Cancel', onPositive=()=>{}, onNegative=()=>{}) {
+    openModal(type = 'default', title = 'Modal', body = <p>This is a modal</p>, positiveText = 'Okay', negativeText = 'Cancel', onPositive = () => { }, onNegative = () => { }) {
         this.setState({
             modalOptions: {
                 show: true,
@@ -141,21 +141,21 @@ export default class Main extends React.Component {
                         <button className={this.state.page === 'reference' ? 'current standalone' : 'standalone'} type="button" onClick={() => this.handlePageNavigate('reference')}>Reference</button>
                     </div>
                     <div className="characterDisplay">
-                        {this.state.characterData.id !== undefined && 
-                        
-                        <div className="info" onClick={() => console.log(this.state.characterData)}>
-                            <span className="name">{this.state.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.state.characterData.level || "unknown"} {characterClass || "Class unknown"}</span>
-                        </div>
+                        {this.state.characterData.id !== undefined &&
+
+                            <div className="info" onClick={() => console.log(this.state.characterData)}>
+                                <span className="name">{this.state.characterData.name || "Unnamed"}</span>
+                                <span className="details">Level {this.state.characterData.level || "unknown"} {characterClass || "Class unknown"}</span>
+                            </div>
 
                         }
-                        {this.state.characterData.id === undefined && 
-                            
-                        <div className="info">
-                            <span className="name">No character selected</span>
-                            <span className="details">Create or select from the home page</span>
-                        </div>
-                        
+                        {this.state.characterData.id === undefined &&
+
+                            <div className="info">
+                                <span className="name">No character selected</span>
+                                <span className="details">Create or select from the home page</span>
+                            </div>
+
                         }
                         <div className="characterImg"></div>
                     </div>

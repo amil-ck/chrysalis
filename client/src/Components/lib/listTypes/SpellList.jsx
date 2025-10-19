@@ -36,7 +36,7 @@ export default class SpellList extends React.Component {
 
         // Convert components to string
         const spellData = this.state.spellData.map((spell) => {
-            const newSpell = {...spell};
+            const newSpell = structuredClone(spell);
             newSpell.combinedComponents = this.stringFromComponents(spell);
             if (newSpell.setters?.level === "0") {
                 newSpell.setters.level = " Cantrip";

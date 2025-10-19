@@ -22,7 +22,7 @@ export default class Play extends React.Component {
         if (recentTab && recentTab !== this.state.tab) {
             if (!['battle', 'inventory'].includes(recentTab)) {
                 // Spellcasting tab, check if allowed
-                if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.find(s => s.name.toLowerCase() === recentTab) === undefined) {
+                if (this.props.characterData.spellcastings === undefined || this.props.characterData.spellcastings.find(s => s.name?.toLowerCase() === recentTab) === undefined) {
                     console.log(recentTab)
                 } else {
                     return this.setState({
@@ -76,6 +76,9 @@ export default class Play extends React.Component {
 
 
         const spellcastings = this.props.characterData.spellcastings || [];
+        // Process spellcasting extends
+        const extents = this.props.characterData.spellcastings?.filter(s => s.extend && s.extend[0] === "true") || [];
+        console.log(extents)
 
         return (
             <div className="play fullPane">
@@ -83,12 +86,12 @@ export default class Play extends React.Component {
                     <button className={this.state.tab === 'battle' ? 'current' : ''} onClick={() => this.onNavigate('battle')}>Battle</button>
                     <button className={this.state.tab === 'inventory' ? 'current' : ''} onClick={() => this.onNavigate('inventory')}>Inventory</button>
                     {spellcastings.map(spellcasting => {
-                        return <button key={spellcasting.name} className={this.state.tab === spellcasting.name?.toLowerCase() ? 'current' : ''} onClick={() => this.onNavigate(spellcasting.name.toLowerCase())}>Magic ({spellcasting.name})</button>
+                        if (!spellcasting.extend) return <button key={spellcasting.name} className={this.state.tab === spellcasting.name?.toLowerCase() ? 'current' : ''} onClick={() => this.onNavigate(spellcasting.name.toLowerCase())}>Magic ({spellcasting.name})</button>
                     })}
                 </div>
                 {this.state.tab === 'battle' && <Battle characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} openModal={this.props.openModal} />}
                 {this.state.tab === 'inventory' && <Inventory characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} />}
-                {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} openModal={this.props.openModal} />}
+                {this.state.tab !== 'battle' && this.state.tab !== 'inventory' && <Magic spellcasting={spellcastings.find(e => e.name.toLowerCase() === this.state.tab)} extents={extents} characterData={this.props.characterData} updateCharacterData={this.props.updateCharacterData} openModal={this.props.openModal} />}
             </div>
 
         )
