@@ -4,6 +4,7 @@ import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
 import { calculateStat } from '../lib/statUtils.js';
+import { filterSpells } from '../lib/supportUtils.js';
 
 export default class Magic extends React.Component {
     constructor(props) {
@@ -149,19 +150,32 @@ export default class Magic extends React.Component {
     filterBySupports(filterStr, list = SPELLS) {
         // Very much unstable; based on guesswork and could break at any moment
 
-        const filters = filterStr.split(",");
+        // const filters = filterStr.split(",");
 
-        let filteredList = list.filter(i => {
-            return i.supports && i.supports.includes(filters[0]);
-        });
+        // let filteredList = list.filter(i => {
+        //     return i.supports && i.supports.includes(filters[0]);
+        // });
 
-        if (filters[1]) {
-            const filter = filters[1].replace("(", "").replace(")", "");
-            const options = filter.split("||");
-            filteredList = filteredList.filter(i => options.includes(i.setters.school));
+        // if (filters[1]) {
+        //     const filter = filters[1].replace("(", "").replace(")", "");
+        //     const options = filter.split("||");
+        //     filteredList = filteredList.filter(i => options.includes(i.setters.school));
+        // }
+
+        // return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] !== 0);
+
+        filterStr = [filterStr, this.getHighestSpellSlot()];
+        return filterSpells(filterStr);
+    }
+
+    getHighestSpellSlot() {
+        const slots = this.getSpellSlots();
+
+        for (let i = slots.length - 1; i >= 0; i--) {
+            if (slots[i] !== 0) {
+                return i;
+            }
         }
-
-        return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] !== 0);
     }
 
     getSpellByID(id) {
