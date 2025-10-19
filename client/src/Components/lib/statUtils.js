@@ -1,14 +1,15 @@
+import { CLASSES } from './indexData.js';
 import * as supportUtils from './supportUtils.js';
+
 
 export function calculateStat(statName, characterData) {
     if (!characterData.stats) return 0;
 
     // Check reserved first
 
-    const names = statName.split(":");
+    statName = statName.toLowerCase();
 
-    // TEMPORARY
-    if (statName === 'proficiency') return 2;
+    const names = statName.split(":");
     
     // Check for halving
     const halfIdx = names.indexOf("half");
@@ -27,6 +28,24 @@ export function calculateStat(statName, characterData) {
     if (names[0] === "level") {
         // TODO: deal with multiclassing
         return Number(characterData.level);
+    }
+
+    // Check max hp
+    // WARNING: this might be an incorrect formula?
+    // max of hit dice for first level, then for every level above 1 add the average of the hit dice
+    // plus level * constitution modifier
+    if (statName === 'hp') {
+        const hdType = getHitDie(characterData);
+
+        if (isNaN(hdType)) return 0;
+
+        const baseMax = hdType;
+
+        const avgSingleRoll = (hdType + 1) / 2;
+        const conBonus = calculateGenericStat("hp", characterData);
+        console.log(baseMax, avgSingleRoll, conBonus);
+
+        return Math.ceil(baseMax + (Number(characterData.level) - 1) * avgSingleRoll + conBonus);
     }
 
     // Check speed (apply innate speed)
@@ -87,8 +106,7 @@ export function calculateStat(statName, characterData) {
 function calculateGenericStat(statName, characterData, altNames=[]) {
     
 
-    const matchingStats = characterData.stats.filter(i => [...altNames, statName, `${statName}:misc`].includes(i.name));
-    console.log(statName, matchingStats)
+    const matchingStats = characterData.stats.filter(i => [...altNames.map(n => n.toLowerCase()), statName.toLowerCase(), `${statName}:misc`.toLowerCase()].includes(i.name.toLowerCase()));
     let finalValue = 0;
     const bonuses = {};
 
@@ -132,7 +150,6 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
     }
 
     // Add bonuses
-    console.log(bonuses);
     for (const i in bonuses) {
         finalValue += bonuses[i];
     }
@@ -140,8 +157,19 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
     return finalValue;
 }
 
+function getHitDie(characterData) {
+    const characterClassID = characterData.grants?.find(grant => grant.type === 'Class')?.id;
+    const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
+    const hd = characterClassData?.setters?.hd;
+    if (hd) {
+        return Number(hd[1]);
+    } else {
+        return NaN
+    }
+}
+
 function checkRequirements(reqs, characterData) {
-    return supportUtils.checkRequirments(reqs, characterData.grants.map(g => g.id));
+    return supportUtils.checkRequirements(reqs, characterData.grants.map(g => g.id));
 
     //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 
 }

@@ -1,15 +1,15 @@
 import * as React from 'react';
 import GenericList from '../../lib/GenericList.jsx';
-import { EVERYTHING } from '../../lib/indexData.js';
+import { EVERYTHING, SPELLS } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import SpellList from '../../lib/listTypes/SpellList.jsx';
-import { checkRequirments, checkSupports } from '../../lib/supportUtils.js';
+import { checkRequirements, checkSupports, filterSpells } from '../../lib/supportUtils.js';
+import { calculateStat } from '../../lib/statUtils.js';
 
 
-const SPELLS = EVERYTHING.filter(e => e.type === "Spell");
-const id = "ID_WOTC_PHB_CLASS_FEATURE_SORCERER_SPELLCASTING_SORCERER";
-const spellSlot = 3;
+const spellSlot = 4;
+
 
 export default class SpellCreation extends React.Component {
     constructor(props) {
@@ -17,16 +17,12 @@ export default class SpellCreation extends React.Component {
 
         this.props = props;
 
+        // console.log(calculateStat("spellSlot", this.props.characterData));
+
         const spellcastings = [];
 
         const grants = this.props.characterData.grants;
         this.spellsFromGrants = grants.filter(e => e.type === "Spell").map(e => e.id);
-        // let selects = grants.flatMap(e => {
-        //     if (this.getFromId(e.id)?.rules?.select !== undefined) {
-        //         return this.getFromId(e.id).rules.select;
-        //     }
-        // });
-        // selects = selects.filter(e => e?.type === "Spell");
 
         let selects = grants.flatMap(e => {
             let x = this.getFromId(e.id);
@@ -127,7 +123,7 @@ export default class SpellCreation extends React.Component {
     // this function can only work once the spells are chose becuase it uses the picked spell to check if it is a cantrip
     makeCantripsGrants(spells) {
         spells = spells.map(spell => {
-                if (spell.spellId !== null && this.getFromId(spell.spellId)?.setters?.level === "0") {
+                if (spell.spellId !== null && this.getFromId(spell.spellId)?.setters?.level === "0" || this.getFromId(spell.spellId)?.setters?.level.trim() === "Cantrip") {
                     spell.prepare = false;
                 }
                 return spell
@@ -191,32 +187,6 @@ export default class SpellCreation extends React.Component {
         this.saveData();
     }
 
-    range(start, end, step=1) {
-        start = Number(start);
-        end = Number(end);
-        step = Number(step);
-
-        const arr = [];
-        for (let i = start; i < end; i += step) {
-            arr.push(i.toString());
-        }
-        return arr;
-    }
-
-    getSpellSupports(spell) {
-        const supports = [...spell.supports || [], spell.setters.school, spell.id];
-
-        if (spell.setters.level == 0 || spell.setters.level == " Cantrip") {
-            supports.push("0", "Cantrip");
-        } else {
-            // For every spell that isn't a cantrip, it adds the level of the spell and every number up to 20 (normal dnd spells max out at level 12)
-            // Making it accessible by spell grants of higher levels
-            supports.push(...this.range(spell.setters.level, 20));
-        }
-
-        return supports;
-    }
-
     showSpells(spellGrant) {
         console.log(spellGrant);
 
@@ -227,7 +197,7 @@ export default class SpellCreation extends React.Component {
         console.log(supportList);
         console.log(SPELLS);
 
-        let filteredSpells = SPELLS.filter(e => checkRequirments(supportList, this.getSpellSupports(e)));
+        let filteredSpells = filterSpells(supportList);
 
         console.log(filteredSpells);
 
@@ -290,7 +260,7 @@ export default class SpellCreation extends React.Component {
             spell => ({id: spell.spellId, spellcasting: spell.spellcasting})
         )
 
-        grantedSpells.push(this.spellsFromGrants);
+        grantedSpells.push(...this.spellsFromGrants.map(e => {return {id: e, spellcasting: null}}));
 
         console.log(grantedSpells, knownSpells);
 

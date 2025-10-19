@@ -127,12 +127,14 @@ export default class DetailsTab extends React.Component {
             <div className="tab">
                 <div className="main">
                     <div className="inputList">
+                        <div className="title">New Character</div>
+
                         <div className="inputWrapper">
-                            <label htmlFor="name">Character name</label>
+                            <label htmlFor="name">Name</label>
                             <input type="text" name='name' placeholder={"e.g. " + this.state.namePlaceholder} value={this.state.name} onChange={this.handleChange} onBlur={this.handleInputBlur} />
                         </div>
                         <div className="inputWrapper">
-                            <label htmlFor="pronouns">Character pronouns</label>
+                            <label htmlFor="pronouns">Pronouns</label>
                             <input type="text" name="pronouns" placeholder={"e.g. they/she"} value={this.state.pronouns} onChange={this.handleChange} onBlur={this.handleInputBlur} />
                         </div>
                         <div className="inputWrapper">
