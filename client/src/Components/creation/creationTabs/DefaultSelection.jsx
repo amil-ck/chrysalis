@@ -3,6 +3,7 @@ import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import { checkRequirements, checkRequirementsGrants, checkSubset, checkSupports } from '../../lib/supportUtils.js';
+import { getGrants, getStats } from '../../lib/grantUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -80,8 +81,8 @@ export default class DefaultSelection extends React.Component {
     saveData() {
         // console.log({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData, [TYPE]: this.state.choices}}});
         const choiceIds = this.state.choices.flatMap(e => e.data);
-        const grants = choiceIds.flatMap(id => this.getGrants(id));
-        const stats = this.getStats(grants);
+        const grants = choiceIds.flatMap(id => getGrants(id, this.state.level));
+        const stats = getStats(grants, this.state.level);
         console.log(choiceIds);
 
         const grantDict =  {...this.props.characterData.creationData.grants, [TYPE]: grants};
@@ -281,32 +282,32 @@ export default class DefaultSelection extends React.Component {
 
     // Transplanted from previous version - might be bad and in need of fixing
     // This one gets weird and recursive for sure, crazy stuff
-    getGrants(id) {
-        let idList = [id];
-        const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
-        if (grant !== undefined) {
-            grant.forEach(
-                e => {
-                    console.log(e);
-                    if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
-                        if (e.number === undefined) {
-                            idList = idList.concat(this.getGrants(e.id));
-                        } else {    
-                            for (let i = 0; i < parseInt(e.number); i++) {
-                                idList = idList.concat(this.getGrants(e.id));
-                            }
-                        }
-                    }
-                }
-            )
-        }
+    // getGrants(id) {
+    //     let idList = [id];
+    //     const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
+    //     if (grant !== undefined) {
+    //         grant.forEach(
+    //             e => {
+    //                 console.log(e);
+    //                 if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
+    //                     if (e.number === undefined) {
+    //                         idList = idList.concat(this.getGrants(e.id));
+    //                     } else {    
+    //                         for (let i = 0; i < parseInt(e.number); i++) {
+    //                             idList = idList.concat(this.getGrants(e.id));
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         )
+    //     }
 
-        return idList;
-    }
+    //     return idList;
+    // }
 
     getSelects(id) {
         let choiceList = [];
-        let grants = this.getGrants(id);
+        let grants = getGrants(id, this.state.level);
 
         for (const grant of grants) {
             const select = CLASSES.find(e => e.id === grant)?.rules?.select
@@ -328,22 +329,22 @@ export default class DefaultSelection extends React.Component {
         return choiceList;
     }
 
-    // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
-    getStats(grantList) {
-        let statList = [];
+    // // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
+    // getStats(grantList) {
+    //     let statList = [];
 
-        for (const id of grantList) {
-            const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
-            if (stats !== undefined) {
-                if (Array.isArray(stats)) {
-                    statList.push(...stats);
-                } else {
-                    statList.push(stats);
-                }
-            }
-        }
+    //     for (const id of grantList) {
+    //         const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
+    //         if (stats !== undefined) {
+    //             if (Array.isArray(stats)) {
+    //                 statList.push(...stats);
+    //             } else {
+    //                 statList.push(stats);
+    //             }
+    //         }
+    //     }
         
-        return statList;
-    }
+    //     return statList;
+    // }
     
 }
