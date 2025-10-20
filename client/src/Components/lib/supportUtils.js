@@ -1,6 +1,9 @@
 import jsep, * as Jsep from "jsep";
 import { SPELLS } from "./indexData";
 
+jsep.addIdentifierChar(" ");
+jsep.addIdentifierChar(":");
+
 const daProblem = "!(ID_INTERNAL_GRANTS_REQTEMPFIX||ID_RACE_VARIANT_HUMAN_VARIANT||ID_INTERNAL_GRANTS_DRAGONMARK||ID_WOTC_WGTE_GRANTS_DARKMARKED||ID_UA_PS_GRANTS_HUMAN_VARIANT)" 
 
 export function supportsCalc(text) {
@@ -37,7 +40,19 @@ function checkNot(support, parentArray) {
     }
 }
 
+export function checkRequirementsGrants(bool, characterData) {
+    console.log(jsep(bool.toString()));
+
+
+    const grantArray = characterData.grants.map(e => e.id);
+    return recurse(jsep(bool.toString()), grantArray);
+}
+
+
 export function checkRequirements(bool, grantArray) {
+    if (bool === {}.toString()) {
+        console.log(jsep(bool.toString()));
+    }
     return recurse(jsep(bool.toString()), grantArray);
 }
 

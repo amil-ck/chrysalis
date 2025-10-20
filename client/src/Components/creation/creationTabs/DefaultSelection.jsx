@@ -2,7 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkRequirements, checkSubset, checkSupports } from '../../lib/supportUtils.js';
+import { checkRequirements, checkRequirementsGrants, checkSubset, checkSupports } from '../../lib/supportUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -123,6 +123,7 @@ export default class DefaultSelection extends React.Component {
                 return e;
             });
         }
+
         console.log(select);
         let filtered = EVERYTHING.filter(e => e.type === select.type);
         console.log(filtered);
@@ -135,15 +136,25 @@ export default class DefaultSelection extends React.Component {
                 e.setters?.type !== undefined && allSupports.push(e.setters.type);
 
                 // if (select.name === "Ability Score Increase (Level 4)") {
-                //     console.log(select.supports);
+                //     console.log(select.supports.toString());
                 //     console.log(allSupports);
                 // }
 
-                return checkSupports(select.supports, allSupports);
-                // return checkRequirments(select.supports.toString(), allSupports);
+                // return checkSupports(select.supports, allSupports);
+                return checkRequirements(select.supports.toString(), allSupports);
             })
         }
-        console.log(filtered);
+        // console.log(filtered);
+
+        // const grants = this.props.characterData.grants.map(e => e.id);
+
+        filtered = filtered.filter(e => {
+            if (e.requirements === undefined) {
+                return true;
+            } else {
+                return checkRequirementsGrants(e.requirements, this.props.characterData);
+            }
+        });
         
         return filtered
     }
@@ -221,10 +232,6 @@ export default class DefaultSelection extends React.Component {
             if (same !== undefined) {
                 console.log(same, newSelect);
                 newSelect.data = [...same.data];
-                
-                // this.state.choices.splice(this.state.choices.indexOf(select) + 1, 0, ...sels);
-
-                // newSelects.push(...
 
                 const childSelects = same.data.flatMap(e => {
                     let sels = this.getSelects(e);
@@ -306,7 +313,8 @@ export default class DefaultSelection extends React.Component {
             if (select !== undefined) {
                 select.forEach(
                     e => {
-                        if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                        if ((e.level === undefined || parseInt(e.level) <= this.state.level)
+                            && (e.requirements === undefined || checkRequirementsGrants(e.requirements, this.props.characterData))) {
                             e.data = [];
                             choiceList.push(e);
                         }
