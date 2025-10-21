@@ -2,7 +2,7 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkRequirments, checkSubset, checkSupports } from '../../lib/supportUtils.js';
+import { checkRequirements, checkSubset, checkSupports } from '../../lib/supportUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -123,8 +123,9 @@ export default class DefaultSelection extends React.Component {
                 return e;
             });
         }
-
+        console.log(select);
         let filtered = EVERYTHING.filter(e => e.type === select.type);
+        console.log(filtered);
         if (select.supports !== undefined) {
             filtered = filtered.filter(e => {
                 let allSupports = [e.id];
@@ -133,11 +134,16 @@ export default class DefaultSelection extends React.Component {
                 //possibly not covering a real edge case (still a possible edge case so i'll leave it)
                 e.setters?.type !== undefined && allSupports.push(e.setters.type);
 
+                // if (select.name === "Ability Score Increase (Level 4)") {
+                //     console.log(select.supports);
+                //     console.log(allSupports);
+                // }
+
                 return checkSupports(select.supports, allSupports);
-                // console.log(select.supports.toString());
                 // return checkRequirments(select.supports.toString(), allSupports);
             })
         }
+        console.log(filtered);
         
         return filtered
     }
@@ -203,15 +209,6 @@ export default class DefaultSelection extends React.Component {
     onLoadPage(selects) {
         const newSelects = [original];
 
-        // for (const select of selects) {
-        //     // console.log(select, select.data.flatMap(e => this.getSelects(e)));
-        //     const same = newSelects.find(e => this.compareSelectObject(select, e));
-
-        //     if (same !== undefined) {
-        //         same.data = [...select.data];
-        //         newSelects.push(...select.data.flatMap(e => this.getSelects(e)));
-        //     }
-        // }
         let index = 0;
         while (index < newSelects.length) {
             console.log(index);
@@ -299,8 +296,6 @@ export default class DefaultSelection extends React.Component {
             if (select !== undefined) {
                 select.forEach(
                     e => {
-                        //the e.supports !== undefined is for ranger'choices favoured enemy which gives you language (deal with this properly later)
-                        // if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
                         if (e.level === undefined || parseInt(e.level) <= this.state.level) {
                             e.data = [];
                             choiceList.push(e);

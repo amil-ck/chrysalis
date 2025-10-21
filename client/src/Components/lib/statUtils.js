@@ -169,7 +169,7 @@ function getHitDie(characterData) {
 }
 
 function checkRequirements(reqs, characterData) {
-    return supportUtils.checkRequirments(reqs, characterData.grants.map(g => g.id));
+    return supportUtils.checkRequirements(reqs, characterData.grants.map(g => g.id));
 
     //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 
 }

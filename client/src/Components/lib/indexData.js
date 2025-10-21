@@ -28,8 +28,11 @@ const LANGUAGES = everything.filter(i => i.type === 'Language');
 const BACKGROUNDS = everything.filter(i => i.type === 'Background');
 const CLASS_FEATURES = everything.filter(i => i.type === 'Class Feature');
 const ARCHETYPE_FEATURES = everything.filter(i => i.type === 'Archetype Feature');
+const MONSTERS = everything;
 
 //const EVERYTHING = everything.concat(internal).concat(chrysalisInternal);
 const EVERYTHING = everything;
 
-export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES };
+// const MONSTERS = monsters;
+
+export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES, MONSTERS };
