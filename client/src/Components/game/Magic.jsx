@@ -4,9 +4,8 @@ import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
 import { calculateStat } from '../lib/statUtils.js';
-import { filterSpells } from '../lib/supportUtils.js';
+import { filterSpells, checkRequirements } from '../lib/supportUtils.js';
 import Slots from '../lib/Slots.jsx';
-import { checkRequirments } from '../lib/supportUtils.js';
 
 export default class Magic extends React.Component {
     constructor(props) {
@@ -229,7 +228,7 @@ export default class Magic extends React.Component {
         const results = [];
 
         for (const o of list) {
-            if (checkRequirments(filterStr, o)) {
+            if (checkRequirements(filterStr, o)) {
                 results.push(o[0]); // add ID to list
             }
         }
