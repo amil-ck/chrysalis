@@ -6,6 +6,7 @@ import HPControl from './HPControl.jsx';
 import Slots from '../lib/Slots.jsx';
 import Action from './Action.jsx';
 import Modal from '../lib/BetterModal.jsx';
+import { FiPlus } from 'react-icons/fi';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -75,7 +76,7 @@ export default class Battle extends React.Component {
         this.characterRace = raceData?.name || undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait')?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
@@ -310,9 +311,12 @@ export default class Battle extends React.Component {
                             <div className="title">Hit dice</div>
                             <div className="value">{this.hitDice}</div>
                         </div>
-                        <div className="addTemp card">
-                            <button type="button" onClick={() => this.onAddTempHpClicked()}>ADD</button>
-                        </div>
+                        <button type="button" className='addTemp' onClick={() => this.onAddTempHpClicked()}>
+                            <span className="text">Temp</span>
+                            <span className="icon"><FiPlus size={24} /></span>
+                            <span className="text">HP</span>
+                        </button>
+                        
                         {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
                         <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} removeTempHp={(id) => this.removeTempHp(id)} />
                     </div>

@@ -76,12 +76,12 @@ export default class HPControl extends React.Component {
         console.log(hpArray)
 
         return (
-            <>
+            <div className='hps'>
                 {hpArray.map(t => 
                     {if (t && t.id) return (
                         
 
-                            <div className={t.id === "hp" ? "hp card base" : "hp card"}>
+                            <div key={t.id} className={t.id === "hp" ? "hp card base" : "hp card"}>
                                 <div className="change">
                                     <button type="button" onClick={() => this.addHp(t.id)}><FiPlus /></button>
                                     <input type="text" name={t.id} value={this.state.changeValues[t.id]} onChange={this.handleChange} onBlur={this.handleBlur} />
@@ -103,7 +103,7 @@ export default class HPControl extends React.Component {
 
                     )}
                 )}
-            </> 
+            </div> 
         )
     }
 }

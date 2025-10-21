@@ -132,6 +132,15 @@ button {
         align-items: center;
         justify-content: center;
     }
+
+    &.transparent {
+        background-color: transparent;
+        transition: background-color 0.05s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 15%);
+        }
+    }
 }
 
 select {
@@ -1046,14 +1055,14 @@ button.collapse {
                 button {
                     margin: 0 3px;
                 }
-                
+
             }
 
             .subtitle {
                 margin-top: 6px;
                 color: var(--text-secondary);
                 font-variation-settings: "wght" 500;
-            } 
+            }
         }
 
         .characterList {
@@ -1121,6 +1130,7 @@ button.collapse {
 
     input {
         padding: 8px 14px;
+        field-sizing: content;
     }
 }
 
@@ -1173,7 +1183,7 @@ button.collapse {
         }
 
         .body {
-            overflow-y: auto;
+            
         }
     }
 
@@ -1200,7 +1210,12 @@ button.collapse {
         &.battle {
             width: 100%;
             max-width: 1000px;
+            overflow-y: auto !important;
 
+            .main {
+                height: fit-content !important;
+                overflow-y: auto;
+            }
         }
 
         .header {
@@ -1242,37 +1257,63 @@ button.collapse {
                     height: 100%;
                 }
 
-                .hp {
+                button.addTemp {
                     display: flex;
-                    flex-direction: row;
+                    flex-direction: column;
+                    justify-content: space-evenly;
+                    background-color: var(--bg-2);
 
-                    &:not(.base) {
-                        background-color: var(--accent-color);
+                    &:hover {
+                        background-color: var(--bg-3);
                     }
 
-                    .change {
-                        border-right: 2px solid var(--bg-5);
+                    .text {
+                        color: var(--text-secondary);
+                        font-size: 10pt;
+                    }
 
+
+                }
+
+                .hps {
+                    display: flex;
+                    flex-direction: row-reverse;
+                    gap: 6px;
+
+                    .hp {
                         display: flex;
-                        flex-direction: column;
-                        width: 4rem;
+                        flex-direction: row;
 
-                        input {
-                            background-color: transparent;
+                        &:not(.base) {
+                            background-color: var(--accent-color);
                         }
-                    }
 
-                    .display {
-                        .value {
+                        .change {
+                            border-right: 2px solid var(--bg-5);
 
-                            .max {
-                                color: var(--text-secondary);
-                                font-size: 11pt;
-                                margin-left: 6px;
+                            display: flex;
+                            flex-direction: column;
+                            width: 4rem;
+
+                            input {
+                                background-color: transparent;
+                            }
+                        }
+
+                        .display {
+                            .value {
+
+                                .max {
+                                    color: var(--text-secondary);
+                                    font-size: 11pt;
+                                    margin-left: 6px;
+                                }
                             }
                         }
                     }
+
                 }
+
             }
         }
 
@@ -1292,7 +1333,6 @@ button.collapse {
                 display: flex;
                 flex-direction: column;
                 margin: 0 12px 0 0;
-                max-height: 100%;
 
                 resize: both;
 
@@ -1406,7 +1446,6 @@ button.collapse {
 
             .misc {
                 flex-grow: 1;
-
                 .topRow {
                     display: flex;
                     flex-direction: row;
@@ -1422,8 +1461,7 @@ button.collapse {
 
                 .miscTabs {
                     width: 100%;
-                    flex-grow: 1;
-                    max-height: 100%;
+                    /* flex-grow: 1; */
 
                     display: flex;
                     flex-direction: column;
@@ -1435,7 +1473,6 @@ button.collapse {
 
                     .body {
                         width: 100%;
-                        flex-grow: 1;
 
                         .actionList {
 
@@ -1836,14 +1873,13 @@ button.collapse {
 
             button {
                 padding: 8px 16px;
+                flex: 1;
 
-                &.negative {
-                    width: 50%;
+                &:first-child {
                     border-radius: 0 0 0 8px;
                 }
 
-                &.positive {
-                    flex-grow: 1;
+                &:last-child {
                     border-radius: 0 0 8px 0;
                 }
             }
