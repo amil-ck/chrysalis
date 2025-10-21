@@ -141,6 +141,14 @@ button {
             background-color: rgba(255, 255, 255, 15%);
         }
     }
+
+    &:disabled {
+        color: var(--text-secondary) !important;
+        cursor: default;
+        &:hover {
+            background-color: var(--bg-control) !important;
+        }
+    }
 }
 
 select {
@@ -1814,7 +1822,9 @@ button.collapse {
                     height: 100%;
 
                     button {
-                        background-color: transparent;
+                        /* background-color: transparent; */
+                        --bg-control: transparent;
+                        
                         height: 100%;
 
                         border-radius: 0 6px 6px 0;

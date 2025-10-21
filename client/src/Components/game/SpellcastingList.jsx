@@ -83,7 +83,7 @@ export default class SpellcastingList extends React.Component {
                                         
                                         }
                                     
-                                        <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
+                                        <button type='button' disabled={lvl != 0 && this.props.spellSlots[this.props.upcasting[spell.id] || lvl] === this.props.usedSpellSlots[this.props.upcasting[spell.id] || lvl]} onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
                                     </div>
                                 </div>
                             )}
