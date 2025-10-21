@@ -72,6 +72,7 @@ export default class Battle extends React.Component {
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
         const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
         const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
+        this.characterRace = raceData?.name || undefined;
 
         // Feats and features
         const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
@@ -300,7 +301,7 @@ export default class Battle extends React.Component {
                     <div className="details card">
                         <div className="body">
                             <span className="name">{this.props.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
+                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterRace || ""} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
                         </div>
                     </div>
                     <div className="divider"></div>
