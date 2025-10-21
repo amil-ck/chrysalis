@@ -33,14 +33,14 @@ export default class Magic extends React.Component {
             });
 
             // Create filter string for main spellcasting (usually class)
-            const mainFilter = this.props.spellcasting.list.known === true ? this.props.spellcasting.list.text : this.props.characterData.knownSpells.join("||");
-
+            const mainFilter = this.props.spellcasting.list.known === true ? this.props.spellcasting.list.text : this.props.characterData.knownSpells.filter(spell => spell.spellcasting === this.props.spellcasting.name).map(s => s.id).join("||");
+            console.log(mainFilter);
             // Combine extend filters into single string
             const extendFilter = relevantExtents.map(e => {
                 return e.extend.slice(1, e.extend.length).map(i => i.text).join("||");
             }).join("||");
 
-            const combinedFilter = `${mainFilter}||${extendFilter}`;
+            const combinedFilter = mainFilter + (extendFilter.length > 0 ? extendFilter : '');
 
             console.log(combinedFilter);
 
