@@ -40,7 +40,7 @@ export default class Magic extends React.Component {
                 return e.extend.slice(1, e.extend.length).map(i => i.text).join("||");
             }).join("||");
 
-            const combinedFilter = mainFilter + (extendFilter.length > 0 ? extendFilter : '');
+            const combinedFilter = mainFilter + (extendFilter.length > 0 ? "||" + extendFilter : '');
 
             console.log(combinedFilter);
 
