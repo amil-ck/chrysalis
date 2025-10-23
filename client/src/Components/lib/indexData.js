@@ -1,6 +1,6 @@
-//import everything from "../../data/everything.json"
-//import internal from "../../data/internal.json"
-//import chrysalisInternal from "../../data/chrysalisInternal.json"
+import everything_og from "../../data/everything.json"
+import internal from "../../data/internal.json"
+import chrysalisInternal from "../../data/chrysalisInternal.json"
 
 // const chryDataPath = await window.electronAPI.getDataPath();
 // const dataFiles = await window.electronAPI.readdir(`${chryDataPath}/content_files`);
@@ -19,7 +19,7 @@
 //     }
 // }
 
-const everything = [];
+const everything = everything_og.concat(internal).concat(chrysalisInternal);
 
 const SPELLS = everything.filter(i => i.type === 'Spell');
 const FEATS = everything.filter(i => i.type === 'Feat');
