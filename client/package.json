@@ -14,24 +14,24 @@
   "keywords": [],
   "authors": [
     {
-        "name": "Amil Chenganakkattil",
-        "email": "amil.ck@icloud.com"
+      "name": "Amil Chenganakkattil",
+      "email": "amil.ck@icloud.com"
     },
     {
-        "name": "Charlie Appleton",
-        "email": "xjarlie@gmail.com",
-        "url": "https://charlieappleton.dev"
+      "name": "Charlie Appleton",
+      "email": "xjarlie@gmail.com",
+      "url": "https://charlieappleton.dev"
     }
   ],
   "contributors": [
     {
-        "name": "Amil Chenganakkattil",
-        "email": "amil.ck@icloud.com"
+      "name": "Amil Chenganakkattil",
+      "email": "amil.ck@icloud.com"
     },
     {
-        "name": "Charlie Appleton",
-        "email": "xjarlie@gmail.com",
-        "url": "https://charlieappleton.dev"
+      "name": "Charlie Appleton",
+      "email": "xjarlie@gmail.com",
+      "url": "https://charlieappleton.dev"
     }
   ],
   "license": "GPL-3.0-or-later",
@@ -55,6 +55,7 @@
     "style-loader": "^3.3.4"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "dompurify": "^3.2.6",
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",

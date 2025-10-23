@@ -4,12 +4,13 @@ import Modal from '../lib/BetterModal.jsx';
 import GenericList from '../lib/GenericList.jsx';
 import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import { checkRequirments } from '../lib/supportUtils.js';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 
 export default class Inventory extends React.Component {
     constructor(props) {
         super();
         this.props = props;
-        
+
         this.groups = ["Weapons", "Armor", "Misc"];
 
         this.state = {
@@ -33,6 +34,7 @@ export default class Inventory extends React.Component {
         })
 
         this.onModalAddItemClick = this.onModalAddItemClick.bind(this);
+        this.onDragEnd = this.onDragEnd.bind(this);
     }
 
     componentDidMount() {
@@ -61,8 +63,8 @@ export default class Inventory extends React.Component {
             modalTitle: 'Add item',
             modalListData: this.allItems,
             modalActions: [
-                {text: 'Cancel', action: ()=>{}},
-                {text: 'Add', action: this.onModalAddItemClick}
+                { text: 'Cancel', action: () => { } },
+                { text: 'Add', action: this.onModalAddItemClick }
             ]
         })
     }
@@ -90,9 +92,9 @@ export default class Inventory extends React.Component {
         if (['Weapon', 'Armor'].includes(item.setters?.type)) {
             const baseFilterString = item.setters[item.setters.type.toLowerCase()];
             const searchList = item.setters.type === 'Weapon' ? this.searchableWeapons : this.searchableArmor;
-            
+
             const availableBases = this.filterBases(baseFilterString, searchList);
-            
+
             if (availableBases.length === 1) {
                 // No choices necessary
                 const baseData = this.allItems.find(i => i.id === availableBases[0]);
@@ -115,15 +117,15 @@ export default class Inventory extends React.Component {
                 this.setState({
                     modalListData: basesData,
                     modalActions: [
-                        {text: 'Cancel', action: () => {}},
-                        {text: 'Add', action: () => this.addWithBase(item)}
+                        { text: 'Cancel', action: () => { } },
+                        { text: 'Add', action: () => this.addWithBase(item) }
                     ],
                     modalTitle: `Choose ${item.setters.type}`,
                     showModal: true,
                     selectedItemData: undefined,
                     selectedItemID: undefined
                 })
-                
+
             }
 
         } else {
@@ -134,7 +136,7 @@ export default class Inventory extends React.Component {
     combineIntoItem(magicItem, base) {
         return {
             ...magicItem,
-            setters: {...base.setters, ...magicItem.setters},
+            setters: { ...base.setters, ...magicItem.setters },
             base: base
         }
     }
@@ -170,7 +172,7 @@ export default class Inventory extends React.Component {
         // TODO: add item's stats and grants (should be on equip really)
 
         this.props.updateCharacterData({
-            inventory: [...this.props.characterData.inventory, {...item, group, action: action, itemID}]
+            inventory: [...this.props.characterData.inventory, { ...item, group, action: action, itemID }]
         })
     }
 
@@ -201,28 +203,53 @@ export default class Inventory extends React.Component {
     }
 
     // insertStats(description = '') {
-    
+
     //         let parsedDescription = `${description}`;
-    
+
     //         const statNames = description.split("{{").map(str => {
     //             if (str.includes("}}")) {
     //                 return str.split("}}")[0]; // get substring between brackets
     //             }
     //         }).filter(i => !!i); // not null or undefined
-    
+
     //         console.log(statNames);
-    
+
     //         for (const statName of statNames) {
     //             const value = calculateStat(statName, this.props.characterData);
     //             parsedDescription = parsedDescription.replace(`{{${statName}}}`, value);
     //         }
-    
+
     //         return parsedDescription;
     //     }
-    
+
+    onDragEnd(result, provided) {
+        console.log(result);
+
+        if (result.reason !== 'DROP') return; // Drag cancelled
+
+        if (!result.destination) return; // Dragged outside a container
+
+        // TEMP: this won't work with multiple different lists
+        // TODO: figure out how to store multiple different lists
+
+        // TODO: figure out weird jittering behaviour on drag end - could be bc props change, could be scroll containers
+
+        if (result.destination.droppableId === 'misc') {
+            console.log('reordering')
+            const reorderedInv = [...this.props.characterData.inventory];
+            const item = reorderedInv[result.source.index];
+            reorderedInv.splice(result.source.index, 1); // Remove item from old index
+            reorderedInv.splice(result.destination.index, 0, item);
+
+            this.props.updateCharacterData({
+                inventory: reorderedInv
+            })
+        }
+    }
+
     render() {
 
-        
+
         const generalListOptions = {
             title: '',
             columnNames: ["Name", "Type", "Source"],
@@ -234,32 +261,66 @@ export default class Inventory extends React.Component {
             presetFilters: {
                 // Source: "Player’s Handbook"
             },
-            onItemSelected: (id) => this.setState({selectedItemID: id, selectedItemData: this.allItems.find(i => i.id === id)}),
-            onItemDoubleSelected: () => {},
+            onItemSelected: (id) => this.setState({ selectedItemID: id, selectedItemData: this.allItems.find(i => i.id === id) }),
+            onItemDoubleSelected: () => { },
             doubleSelectedItems: [this.state.selectedItemID]
         }
 
         return (
             <>
                 <div className="tab inventory">
-                    <div className="main">
-                    <div className="misc">
-                        {this.props.characterData.inventory.map(item => (
-                            <div className="item" key={item.itemID}>
-                                <span className="name">{this.formattedName(item)}</span>
-                                
-                            </div>
-                        ))}
-                    </div>
-                        <button type="button" onClick={() => this.openAddModal()}>Add item</button>
-                    </div>
+                    <DragDropContext onDragEnd={this.onDragEnd}>
+
+
+                        <div className="main">
+                            <Droppable droppableId='armor'>
+                                {(provided, snapshot) => (
+                                    <div className="armor card list" ref={provided.innerRef} {...provided.droppableProps}>
+
+                                    </div>
+                                )}
+                            </Droppable>
+
+                            <Droppable droppableId='misc'>
+                                {(provided, snapshot) => (
+                                    <div ref={provided.innerRef} className="misc card list" {...provided.droppableProps}>
+                                        <span className="title">Uncategorised</span>
+                                        <div className="body">
+                                            {this.props.characterData.inventory.map((item, index) => (
+                                                <Draggable
+                                                    draggableId={item.itemID}
+                                                    index={index}
+                                                    key={item.itemID}>
+                                                    {(prov, snap) => (
+                                                        <div
+                                                            ref={prov.innerRef}
+                                                            className="item"
+                                                            {...prov.draggableProps}
+                                                            {...prov.dragHandleProps}>
+
+                                                            <span className="name">{this.formattedName(item)}</span>
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+
+                                            ))}
+                                            {provided.placeholder}
+
+                                        </div>
+                                    </div>
+                                )}
+
+                            </Droppable>
+                            <button type="button" onClick={() => this.openAddModal()}>Add item</button>
+                        </div>
+                    </DragDropContext>
                 </div>
 
-                <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => {if (!this.state.keepModal) this.setState({showModal: false, selectedItemID: undefined, selectedItemData: undefined})}}>
+                <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => { if (!this.state.keepModal) this.setState({ showModal: false, selectedItemID: undefined, selectedItemData: undefined }) }}>
                     {this.state.modalType === 'general' &&
-                    
-                    <GenericList {...generalListOptions} data={this.state.modalListData} />
-                    
+
+                        <GenericList {...generalListOptions} data={this.state.modalListData} />
+
                     }
                     <ChrysalisInfoPane data={this.state.selectedItemData} />
                 </Modal>
