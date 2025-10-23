@@ -24,7 +24,7 @@ export default class Slots extends React.Component {
         return (
             <div {...this.props} className={"slotWrapper " + (this.props.className || '')}>
                 <div className="label">{this.props.label}</div>
-                {[...Array(this.props.max)].keys().map(idx => (
+                {[...Array(this.props.max).keys()].map(idx => (
                     <div className={idx < this.props.value ? "slot used" : "slot"} onClick={() => this.handleClick(idx)} key={idx}></div>
                 ))}
             </div>

@@ -117,6 +117,53 @@ export async function importCharacter() {
     }
 }
 
+export async function importContent() {
+    // 1. Show file picker dialog
+    const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
+        title: 'Import Content Files',
+        buttonLabel: 'Import',
+        filters: [
+            {
+                name: 'JSON file',
+                extensions: ['json']
+            }
+        ],
+        properties: ['openFile']
+    });
+
+    if (canceled) return;
+
+
+    // 2. Load data from given filepath
+    try {
+        const data = await window.electronAPI.readFile(filePaths[0]);
+        const parsed = JSON.parse(data);
+
+        const pathElements = filePaths[0].replaceAll("\\", "/").split("/");
+        let fileName = pathElements[pathElements.length - 1];
+
+        if (parsed.length && parsed.length > 0 && parsed[0].id !== undefined) {
+            const fileList = await window.electronAPI.readdir(`${await window.electronAPI.getDataPath()}/content_files`);
+            
+            let nameExists = fileList.includes(fileName);
+            while (nameExists) {
+                fileName += " Copy";
+                nameExists = fileList.includes(fileName);
+            }
+
+
+            await window.electronAPI.writeFile(`${await window.electronAPI.getDataPath()}/content_files/${fileName}`, data);
+
+            return fileName;
+        }
+
+    } catch (e) {
+        console.warn("Error in importing:", e);
+        return;
+    }
+}
+
+
 export async function exportCharacter(id) {
     try {
         // 1. Get character data

@@ -1,9 +1,12 @@
 import * as React from 'react';
 import DOMPurify from 'dompurify';
 import { calculateStat } from '../lib/statUtils.js';
-import { ARCHETYPES, CLASSES, EVERYTHING } from '../lib/indexData';
-import { FiPlus, FiMinus } from 'react-icons/fi';
+import { ARCHETYPES, CLASSES, EVERYTHING, RACES } from '../lib/indexData';
 import HPControl from './HPControl.jsx';
+import Slots from '../lib/Slots.jsx';
+import Action from './Action.jsx';
+import Modal from '../lib/BetterModal.jsx';
+import { FiPlus } from 'react-icons/fi';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -13,7 +16,22 @@ export default class Battle extends React.Component {
         this.state = {
             miscTab: 'Actions',
             notes: this.props.characterData.notes || { general: '', conditions: '' },
-            hp: this.props.characterData.hp
+            showModal: false,
+            modalText: {
+                name: '',
+                value: '0',
+                max: ''
+            },
+            onModalPositive: () => {
+                if (this.state.modalText.name.length > 0) {
+                    this.addTempHp(
+                        this.state.modalText.name.toLowerCase(), 
+                        this.state.modalText.name,
+                        Number(this.state.modalText.value) || 0,
+                        Number(this.state.modalText.max) || -1
+                    )
+                }
+            }
         }
 
         if (this.props.characterData.id === undefined) {
@@ -53,21 +71,27 @@ export default class Battle extends React.Component {
         this.characterClass = characterClassData?.name || undefined;
         const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
+        const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
+        const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
+        this.characterRace = raceData?.name || undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait')?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
             const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
             const descriptionWithStats = this.insertStats(sanitisedDescription);
-
+            const maxUsage = feat.sheet?.usage?.split("/")[0];
+            const resetOn = feat.sheet?.usage?.split("/")[1];
             return {
                 id: feat.id,
                 name: feat.sheet?.alt || feat.name,
                 description: descriptionWithStats,
                 action: feat.sheet?.action,
-                usage: feat.sheet?.usage
+                usageStr: feat.sheet?.usage,
+                maxUsage,
+                resetOn
             }
         })
 
@@ -114,16 +138,32 @@ export default class Battle extends React.Component {
             }
         })
 
-        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined)];
+        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
 
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
+        this.updateHp = this.updateHp.bind(this);
+        this.onModalInputChange = this.onModalInputChange.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const toUpdate = {};
-        if (this.props.characterData.hp === undefined) {
-            toUpdate.hp = calculateStat("hp", this.props.characterData);
+        const maxHp = await calculateStat("hp", this.props.characterData);
+        if (this.props.characterData.hps === undefined) {
+            let newHp = maxHp;
+            if (typeof this.props.characterData.hp === 'number') newHp = this.props.characterData.hp; 
+
+            toUpdate.hps = {
+                hp: {
+                    name: 'HP',
+                    value: newHp,
+                    max: maxHp
+                }
+            };
+            console.log("bing bong", toUpdate)
+        } else if (maxHp !== this.props.characterData.hps.hp.maxHp) {
+            toUpdate.hps = structuredClone(this.props.characterData.hps);
+            toUpdate.hps.hp.max = maxHp;
         }
 
         if (this.props.characterData.actionUsage === undefined) {
@@ -171,6 +211,49 @@ export default class Battle extends React.Component {
         });
     }
 
+    handleActionUse(id, value) {
+        this.props.updateCharacterData({
+            actionUsage: {...this.props.characterData.actionUsage, [id]: value}
+        })
+    }
+
+    updateHp(id, newValue) {
+        console.log("hp update", id, newValue);
+        const newObj = {
+            ...this.props.characterData.hps[id],
+            value: newValue
+        }
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: newObj}
+        })
+    }
+    
+    addTempHp(id, name, value, max=-1) {
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: {
+                name, value, max
+            }}
+        })
+    }
+
+    removeTempHp(id) {
+        this.props.updateCharacterData({
+            hps: {...this.props.characterData.hps, [id]: undefined}
+        })
+    }
+
+    onAddTempHpClicked() {
+        this.setState({
+            showModal: true
+        })
+    }
+
+    onModalInputChange(e) {
+        this.setState({
+            modalText: {...this.state.modalText, [e.target.name]: e.target.value}
+        })
+    }
+
     render() {
         if (this.props.characterData.id === undefined) {
             return (<>No character selected</>)
@@ -179,13 +262,12 @@ export default class Battle extends React.Component {
         this.miscTabs = ['Actions', 'Backstory', 'Features', 'Notes'];
         this.miscTabBodies = {
             Actions: (
-                <div className="actionList">
-                    {this.processedActions.map(a => (
-                        <div className="action" key={a.name}>
-                            <span className="name">{a.name} ({a.action})</span>
-                            
-                        </div>
-                    ))}
+                <div className="actionList card list">
+                    <div className="body">
+                        {this.processedActions.map(a => (
+                            <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
+                        ))}
+                    </div>
                 </div>
             ),
             Backstory: <></>,
@@ -220,7 +302,7 @@ export default class Battle extends React.Component {
                     <div className="details card">
                         <div className="body">
                             <span className="name">{this.props.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
+                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterRace || ""} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
                         </div>
                     </div>
                     <div className="divider"></div>
@@ -229,7 +311,14 @@ export default class Battle extends React.Component {
                             <div className="title">Hit dice</div>
                             <div className="value">{this.hitDice}</div>
                         </div>
-                        <HPControl hp={this.props.characterData.hp} maxHp={this.maxHp} updateHp={(newHp) => this.props.updateCharacterData({ hp: newHp })} />
+                        <button type="button" className='addTemp' onClick={() => this.onAddTempHpClicked()}>
+                            <span className="text">Temp</span>
+                            <span className="icon"><FiPlus size={24} /></span>
+                            <span className="text">HP</span>
+                        </button>
+                        
+                        {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
+                        <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} removeTempHp={(id) => this.removeTempHp(id)} />
                     </div>
                 </div>
                 <div className="main">
@@ -320,6 +409,22 @@ export default class Battle extends React.Component {
                         </div>
                     </div> */}
                 </div>
+                <Modal show={this.state.showModal} title="Add Temporary HP" positiveText="Add" negativeText="Cancel" onPositive={this.state.onModalPositive} onClose={() => {this.setState({showModal: false, modalText: {name:'',value:'0',max:''}})}}>
+                    <div className="inputList">
+                        <div className="inputWrapper">
+                            <label htmlFor="name">Name</label>
+                            <input type='text' name='name' placeholder='Temporary, Wild Shape...' value={this.state.modalText.name} onChange={this.onModalInputChange} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="value">Value</label>
+                            <input type="number" name="value" placeholder='Current value' value={this.state.modalText.value} onChange={this.onModalInputChange} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="max">Maximum</label>
+                            <input type="number" name="max" placeholder='Leave blank for no maximum' value={this.state.modalText.max} onChange={this.onModalInputChange} />
+                        </div>
+                    </div>
+                </Modal>
             </div>
         )
     }
