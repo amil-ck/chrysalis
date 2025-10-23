@@ -9,8 +9,8 @@ export default class Modal extends React.Component {
     }
 
     onClose(then = () => {}) {
-        then();
         this.props.onClose();
+        then();
     }
 
     render() {

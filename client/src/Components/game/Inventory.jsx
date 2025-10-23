@@ -21,6 +21,7 @@ export default class Inventory extends React.Component {
         }
 
         this.allItems = MAGIC_ITEMS.concat(WEAPONS).concat(ITEMS).concat(ARMOR);
+        this.state.modalListData = this.allItems;
 
         // Create item lists suitable for checkrequirments:
         this.searchableWeapons = WEAPONS.map(w => {
@@ -37,6 +38,9 @@ export default class Inventory extends React.Component {
         const toUpdate = {};
 
         if (this.props.characterData.inventory?.length > 0) {
+            // Checks whether character uses old version of inventory
+            // if so, resets it
+            // its still alpha we're allowed to mess with existing character files i think
             if (typeof this.props.characterData.inventory[0].id === 'number') {
                 toUpdate.inventory = [];
             }
@@ -90,27 +94,57 @@ export default class Inventory extends React.Component {
                 // No choices necessary
                 const baseData = this.allItems.find(i => i.id === availableBases[0]);
 
-                const combinedItem = {
-                    ...item,
-                    setters: {...baseData.setters, ...item.setters},
-                    base: baseData
-                }
+                // const combinedItem = {
+                //     ...item,
+                //     setters: {...baseData.setters, ...item.setters},
+                //     base: baseData
+                // }
 
-                this.addToInventory(combinedItem);
+                this.addToInventory(this.combineIntoItem(item, baseData));
 
             } else {
                 // TODO: give user a choice of bases
                 console.log('not supported yet lol')
+
+                const basesData = this.allItems.filter(i => availableBases.includes(i.id));
+                console.log(basesData)
+
+                this.setState({
+                    modalListData: basesData,
+                    modalActions: [
+                        {text: 'Cancel', action: () => {}},
+                        {text: 'Add', action: () => this.addWithBase(item)}
+                    ],
+                    showModal: true,
+                    selectedItemData: undefined,
+                    selectedItemID: undefined
+                })
+                
             }
 
-        } else if (item.setters?.type === 'Armor') {
         } else {
             this.addToInventory(item);
         }
     }
 
+    combineIntoItem(magicItem, base) {
+        return {
+            ...magicItem,
+            setters: {...base.setters, ...magicItem.setters},
+            base: base
+        }
+    }
+
+    addWithBase(magicItem) {
+        if (this.state.selectedItemID === undefined) return;
+
+        const base = this.allItems.find(i => i.id === this.state.selectedItemID);
+        if (!base) return;
+
+        this.addToInventory(this.combineIntoItem(magicItem, base));
+    }
+
     filterBases(filterStr, list) {
-        // TODO: incorporate checkRequirments
         const results = [];
         for (const o of list) {
             if (checkRequirments(filterStr, o)) {
@@ -135,12 +169,57 @@ export default class Inventory extends React.Component {
             inventory: [...this.props.characterData.inventory, {...item, group, action: action, itemID}]
         })
     }
+
+    formattedName(item) {
+        if (!item.setters["name-format"]) return item.name;
+
+        let formatted = `${item.setters["name-format"]}`;
+
+        const statNames = formatted.split("{{").map(str => {
+            if (str.includes("}}")) {
+                return str.split("}}")[0]; // get substring between brackets
+            }
+        }).filter(i => !!i); // not null or undefined
+
+        for (const statName of statNames) {
+            let replaceWith = "error";
+            if (statName === 'parent') {
+                // reserved name
+                replaceWith = item.name;
+            } else {
+                replaceWith = item.setters[statName];
+            }
+
+            formatted = formatted.replace(`{{${statName}}}`, replaceWith);
+        }
+
+        return formatted;
+    }
+
+    // insertStats(description = '') {
+    
+    //         let parsedDescription = `${description}`;
+    
+    //         const statNames = description.split("{{").map(str => {
+    //             if (str.includes("}}")) {
+    //                 return str.split("}}")[0]; // get substring between brackets
+    //             }
+    //         }).filter(i => !!i); // not null or undefined
+    
+    //         console.log(statNames);
+    
+    //         for (const statName of statNames) {
+    //             const value = calculateStat(statName, this.props.characterData);
+    //             parsedDescription = parsedDescription.replace(`{{${statName}}}`, value);
+    //         }
+    
+    //         return parsedDescription;
+    //     }
     
     render() {
 
         
         const generalListOptions = {
-            data: this.allItems,
             title: 'Items',
             columnNames: ["Name", "Type", "Source"],
             shownColumns: ["Name", "Type", "Source"],
@@ -164,10 +243,10 @@ export default class Inventory extends React.Component {
                     </div>
                 </div>
 
-                <Modal show={this.state.showModal} title="Add item" actions={this.state.modalActions} onClose={() => {this.setState({showModal: false})}}>
+                <Modal show={this.state.showModal} title="Add item" actions={this.state.modalActions} onClose={() => {if (!this.state.keepModal) this.setState({showModal: false, selectedItemID: undefined, selectedItemData: undefined})}}>
                     {this.state.modalType === 'general' &&
                     
-                    <GenericList {...generalListOptions} />
+                    <GenericList {...generalListOptions} data={this.state.modalListData} />
                     
                     }
                     <ChrysalisInfoPane data={this.state.selectedItemData} />
