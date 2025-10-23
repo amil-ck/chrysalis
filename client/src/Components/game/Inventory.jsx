@@ -16,6 +16,7 @@ export default class Inventory extends React.Component {
             modalType: 'general',
             showModal: false,
             modalActions: [],
+            modalTitle: "Add item",
             selectedItemID: undefined,
             selectedItemData: undefined
         }
@@ -57,6 +58,8 @@ export default class Inventory extends React.Component {
         this.setState({
             showModal: true,
             modalType: 'general',
+            modalTitle: 'Add item',
+            modalListData: this.allItems,
             modalActions: [
                 {text: 'Cancel', action: ()=>{}},
                 {text: 'Add', action: this.onModalAddItemClick}
@@ -115,6 +118,7 @@ export default class Inventory extends React.Component {
                         {text: 'Cancel', action: () => {}},
                         {text: 'Add', action: () => this.addWithBase(item)}
                     ],
+                    modalTitle: `Choose ${item.setters.type}`,
                     showModal: true,
                     selectedItemData: undefined,
                     selectedItemID: undefined
@@ -185,7 +189,7 @@ export default class Inventory extends React.Component {
             let replaceWith = "error";
             if (statName === 'parent') {
                 // reserved name
-                replaceWith = item.name;
+                replaceWith = item.base.name;
             } else {
                 replaceWith = item.setters[statName];
             }
@@ -220,7 +224,7 @@ export default class Inventory extends React.Component {
 
         
         const generalListOptions = {
-            title: 'Items',
+            title: '',
             columnNames: ["Name", "Type", "Source"],
             shownColumns: ["Name", "Type", "Source"],
             allowFilter: ["Type", "Source"],
@@ -239,11 +243,19 @@ export default class Inventory extends React.Component {
             <>
                 <div className="tab inventory">
                     <div className="main">
+                    <div className="misc">
+                        {this.props.characterData.inventory.map(item => (
+                            <div className="item" key={item.itemID}>
+                                <span className="name">{this.formattedName(item)}</span>
+                                
+                            </div>
+                        ))}
+                    </div>
                         <button type="button" onClick={() => this.openAddModal()}>Add item</button>
                     </div>
                 </div>
 
-                <Modal show={this.state.showModal} title="Add item" actions={this.state.modalActions} onClose={() => {if (!this.state.keepModal) this.setState({showModal: false, selectedItemID: undefined, selectedItemData: undefined})}}>
+                <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => {if (!this.state.keepModal) this.setState({showModal: false, selectedItemID: undefined, selectedItemData: undefined})}}>
                     {this.state.modalType === 'general' &&
                     
                     <GenericList {...generalListOptions} data={this.state.modalListData} />
