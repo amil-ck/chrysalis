@@ -1,3 +1,39 @@
+/* START SWITCH STYLING */
+.switch {
+    height: 28px;
+    width: 50px;
+    background-color: gray;
+    border-radius: 4px;
+    border: 1px solid black;
+    transition: background-color 0.1s ease, border-color 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    /* box-shadow: 1px 1px 10px black; */
+}
+
+.switch-thumb {
+    height: 20px;
+    width: 20px;
+    background-color: var(--bg-0);
+    border-radius: 4px;
+    transform: translateX(0);
+    transition: left 0.05s ease;
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.switch.toggled {
+    background-color: var(--accent-color);
+}
+
+.switch-thumb.toggled {
+    left: 25px;
+}
+
+/* END SWITCH STYLING */
+
 @font-face {
     font-family: "Open Sans";
     src: url("font/OpenSans-VariableFont_wdth\,wght.ttf");
@@ -1902,3 +1938,4 @@ button.collapse {
 }
 
 /* END MODAL STYLING */
+
