@@ -45,6 +45,13 @@ export function updateAllGrants(grantDict, level, props, extraData={}, extraCrea
     
     const allStats = getStats(allGrants, level);
     const statDict = props.characterData.creationData.stats;
+
+    // remove later, only necessary for old save files
+    for (const thing of ["Class", "Race", "Background", "level", "Level"]) {
+        delete statDict[thing];
+    }
+    /////
+
     allStats.push(...Object.keys(statDict).flatMap(key => statDict[key]));
 
     allGrants = allGrants.map(id => {
@@ -55,6 +62,7 @@ export function updateAllGrants(grantDict, level, props, extraData={}, extraCrea
         {
             creationData: {...props.characterData.creationData,
                 grants: grantDict,
+                stats: statDict,
                 ...extraCreationData,
             },
             grants: allGrants,

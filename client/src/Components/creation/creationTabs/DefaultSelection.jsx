@@ -4,6 +4,7 @@ import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import { checkRequirements, checkRequirementsGrants, checkSubset, checkSupports } from '../../lib/supportUtils.js';
 import { getGrants, getStats, updateAllGrants } from '../../lib/grantUtils.js';
+import GenericList from '../../lib/GenericList.jsx';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -57,7 +58,7 @@ export default class DefaultSelection extends React.Component {
                     {console.log(this.state.choices)}
                     {this.state.choices.map(
                         select => {
-                            return <ClassList
+                            return <GenericList
                                 onItemSelected={this.onFeatureSelected}
                                 selectedItemID={this.state.selectedFeatureID}
                                 onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, select, select.number || 1)}
@@ -66,6 +67,12 @@ export default class DefaultSelection extends React.Component {
                                 // presetFilters={{Supports: e}}
                                 title={select.name + (select.optional ? " (Optional)" : "")}
                                 data={this.getDataForSelect(select)}
+                                columnNames = {["Name", "Type", "Source"]}
+                                shownColumns = {["Name", "Type", "Source"]}
+                                allowFilter = {["Source"]}
+                                allowSearch = {["Name"]}
+                                columnLocations = {["name", "type", "source"]}
+                                multiValueColumns = {[]}
                             />
                     })}
                 </div>
