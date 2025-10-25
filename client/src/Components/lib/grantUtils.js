@@ -67,3 +67,21 @@ export function updateAllGrants(grantDict, level, props, extraData={}, extraCrea
 export function getFromId(id) {
     return EVERYTHING.find(e => e.id === id);
 }
+
+export function isEqual(obj1, obj2, ignore=[]) {
+    obj1 = {...obj1};
+    obj2 = {...obj2};
+
+    for (const property of ignore) {
+        delete obj1[property];
+        delete obj2[property];
+    }
+
+    for (const key of obj1) {
+        if (obj1[key] !== obj2[key]) {
+            return false
+        }
+    }
+
+    return true;
+}
