@@ -2,6 +2,7 @@ import * as React from 'react';
 import diceRoll from '../lib/diceRoll';
 import DiceRollAnim from '../lib/DiceRollAnim.jsx';
 import { calculateStat } from '../lib/statUtils.js';
+import { updateAllGrants, getStats } from '../lib/grantUtils.js';
 
 export default class AbilityScores extends React.Component {
     constructor(props) {
@@ -127,7 +128,16 @@ export default class AbilityScores extends React.Component {
         console.log(scoresStatList);
 
         const statDict =  {...this.props.characterData.creationData.stats, "Abilities": scoresStatList};
-        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+        const grantDict = this.props.characterData.creationData.grants;
+
+        // const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+        const allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+        const allStats = getStats(allGrants, this.props.characterData.level);
+        // const statDict = props.characterData.creationData.stats;
+        allStats.push(...Object.keys(statDict).flatMap(key => statDict[key]));
+
+        // updateAllGrants(grantDict, this.props.characterData.level, this.props, {stats: allStats}, {stats: statDict});
+
 
         this.props.updateCharacterData(
             {
