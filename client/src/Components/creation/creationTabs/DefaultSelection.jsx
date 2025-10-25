@@ -89,35 +89,6 @@ export default class DefaultSelection extends React.Component {
         const choices = {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]};
 
         updateAllGrants(grantDict, this.props.characterData.level, this.props, {}, {choices: choices});
-
-        // let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
-
-        // const statDict =  {...this.props.characterData.creationData.stats, [TYPE]: stats};
-        // const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
-
-        // console.log(grantDict);
-        // console.log(allGrants);
-        
-        // console.log(statDict);
-        // console.log(allStats);
-
-        // allGrants = allGrants.map(id => {
-            // return {"id": id, "type": this.getFromId(id)?.type};
-        // });
-
-        // console.log(allGrants);
-
-        // this.props.updateCharacterData(
-        //     {
-        //         creationData: {...this.props.characterData.creationData,
-        //             choices: {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]},
-        //             grants: grantDict,
-        //             stats: statDict
-        //         },
-        //         grants: allGrants,
-        //         stats: allStats
-        //     }
-        // )
     }
 
     getDataForSelect(select) {
@@ -253,61 +224,12 @@ export default class DefaultSelection extends React.Component {
         return newSelects;
     }
 
-    // updateStuff() {
-    //     const choices = selects.flatMap(select => select.data);
-
-    //     const selects = [original, ...choices.flatMap(id => this.getSelects(id))];
-        
-    //     const checkChoices =  [...selects];
-
-    //     let id = 0
-    //     for (const select1 of selects) {
-    //         const same = checkChoices.find(select2 => this.compareSelectObject(select1, select2));
-    //         console.log(same);
-    //         if (same !== undefined) {
-    //             console.log(select1.name, select1.data, same.data);
-    //             select1.data = same.data;
-    //             checkChoices.splice(checkChoices.indexOf(select1), 1);
-    //         }
-    //         select1.id = id;
-    //         id++;
-    //     }
-
-    //     this.setState({choices: selects, change: !this.state.change});
-    // }
-
     compareSelectObject(obj1, obj2) {
         obj1 = {...obj1}; obj2 = {...obj2};
         delete obj1.data; delete obj2.data; delete obj1.id; delete obj2.id; delete obj1.from; delete obj2.from;
         // console.log(obj1, obj2);
         return JSON.stringify(obj1) === JSON.stringify(obj2);
     }
-
-
-    // Transplanted from previous version - might be bad and in need of fixing
-    // This one gets weird and recursive for sure, crazy stuff
-    // getGrants(id) {
-    //     let idList = [id];
-    //     const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
-    //     if (grant !== undefined) {
-    //         grant.forEach(
-    //             e => {
-    //                 console.log(e);
-    //                 if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
-    //                     if (e.number === undefined) {
-    //                         idList = idList.concat(this.getGrants(e.id));
-    //                     } else {    
-    //                         for (let i = 0; i < parseInt(e.number); i++) {
-    //                             idList = idList.concat(this.getGrants(e.id));
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         )
-    //     }
-
-    //     return idList;
-    // }
 
     getSelects(id) {
         let choiceList = [];
@@ -332,23 +254,4 @@ export default class DefaultSelection extends React.Component {
 
         return choiceList;
     }
-
-    // // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
-    // getStats(grantList) {
-    //     let statList = [];
-
-    //     for (const id of grantList) {
-    //         const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
-    //         if (stats !== undefined) {
-    //             if (Array.isArray(stats)) {
-    //                 statList.push(...stats);
-    //             } else {
-    //                 statList.push(stats);
-    //             }
-    //         }
-    //     }
-        
-    //     return statList;
-    // }
-    
 }
