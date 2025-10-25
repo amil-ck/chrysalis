@@ -40,20 +40,30 @@ export function getStats(grantList, level) {
     return statList;
 }
 
-export function saveData(grantList) {
-    console.log(characterData);
-
+export function updateAllGrants(grantDict, level, props, extraData={}, extraCreationData={}) {
     let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
-    const allStats = getStats(allGrants);
+    
+    const allStats = getStats(allGrants, level);
+    const statDict = props.characterData.creationData.stats;
+    allStats.push(...Object.keys(statDict).flatMap(key => statDict[key]));
 
     allGrants = allGrants.map(id => {
-        return {"id": id, "type": this.getFromId(id)?.type};
+        return {"id": id, "type": getFromId(id)?.type};
     });
 
-    this.props.updateCharacterData(
+    props.updateCharacterData(
         {
+            creationData: {...props.characterData.creationData,
+                grants: grantDict,
+                ...extraCreationData,
+            },
             grants: allGrants,
-            stats: allStats
+            stats: allStats,
+            ...extraData,
         }
     )
+}
+
+export function getFromId(id) {
+    return EVERYTHING.find(e => e.id === id);
 }

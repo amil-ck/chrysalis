@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { EVERYTHING } from '../../lib/indexData';
-import {getGrants, getStats} from "../../lib/grantUtils";
+import {getGrants, getStats, updateAllGrants} from "../../lib/grantUtils";
 import Switch from '../../lib/Switch.jsx';
 
 const switchDict = {
@@ -58,66 +58,13 @@ export default class DetailsTab extends React.Component {
 
         const grantDict =  {...this.props.characterData.creationData.grants, level: grants};
 
-        this.updateAllGrants(grantDict, level, this.props.updateCharacterData, {level: level});
-
-        // let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
-
-        // const statDict = this.props.characterData.creationData.stats;
-        // const allStats = getStats(allGrants, level);
-        // allStats.push(...Object.keys(statDict).flatMap(key => statDict[key]));
-
-        // const statDict =  {...this.props.characterData.creationData.stats, level: stats};
-        
-
-        // console.log(grantDict);
-        // console.log(allGrants);
-        
-        // console.log(statDict);
-        // console.log(allStats);
-
-        // allGrants = allGrants.map(id => {
-        //     return {"id": id, "type": this.getFromId(id)?.type};
-        // });
-
-        // this.props.updateCharacterData(
-        //     {
-        //         creationData: {...this.props.characterData.creationData,
-        //             grants: grantDict,
-        //         },
-        //         grants: allGrants,
-        //         stats: allStats,
-        //         level: level
-        //     }
-        // )
-    }
-
-    updateAllGrants(grantDict, level, updateCharacterDataFunction, extraData={}) {
-        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
-        
-        const allStats = getStats(allGrants, level);
-        const statDict = this.props.characterData.creationData.stats;
-        allStats.push(...Object.keys(statDict).flatMap(key => statDict[key]));
-
-        allGrants = allGrants.map(id => {
-            return {"id": id, "type": this.getFromId(id)?.type};
-        });
-
-        updateCharacterDataFunction(
-            {
-                creationData: {...this.props.characterData.creationData,
-                    grants: grantDict,
-                },
-                grants: allGrants,
-                stats: allStats,
-                ...extraData
-            }
-        )
+        updateAllGrants(grantDict, level, this.props, {level: level});
     }
 
     handleSwtiches(name) {
         const id = switchDict[name];
 
-        const grants = this.props.characterData.creationData.grants.level;
+        const grants = this.props.characterData.creationData.grants.switches || [];
 
         if (grants.includes(id)) {
             grants.splice(grants.indexOf(id), 1);
@@ -125,14 +72,14 @@ export default class DetailsTab extends React.Component {
             grants.push(id);
         }
 
-        const grantDict =  {...this.props.characterData.creationData.grants, level: grants};
+        const grantDict =  {...this.props.characterData.creationData.grants, switches: grants};
 
-        this.updateAllGrants(grantDict, this.props.characterData.level, this.props.updateCharacterData);
+        updateAllGrants(grantDict, this.props.characterData.level, this.props);
     }
 
     isSwitchOn(name) {
         const id = switchDict[name];
-        return this.props.characterData.creationData.grants.level.includes(id);
+        return this.props.characterData.creationData.grants.switches?.includes(id);
     }
 
     getFromId(id) {

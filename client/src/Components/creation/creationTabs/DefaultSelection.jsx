@@ -3,7 +3,7 @@ import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
 import { checkRequirements, checkRequirementsGrants, checkSubset, checkSupports } from '../../lib/supportUtils.js';
-import { getGrants, getStats } from '../../lib/grantUtils.js';
+import { getGrants, getStats, updateAllGrants } from '../../lib/grantUtils.js';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -86,34 +86,38 @@ export default class DefaultSelection extends React.Component {
         console.log(choiceIds);
 
         const grantDict =  {...this.props.characterData.creationData.grants, [TYPE]: grants};
-        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+        const choices = {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]};
 
-        const statDict =  {...this.props.characterData.creationData.stats, [TYPE]: stats};
-        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+        updateAllGrants(grantDict, this.props.characterData.level, this.props, {}, {choices: choices});
 
-        console.log(grantDict);
-        console.log(allGrants);
+        // let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+
+        // const statDict =  {...this.props.characterData.creationData.stats, [TYPE]: stats};
+        // const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+
+        // console.log(grantDict);
+        // console.log(allGrants);
         
-        console.log(statDict);
-        console.log(allStats);
+        // console.log(statDict);
+        // console.log(allStats);
 
-        allGrants = allGrants.map(id => {
-            return {"id": id, "type": this.getFromId(id)?.type};
-        });
+        // allGrants = allGrants.map(id => {
+            // return {"id": id, "type": this.getFromId(id)?.type};
+        // });
 
-        console.log(allGrants);
+        // console.log(allGrants);
 
-        this.props.updateCharacterData(
-            {
-                creationData: {...this.props.characterData.creationData,
-                    choices: {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]},
-                    grants: grantDict,
-                    stats: statDict
-                },
-                grants: allGrants,
-                stats: allStats
-            }
-        )
+        // this.props.updateCharacterData(
+        //     {
+        //         creationData: {...this.props.characterData.creationData,
+        //             choices: {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]},
+        //             grants: grantDict,
+        //             stats: statDict
+        //         },
+        //         grants: allGrants,
+        //         stats: allStats
+        //     }
+        // )
     }
 
     getDataForSelect(select) {

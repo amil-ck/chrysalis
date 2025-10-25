@@ -4,7 +4,7 @@ import { SPELLS } from "./indexData";
 jsep.addIdentifierChar(" ");
 jsep.addIdentifierChar(":");
 
-const daProblem = "!(ID_INTERNAL_GRANTS_REQTEMPFIX||ID_RACE_VARIANT_HUMAN_VARIANT||ID_INTERNAL_GRANTS_DRAGONMARK||ID_WOTC_WGTE_GRANTS_DARKMARKED||ID_UA_PS_GRANTS_HUMAN_VARIANT)" 
+const daProblem = "" 
 
 export function supportsCalc(text) {
     const symbols = ["!", "(", ")", "||", "&&"];
@@ -59,13 +59,16 @@ export function checkRequirements(bool, grantArray) {
 export function test() {
     let values = ["ID_WOTC_PHB_CLASS_WARLOCK", "ID_WOTC_PHB_MULTICLASS_WARLOCK"];
 
-    let stuff = jsep(["horse", "world"].toString());
+    let stuff = jsep(["[horse]", "world"].toString());
     console.log(stuff);
     console.log(recurse(stuff, values));
 }
 
 function recurse(obj, values) {
     if (obj.type === "Identifier") {
+        if (obj.name.includes(":")) {
+            console.log(obj.name);
+        }
         return values.includes(obj.name);
     } else if (obj.type === "Literal") {
         return values.includes(obj.raw);
@@ -79,6 +82,10 @@ function recurse(obj, values) {
         return obj.body.every(e => recurse(e, values));
     } else if (obj.type === "SequenceExpression") {
         return obj.expressions.every(e => recurse(e, values));
+    } else if (obj.type === "ArrayExpression") {
+        return obj.elements.every(e => recurse(e, values));
+    } else {
+        console.log(obj.type);
     }
 }
 

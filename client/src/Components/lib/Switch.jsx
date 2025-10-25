@@ -12,7 +12,7 @@ export default class Switch extends React.Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.value !== this.props.value) {
-            this.setState({toggle: this.props.value})
+            this.setState({toggle: this.props.value});
         }
     }
 
