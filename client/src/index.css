@@ -1298,9 +1298,12 @@ button.collapse {
                 .body {
                     display: flex;
                     flex-direction: column;
-                    padding-bottom: 3px;
+                    /* padding-bottom: 2px; */
+                    padding-top: 2px;
 
                     overflow-x: hidden;
+                    gap: 2px;
+                    background-color: var(--bg-5);
 
                     &>div {
                         display: flex;
@@ -1312,15 +1315,18 @@ button.collapse {
                         min-width: 185px;
                         padding: 3px 6px;
 
-                        border-top: 2px solid var(--bg-5);
-
                         font-size: 12pt;
+
+                        background-color: var(--bg-card);
+
+                        &:last-child {
+                            border-radius: inherit;
+                        }
 
                         &:hover {
                             background-color: var(--bg-5);
                         }
 
-                        /* background-color: var(--bg-5); */
 
                         .value {
                             border-radius: 4px;
@@ -1549,6 +1555,15 @@ button.collapse {
 
                 }
             } */
+        }
+    }
+
+    .tab.inventory {
+        display: flex;
+        flex-direction: row;
+
+        .list {
+            overflow-y: hidden;
         }
     }
 
