@@ -35,6 +35,8 @@ export default class CharacterSheet extends React.Component {
             data = {...data, ...this.handleStats(stat)};
         }
 
+        data = {...data, ...this.handleSkills()};
+
         return data;
     }
 
@@ -54,6 +56,42 @@ export default class CharacterSheet extends React.Component {
         }
 
         return data;
+    }
+
+    handleSkills() {
+        // Skills
+        const skills = [
+            { name: "Acrobatics", stat: "dexterity" },
+            { name: "Animal Handling", stat: "wisdom" },
+            { name: "Arcana", stat: "intelligence" },
+            { name: "Athletics", stat: "strength" },
+            { name: "Deception", stat: "charisma" },
+            { name: "History", stat: "intelligence" },
+            { name: "Insight", stat: "wisdom" },
+            { name: "Intimidation", stat: "charisma" },
+            { name: "Investigation", stat: "intelligence" },
+            { name: "Medicine", stat: "wisdom" },
+            { name: "Nature", stat: "intelligence" },
+            { name: "Perception", stat: "wisdom" },
+            { name: "Performance", stat: "charisma" },
+            { name: "Persuasion", stat: "charisma" },
+            { name: "Religion", stat: "intelligence" },
+            { name: "Sleight of Hand", stat: "dexterity" },
+            { name: "Stealth", stat: "dexterity" },
+            { name: "Survival", stat: "wisdom" },
+        ];
+
+        const processedSkills = skills.map(skill => {
+            const profBonus = calculateStat(`${skill.name.toLowerCase()}:proficiency`, this.props.characterData)
+            return {
+                [skill.name]: this.plusMinus(profBonus + calculateStat(`${skill.stat}:modifier`, this.props.characterData))
+            }
+        })
+
+        let skillDict = {};
+        processedSkills.every(skill => skillDict = {...skillDict, ...skill});    
+
+        return skillDict;
     }
 
     getTraits() {
@@ -125,13 +163,27 @@ export default class CharacterSheet extends React.Component {
         const dataToFill = this.getCharacterData();
         console.log(dataToFill);
         for (const [key, value] of Object.entries(dataToFill)) {
-            const nameField = form.getFieldMaybe(key);
+            let nameField = form.getFieldMaybe(key);
             if (nameField !== undefined) {
                 nameField.setText(value.toString());
             } else {
-                console.log(key)
+                // pull this out into some kind of function that tests more modularly / fix the problem at the root and fix the pdf names
+                nameField = form.getFieldMaybe(key + " ");
+                if (nameField !== undefined) {
+                    nameField.setText(value.toString());
+                } else {
+                    console.log(key);
+                }
             }
         }
+
+        // const hey = await pdfDoc.copyPages(pdfDoc, [2]);
+        // hey[0].doc.getForm().getFieldMaybe("SpellSaveDC  2").acroField.setPartialName("horseingad");
+        // console.log(hey[0].doc.getForm());
+        // pdfDoc.insertPage(3, hey[0]);
+
+        // pdfDoc.insertPage(3, );
+
 
         const pdfBytes = await pdfDoc.save();
 
