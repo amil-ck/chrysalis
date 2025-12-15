@@ -128,6 +128,12 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
             continue;
         }
 
+        // Check inline (text, rather than number)
+        if (stat.inline && stat.inline === true) {
+            // Currently just returns first matching value it finds, might not be desired behaviour
+            return stat.value;
+        }
+
         // Calculate value
         let value = 0;
         if (Number.isNaN(Number(stat.value))) {
