@@ -110,6 +110,9 @@ export default class Battle extends React.Component {
         this.speed = calculateStat("speed", this.props.characterData);
         this.maxHp = calculateStat("hp", this.props.characterData);
 
+        // Monk-specific
+        this.maxKiPoints = calculateStat("ki:points", this.props.characterData);
+
         this.hitDice = "";
         const hdType = characterClassData?.setters?.hd;
         this.hdType = hdType;
@@ -178,6 +181,11 @@ export default class Battle extends React.Component {
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
+        }
+
+        // Initialise ki pts
+        if (this.maxKiPoints > 0 && this.props.characterData.usedKiPoints === undefined) {
+            toUpdate.usedKiPoints = 0
         }
 
         if (this.props.characterData.hdUsage === undefined) {
@@ -279,6 +287,9 @@ export default class Battle extends React.Component {
             }
         }
 
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
+
         // Hit dice modal - 
         // TODO when bettermodal is merged
 
@@ -311,6 +322,9 @@ export default class Battle extends React.Component {
         // Reset sorcery points
         toUpdate.usedSorceryPoints = 0;
 
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
+
         // Update state
         this.props.updateCharacterData(toUpdate);
 
@@ -326,6 +340,13 @@ export default class Battle extends React.Component {
             Actions: (
                 <div className="actionList card list">
                     <div className="body">
+                        {this.maxKiPoints > 0 &&
+                        
+                        <div className="action">
+                            <Slots label="Used ki points: " value={this.props.characterData.usedKiPoints} max={this.maxKiPoints} onChange={(value) => this.props.updateCharacterData({usedKiPoints: value})} />
+                        </div>
+                        
+                        }
                         {this.processedActions.map(a => (
                             <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
                         ))}
