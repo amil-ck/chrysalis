@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { FiChevronDown } from 'react-icons/fi';
 import Slots from '../lib/Slots.jsx';
 
@@ -35,8 +36,8 @@ export default class Action extends React.Component {
                         <button type="button" className={this.state.collapsed ? "collapse collapsed" : "collapse"} onClick={_ => this.setState({ collapsed: !this.state.collapsed })}><FiChevronDown size={18} /></button>
                     </div>
                 </div>
-                <div className={this.state.collapsed ? "description collapsed collapsible" : "description collapsible"}>
-                    {this.props.data.description}
+                <div className={this.state.collapsed ? "description collapsed collapsible" : "description collapsible"} dangerouslySetInnerHTML={{__html: this.props.data.description}}>
+                    {/* {this.props.data.description} */}
                 </div>
             </div>
         )

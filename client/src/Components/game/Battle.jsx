@@ -103,6 +103,7 @@ export default class Battle extends React.Component {
 
         this.hitDice = "";
         const hdType = characterClassData?.setters?.hd;
+        this.hdType = hdType;
         console.log(hdType);
         if (hdType) {
             this.hitDice = `${this.props.characterData.level}${hdType}`;
@@ -129,6 +130,7 @@ export default class Battle extends React.Component {
             { name: "Stealth", stat: "dexterity" },
             { name: "Survival", stat: "wisdom" },
         ];
+        // Add proficiencies to skill objects
         this.processedSkills = skills.map(skill => {
             const profBonus = calculateStat(`${skill.name.toLowerCase()}:proficiency`, this.props.characterData)
             return {
@@ -139,7 +141,6 @@ export default class Battle extends React.Component {
         })
 
         this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
-
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
         this.updateHp = this.updateHp.bind(this);
@@ -168,6 +169,10 @@ export default class Battle extends React.Component {
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
+        }
+
+        if (this.props.characterData.hdUsage === undefined) {
+            toUpdate.hdUsage = 0
         }
 
         if (Object.keys(toUpdate).length > 0) {
@@ -254,6 +259,54 @@ export default class Battle extends React.Component {
         })
     }
 
+    shortRest() {
+        const toUpdate = {};
+
+        // Reset action usage
+        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        for (const action of this.processedActions) {
+            if (action.resetOn === 'Short Rest') {
+                toUpdate.actionUsage[action.id] = 0;
+            }
+        }
+
+        // Hit dice modal - 
+        // TODO when bettermodal is merged
+
+        this.props.updateCharacterData(toUpdate);
+    }
+
+    longRest() {
+        const toUpdate = {}
+        // Reset used HD
+        toUpdate.hdUsage = 0;
+
+        // HP to max
+        toUpdate.hps = {...this.props.characterData.hps};
+        toUpdate.hps.hp.value = toUpdate.hps.hp.max;
+
+        // Reset action usage
+        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        for (const action of this.processedActions) {
+            if (['Long Rest', 'Short Rest'].includes(action.resetOn)) {
+                toUpdate.actionUsage[action.id] = 0;
+            }
+        }
+
+        // Reset spell slots
+        toUpdate.usedSpellSlots = {};
+        for (const i in this.props.characterData.usedSpellSlots) {
+            toUpdate.usedSpellSlots[i] = [0,0,0,0,0,0,0,0,0,0]
+        }
+        
+        // Reset sorcery points
+        toUpdate.usedSorceryPoints = 0;
+
+        // Update state
+        this.props.updateCharacterData(toUpdate);
+
+    }
+
     render() {
         if (this.props.characterData.id === undefined) {
             return (<>No character selected</>)
@@ -307,9 +360,13 @@ export default class Battle extends React.Component {
                     </div>
                     <div className="divider"></div>
                     <div className="right">
-                        <div className="hd card miscStat">
+                        <div className="hd card miscStat withSecondary">
                             <div className="title">Hit dice</div>
-                            <div className="value">{this.hitDice}</div>
+                            <div className="value">
+                                <div className="current">{this.props.characterData.level - this.props.characterData.hdUsage}{this.hdType}</div>
+                                <div className="max">/{this.hitDice}</div>
+                                
+                            </div>
                         </div>
                         <button type="button" className='addTemp' onClick={() => this.onAddTempHpClicked()}>
                             <span className="text">Temp</span>
@@ -383,6 +440,10 @@ export default class Battle extends React.Component {
                                 <div className="value">{this.plusify(this.proficiencyBonus)}</div>
                                 <div className="title">Bonus</div>
                             </div>
+                            <div className="rest card miscStat">
+                                <button type="button" className='short' onClick={() => this.shortRest()}>Short Rest</button>
+                                <button type="button" className='long' onClick={() => this.longRest()}>Long Rest</button>
+                            </div>
                         </div>
                         <div className="miscTabs card tabbed">
                             <div className="navbar radioGroup">
@@ -425,6 +486,7 @@ export default class Battle extends React.Component {
                         </div>
                     </div>
                 </Modal>
+                
             </div>
         )
     }

@@ -1207,6 +1207,17 @@ button.collapse {
             font-variation-settings: "wght" 600;
             margin: 0 12px;
         }
+
+        &.withSecondary {
+            .value {
+
+                .max {
+                    color: var(--text-secondary);
+                    font-size: 11pt;
+                    margin-left: 6px;
+                }
+            }
+        }
     }
 
     .tab {
@@ -1464,6 +1475,17 @@ button.collapse {
                         height: 100%;
                         /* flex-grow: 1; */
                         flex: 1;
+                        
+
+                        &.rest {
+                            display: flex;
+                            flex-direction: column;
+
+                            button {
+                                width: 100%;
+                                flex-grow: 1;
+                            }
+                        }
                     }
                 }
 
