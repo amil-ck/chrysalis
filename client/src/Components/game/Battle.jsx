@@ -80,7 +80,16 @@ export default class Battle extends React.Component {
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
-            const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
+            const adaptDescription = feat.sheet?.description || feat.description;
+            let levelledDescription = adaptDescription;
+            if (adaptDescription !== 'string') {
+                for (const i in adaptDescription) {
+                    if (adaptDescription[i].level && Number(adaptDescription[i].level) < this.props.characterData.level) {
+                        levelledDescription = adaptDescription[i].text
+                    }
+                }
+            }
+            const sanitisedDescription = DOMPurify.sanitize(levelledDescription, { USE_PROFILES: { html: true } });
             const descriptionWithStats = this.insertStats(sanitisedDescription);
             const maxUsage = feat.sheet?.usage?.split("/")[0];
             const resetOn = feat.sheet?.usage?.split("/")[1];
