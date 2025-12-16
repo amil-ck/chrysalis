@@ -21,7 +21,7 @@ export default class Main extends React.Component {
             modalOptions: {
                 show: false
             },
-            version: '0.1.1-alpha'
+            version: '0.1.2-alpha'
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);

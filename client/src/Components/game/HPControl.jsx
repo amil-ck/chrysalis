@@ -87,7 +87,7 @@ export default class HPControl extends React.Component {
                                     <input type="text" name={t.id} value={this.state.changeValues[t.id]} onChange={this.handleChange} onBlur={this.handleBlur} />
                                     <button type="button" onClick={() => this.subtractHp(t.id)}><FiMinus /></button>
                                 </div>
-                                <div className="display miscStat">
+                                <div className="display miscStat withSecondary">
                                     <div className="title">{t.name}</div>
                                     <div className="value">
                                         <span className="current">{t.value}</span>

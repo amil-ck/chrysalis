@@ -52,9 +52,9 @@ export default class Magic extends React.Component {
         this.state = {
             selectedItemData: undefined,
             selectedItemID: '',
-            preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)), // list of spell objects
+            preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells?.includes(spell.id)), // list of spell objects
             availableSpells: availableSpells, // list of spell objects
-            usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            usedSpellSlots: this.props.characterData.usedSpellSlots?.[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             upcasting: {}
         }
 
@@ -77,7 +77,7 @@ export default class Magic extends React.Component {
     componentDidMount() {
         // Make sure preparedSpells only contains available spells
         const availableSpells = this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : SPELLS.filter(spell => this.props.characterData.knownSpells.find(s => s.id === spell.id));
-        const shouldBePrepared = this.props.characterData.preparedSpells.filter(id => availableSpells.find(spell => spell.id === id));
+        const shouldBePrepared = this.props.characterData.preparedSpells ? this.props.characterData.preparedSpells.filter(id => availableSpells.find(spell => spell.id === id)) : [];
 
         // Initialise sorcery pts
         if (this.maxSorceryPoints > 0 && this.props.characterData.usedSorceryPoints === undefined) {
@@ -86,7 +86,13 @@ export default class Magic extends React.Component {
             })
         }
 
-        if (shouldBePrepared.length !== this.props.characterData.preparedSpells.length) {
+        if (this.props.characterData.preparedSpells === undefined) {
+            this.props.updateCharacterData({
+                preparedSpells: []
+            })
+        }
+
+        if (this.props.characterData.preparedSpells && shouldBePrepared.length !== this.props.characterData.preparedSpells.length) {
             this.props.updateCharacterData({
                 preparedSpells: shouldBePrepared
             })
@@ -94,7 +100,7 @@ export default class Magic extends React.Component {
     }
 
     getUsedSpellSlots() {
-        return this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        return this.props.characterData.usedSpellSlots?.[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     prepareSpell(id) {
@@ -302,11 +308,11 @@ export default class Magic extends React.Component {
 
         const yourSpells = [...this.props.characterData.grantedSpells.map(spell => {
             return this.getSpellByID(spell.id)
-        }), ...this.props.characterData.preparedSpells.map(id => {
+        }), ...(this.props.characterData.preparedSpells ? this.props.characterData.preparedSpells.map(id => {
             return { ...this.getSpellByID(id), prepared: true }
-        })];
+        }) : [])];
 
-        const selectedSpells = [...this.props.characterData.preparedSpells, ...this.props.characterData.grantedSpells.filter(spell => this.state.availableSpells.find(s => s.id === spell.id)).map(spell => spell.id)];
+        const selectedSpells = [...this.props.characterData.preparedSpells || [], ...this.props.characterData.grantedSpells.filter(spell => this.state.availableSpells.find(s => s.id === spell.id)).map(spell => spell.id)];
 
         const spellcastingModifier = calculateStat(`${this.props.spellcasting.ability.toLowerCase()}:modifier`, this.props.characterData);
         const spellSaveDC = calculateStat(`spellcasting:dc:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
@@ -338,7 +344,7 @@ export default class Magic extends React.Component {
                                 </div>
                             </div>
                             {this.maxSorceryPoints > 0 &&
-                                <Slots className={"sorceryPoints"} label={"Sorcery points: "} value={this.props.characterData.usedSorceryPoints} max={this.maxSorceryPoints} onChange={this.updateSorceryPoints} />
+                                <Slots className={"sorceryPoints"} label={"Used sorcery points: "} value={this.props.characterData.usedSorceryPoints} max={this.maxSorceryPoints} onChange={this.updateSorceryPoints} />
                             }
                         </div>
                         <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} updateSpellSlots={this.updateSpellSlots} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />
