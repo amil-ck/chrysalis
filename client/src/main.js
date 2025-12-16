@@ -73,6 +73,10 @@ async function readFile(_e, path) {
     return await fs.readFile(path, { encoding: 'utf8' });
 }
 
+async function readFileBytes(_e, path) {
+    return await fs.readFile(path);
+}
+
 function getDataPath() {
     return path.join(app.getPath("userData"), "chrysalis_data");
 }
@@ -107,6 +111,7 @@ app.whenReady().then(() => {
     ipcMain.handle("localStorageSet", localStorageSet);
     ipcMain.handle("writeFile", writeFile);
     ipcMain.handle("readFile", readFile);
+    ipcMain.handle("readFileBytes", readFileBytes);
     ipcMain.handle("getDataPath", getDataPath);
     ipcMain.handle("openExternal", openExternal);
     ipcMain.handle("readdir", readdir);

@@ -1,5 +1,13 @@
 import * as React from 'react';
 import { EVERYTHING } from '../../lib/indexData';
+import {getGrants, getStats, updateAllGrants} from "../../lib/grantUtils";
+import Switch from '../../lib/Switch.jsx';
+
+const switchDict = {
+    "Feats": "ID_INTERNAL_OPTION_ALLOW_FEATS",
+    "Custom": "ID_WOTC_TCOE_OPTION_CUSTOMIZED_ASI"
+}
+
 
 export default class DetailsTab extends React.Component {
     constructor(props) {
@@ -11,7 +19,7 @@ export default class DetailsTab extends React.Component {
             backstory: this.props.characterData.details?.backstory || '',
             description: this.props.characterData.details?.description || '',
             pronouns: this.props.characterData.details?.pronouns || '',
-            namePlaceholder: this.placeholderName()
+            namePlaceholder: this.placeholderName(),
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -43,82 +51,39 @@ export default class DetailsTab extends React.Component {
 
     handleLevelChange(level) {
         let grants = EVERYTHING.filter(e => e.type === "Level" && e.name <= level).map(e => e.id);
-        grants = grants.flatMap(e => this.getGrants(e, level));
+        grants = grants.flatMap(e => getGrants(e, level));
         console.log(grants);
 
-        const stats = this.getStats(grants, level);
+        // const stats = getStats(grants, level);
 
         const grantDict =  {...this.props.characterData.creationData.grants, level: grants};
-        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
 
-        const statDict =  {...this.props.characterData.creationData.stats, level: stats};
-        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
+        updateAllGrants(grantDict, level, this.props, {level: level});
+    }
 
-        console.log(grantDict);
-        console.log(allGrants);
-        
-        console.log(statDict);
-        console.log(allStats);
+    handleSwtiches(name) {
+        const id = switchDict[name];
 
-        allGrants = allGrants.map(id => {
-            return {"id": id, "type": this.getFromId(id)?.type};
-        });
+        const grants = this.props.characterData.creationData.grants.switches || [];
 
-        this.props.updateCharacterData(
-            {
-                creationData: {...this.props.characterData.creationData,
-                    grants: grantDict,
-                    stats: statDict
-                },
-                grants: allGrants,
-                stats: allStats,
-                level: level
-            }
-        )
+        if (grants.includes(id)) {
+            grants.splice(grants.indexOf(id), 1);
+        } else {
+            grants.push(id);
+        }
+
+        const grantDict =  {...this.props.characterData.creationData.grants, switches: grants};
+
+        updateAllGrants(grantDict, this.props.characterData.level, this.props);
+    }
+
+    isSwitchOn(name) {
+        const id = switchDict[name];
+        return this.props.characterData.creationData.grants.switches?.includes(id);
     }
 
     getFromId(id) {
         return EVERYTHING.find(e => e.id === id);
-    }
-
-    getGrants(id, level) {
-        let idList = [id];
-        const grant = EVERYTHING.find(e => e.id === id)?.rules?.grant;
-        if (grant !== undefined) {
-            grant.forEach(
-                e => {
-                    console.log(e);
-                    if ((e.level === undefined || parseInt(e.level) <= level)) {
-                        if (e.number === undefined) {
-                            idList = idList.concat(this.getGrants(e.id));
-                        } else {    
-                            for (let i = 0; i < parseInt(e.number); i++) {
-                                idList = idList.concat(this.getGrants(e.id));
-                            }
-                        }
-                    }
-                }
-            )
-        }
-
-        return idList;
-    }
-
-    getStats(grantList, level) {
-        let statList = [];
-
-        for (const id of grantList) {
-            let stats = EVERYTHING.find(e => e.id === id)?.rules?.stat;
-            if (stats !== undefined) {
-                if (!Array.isArray(stats)) {
-                    stats = [stats];
-                }
-                stats = stats.filter(stat => stat.level === undefined || stat.level <= level);
-                statList.push(...stats);
-            }
-        }
-        
-        return statList;
     }
 
     render() {
@@ -152,6 +117,14 @@ export default class DetailsTab extends React.Component {
                         <div className="inputWrapper">
                             <label htmlFor="backstory">Backstory</label>
                             <textarea name="backstory" placeholder='What events made your character who they are?' rows={5} value={this.state.backstory} onChange={this.handleChange} onBlur={this.handleInputBlur} ></textarea>
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="Feats">Feats</label>
+                            <Switch value={this.isSwitchOn("Feats")} onChange={() => this.handleSwtiches("Feats")}/>
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="Custom">Custom</label>
+                            <Switch value={this.isSwitchOn("Custom")} onChange={() => this.handleSwtiches("Custom")}/>
                         </div>
                     </div>
                 </div>

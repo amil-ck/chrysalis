@@ -6,6 +6,7 @@ import HPControl from './HPControl.jsx';
 import Slots from '../lib/Slots.jsx';
 import Action from './Action.jsx';
 import Modal from '../lib/BetterModal.jsx';
+import { FiPlus } from 'react-icons/fi';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -72,13 +73,23 @@ export default class Battle extends React.Component {
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
         const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
         const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
+        this.characterRace = raceData?.name || undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature'))?.map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait')?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
-            const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
+            const adaptDescription = feat.sheet?.description || feat.description;
+            let levelledDescription = adaptDescription;
+            if (adaptDescription !== 'string') {
+                for (const i in adaptDescription) {
+                    if (adaptDescription[i].level && Number(adaptDescription[i].level) < this.props.characterData.level) {
+                        levelledDescription = adaptDescription[i].text
+                    }
+                }
+            }
+            const sanitisedDescription = DOMPurify.sanitize(levelledDescription, { USE_PROFILES: { html: true } });
             const descriptionWithStats = this.insertStats(sanitisedDescription);
             const maxUsage = feat.sheet?.usage?.split("/")[0];
             const resetOn = feat.sheet?.usage?.split("/")[1];
@@ -99,8 +110,12 @@ export default class Battle extends React.Component {
         this.speed = calculateStat("speed", this.props.characterData);
         this.maxHp = calculateStat("hp", this.props.characterData);
 
+        // Monk-specific
+        this.maxKiPoints = calculateStat("ki:points", this.props.characterData);
+
         this.hitDice = "";
         const hdType = characterClassData?.setters?.hd;
+        this.hdType = hdType;
         console.log(hdType);
         if (hdType) {
             this.hitDice = `${this.props.characterData.level}${hdType}`;
@@ -127,6 +142,7 @@ export default class Battle extends React.Component {
             { name: "Stealth", stat: "dexterity" },
             { name: "Survival", stat: "wisdom" },
         ];
+        // Add proficiencies to skill objects
         this.processedSkills = skills.map(skill => {
             const profBonus = calculateStat(`${skill.name.toLowerCase()}:proficiency`, this.props.characterData)
             return {
@@ -136,8 +152,7 @@ export default class Battle extends React.Component {
             }
         })
 
-        //this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
-        this.processedActions = [];
+        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
         this.updateHp = this.updateHp.bind(this);
@@ -166,6 +181,15 @@ export default class Battle extends React.Component {
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
+        }
+
+        // Initialise ki pts
+        if (this.maxKiPoints > 0 && this.props.characterData.usedKiPoints === undefined) {
+            toUpdate.usedKiPoints = 0
+        }
+
+        if (this.props.characterData.hdUsage === undefined) {
+            toUpdate.hdUsage = 0
         }
 
         if (Object.keys(toUpdate).length > 0) {
@@ -252,6 +276,60 @@ export default class Battle extends React.Component {
         })
     }
 
+    shortRest() {
+        const toUpdate = {};
+
+        // Reset action usage
+        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        for (const action of this.processedActions) {
+            if (action.resetOn === 'Short Rest') {
+                toUpdate.actionUsage[action.id] = 0;
+            }
+        }
+
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
+
+        // Hit dice modal - 
+        // TODO when bettermodal is merged
+
+        this.props.updateCharacterData(toUpdate);
+    }
+
+    longRest() {
+        const toUpdate = {}
+        // Reset used HD
+        toUpdate.hdUsage = 0;
+
+        // HP to max
+        toUpdate.hps = {...this.props.characterData.hps};
+        toUpdate.hps.hp.value = toUpdate.hps.hp.max;
+
+        // Reset action usage
+        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        for (const action of this.processedActions) {
+            if (['Long Rest', 'Short Rest'].includes(action.resetOn)) {
+                toUpdate.actionUsage[action.id] = 0;
+            }
+        }
+
+        // Reset spell slots
+        toUpdate.usedSpellSlots = {};
+        for (const i in this.props.characterData.usedSpellSlots) {
+            toUpdate.usedSpellSlots[i] = [0,0,0,0,0,0,0,0,0,0]
+        }
+        
+        // Reset sorcery points
+        toUpdate.usedSorceryPoints = 0;
+
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
+
+        // Update state
+        this.props.updateCharacterData(toUpdate);
+
+    }
+
     render() {
         if (this.props.characterData.id === undefined) {
             return (<>No character selected</>)
@@ -262,6 +340,13 @@ export default class Battle extends React.Component {
             Actions: (
                 <div className="actionList card list">
                     <div className="body">
+                        {this.maxKiPoints > 0 &&
+                        
+                        <div className="action">
+                            <Slots label="Used ki points: " value={this.props.characterData.usedKiPoints} max={this.maxKiPoints} onChange={(value) => this.props.updateCharacterData({usedKiPoints: value})} />
+                        </div>
+                        
+                        }
                         {this.processedActions.map(a => (
                             <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
                         ))}
@@ -300,18 +385,25 @@ export default class Battle extends React.Component {
                     <div className="details card">
                         <div className="body">
                             <span className="name">{this.props.characterData.name || "Unnamed"}</span>
-                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
+                            <span className="details">Level {this.props.characterData.level || "unknown"} {this.characterRace || ""} {this.characterClass || "Class unknown"} {this.subclass ? `(${this.subclass})` : ""}</span>
                         </div>
                     </div>
                     <div className="divider"></div>
                     <div className="right">
-                        <div className="hd card miscStat">
+                        <div className="hd card miscStat withSecondary">
                             <div className="title">Hit dice</div>
-                            <div className="value">{this.hitDice}</div>
+                            <div className="value">
+                                <div className="current">{this.props.characterData.level - this.props.characterData.hdUsage}{this.hdType}</div>
+                                <div className="max">/{this.hitDice}</div>
+                                
+                            </div>
                         </div>
-                        <div className="addTemp card">
-                            <button type="button" onClick={() => this.onAddTempHpClicked()}>ADD</button>
-                        </div>
+                        <button type="button" className='addTemp' onClick={() => this.onAddTempHpClicked()}>
+                            <span className="text">Temp</span>
+                            <span className="icon"><FiPlus size={24} /></span>
+                            <span className="text">HP</span>
+                        </button>
+                        
                         {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
                         <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} removeTempHp={(id) => this.removeTempHp(id)} />
                     </div>
@@ -378,6 +470,10 @@ export default class Battle extends React.Component {
                                 <div className="value">{this.plusify(this.proficiencyBonus)}</div>
                                 <div className="title">Bonus</div>
                             </div>
+                            <div className="rest card miscStat">
+                                <button type="button" className='short' onClick={() => this.shortRest()}>Short Rest</button>
+                                <button type="button" className='long' onClick={() => this.longRest()}>Long Rest</button>
+                            </div>
                         </div>
                         <div className="miscTabs card tabbed">
                             <div className="navbar radioGroup">
@@ -420,6 +516,7 @@ export default class Battle extends React.Component {
                         </div>
                     </div>
                 </Modal>
+                
             </div>
         )
     }

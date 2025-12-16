@@ -4,6 +4,7 @@ import SpellList from '../lib/listTypes/SpellList.jsx';
 import { SPELLS } from '../lib/indexData.js';
 import SpellcastingList from './SpellcastingList.jsx';
 import { calculateStat } from '../lib/statUtils.js';
+import { filterSpells, checkRequirements } from '../lib/supportUtils.js';
 import Slots from '../lib/Slots.jsx';
 
 export default class Magic extends React.Component {
@@ -13,34 +14,49 @@ export default class Magic extends React.Component {
         this.props = props;
         // PROPS: characterData etc., spellcasting: spellcasting object
 
-        const availableSpells = this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : SPELLS.filter(spell => this.props.characterData.knownSpells.find(s => s.id === spell.id));
+        let availableSpells = [];
 
-        const relevantExtents = this.props.extents.filter(e => e.name === this.props.spellcasting.name || e.all == true);
-        for (const extent of relevantExtents) {
-            // Check whether list of spells, or reference to class
-            // --- THIS MIGHT BREAK --- 
-            // THIS IS ALSO HIGHLY INEFFICIENT AND CAN BE EASILY OPTIMISED IF I USE MY BRAIN
-            if (extent.extend[1].text.toUpperCase() === extent.extend[1].text) {
-                // Text is in all uppercase, hopefully an ID
-                // Get rid of silly .text
-                const ids = extent.extend.map(e => e.text ? e.text : e);
-                availableSpells.push(...SPELLS.filter(s => ids.includes(s.id)).filter(s => !availableSpells.find(spell => spell.id === s.id)));
+        if (this.props.spellcasting.prepare) {
+            // Filter extends to only include those that apply to current spellcasting
+            const relevantExtents = this.props.extents.filter(e => e.name === this.props.spellcasting.name || e.all == true);
 
-            } else {
-                // Text is hopefully a class name
-                availableSpells.push(...this.filterBySupports(extent.extend[1].text, SPELLS).filter(s => !availableSpells.find(spell => spell.id === s.id)));
-            }
+            // Checkrequirments-friendly list of spells
+            const searchableSpells = SPELLS.map(s => {
+                const res = [s.id];
+                if (!s.supports) return res;
+                if (typeof s.supports === 'string') {
+                    res.push(s.supports);
+                } else {
+                    res.push(...s.supports);
+                }
+                return res;
+            });
+
+            // Create filter string for main spellcasting (usually class)
+            const mainFilter = this.props.spellcasting.list.known === true ? this.props.spellcasting.list.text : this.props.characterData.knownSpells.filter(spell => spell.spellcasting === this.props.spellcasting.name).map(s => s.id).join("||");
+            console.log(mainFilter);
+            // Combine extend filters into single string
+            const extendFilter = relevantExtents.map(e => {
+                return e.extend.slice(1, e.extend.length).map(i => i.text).join("||");
+            }).join("||");
+
+            const combinedFilter = mainFilter + (extendFilter.length > 0 ? "||" + extendFilter : '');
+
+            console.log(combinedFilter);
+
+            // Filter resulting spells by level (no cantrips, and no spells in levels with no spell slots)
+            availableSpells = this.filterByRequirements(combinedFilter, searchableSpells).filter(s => Number(s.setters.level) !== 0 && this.getSpellSlots()[s.setters.level] > 0);
         }
+
 
         this.state = {
             selectedItemData: undefined,
             selectedItemID: '',
-            preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells.includes(spell.id)), // list of spell objects
+            preparedSpells: SPELLS.filter(spell => this.props.characterData.preparedSpells?.includes(spell.id)), // list of spell objects
             availableSpells: availableSpells, // list of spell objects
-            usedSpellSlots: this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            usedSpellSlots: this.props.characterData.usedSpellSlots?.[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             upcasting: {}
         }
-        // TODO: add to available spells based on 'extends' stuff
 
         this.handleItemSelected = this.handleItemSelected.bind(this);
         this.closeInfoPane = this.closeInfoPane.bind(this);
@@ -61,7 +77,7 @@ export default class Magic extends React.Component {
     componentDidMount() {
         // Make sure preparedSpells only contains available spells
         const availableSpells = this.props.spellcasting.list.known === true ? this.filterBySupports(this.props.spellcasting.list.text, SPELLS) : SPELLS.filter(spell => this.props.characterData.knownSpells.find(s => s.id === spell.id));
-        const shouldBePrepared = this.props.characterData.preparedSpells.filter(id => availableSpells.find(spell => spell.id === id));
+        const shouldBePrepared = this.props.characterData.preparedSpells ? this.props.characterData.preparedSpells.filter(id => availableSpells.find(spell => spell.id === id)) : [];
 
         // Initialise sorcery pts
         if (this.maxSorceryPoints > 0 && this.props.characterData.usedSorceryPoints === undefined) {
@@ -70,7 +86,13 @@ export default class Magic extends React.Component {
             })
         }
 
-        if (shouldBePrepared.length !== this.props.characterData.preparedSpells.length) {
+        if (this.props.characterData.preparedSpells === undefined) {
+            this.props.updateCharacterData({
+                preparedSpells: []
+            })
+        }
+
+        if (this.props.characterData.preparedSpells && shouldBePrepared.length !== this.props.characterData.preparedSpells.length) {
             this.props.updateCharacterData({
                 preparedSpells: shouldBePrepared
             })
@@ -78,7 +100,7 @@ export default class Magic extends React.Component {
     }
 
     getUsedSpellSlots() {
-        return this.props.characterData.usedSpellSlots[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        return this.props.characterData.usedSpellSlots?.[this.props.spellcasting.name] || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     prepareSpell(id) {
@@ -178,19 +200,46 @@ export default class Magic extends React.Component {
     filterBySupports(filterStr, list = SPELLS) {
         // Very much unstable; based on guesswork and could break at any moment
 
-        const filters = filterStr.split(",");
+        // const filters = filterStr.split(",");
 
-        let filteredList = list.filter(i => {
-            return i.supports && i.supports.includes(filters[0]);
-        });
+        // let filteredList = list.filter(i => {
+        //     return i.supports && i.supports.includes(filters[0]);
+        // });
 
-        if (filters[1]) {
-            const filter = filters[1].replace("(", "").replace(")", "");
-            const options = filter.split("||");
-            filteredList = filteredList.filter(i => options.includes(i.setters.school));
+        // if (filters[1]) {
+        //     const filter = filters[1].replace("(", "").replace(")", "");
+        //     const options = filter.split("||");
+        //     filteredList = filteredList.filter(i => options.includes(i.setters.school));
+        // }
+
+        // return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] !== 0);
+
+        filterStr = [filterStr, this.getHighestSpellSlot()];
+        return filterSpells(filterStr);
+    }
+
+    getHighestSpellSlot() {
+        const slots = this.getSpellSlots();
+
+        for (let i = slots.length - 1; i >= 0; i--) {
+            if (slots[i] !== 0) {
+                return i;
+            }
         }
-        
-        return filteredList.filter(i => i.setters.level === "0" || i.setters.level.trim() === "Cantrip" || this.getSpellSlots()[i.setters.level] > 0);
+    }
+
+    filterByRequirements(filterStr, list) {
+        // o in list needs to be of form [id, ...]
+        // id MUST be index 0
+        const results = [];
+
+        for (const o of list) {
+            if (checkRequirements(filterStr, o)) {
+                results.push(o[0]); // add ID to list
+            }
+        }
+
+        return SPELLS.filter(s => results.includes(s.id));
     }
 
     getSpellByID(id) {
@@ -259,11 +308,11 @@ export default class Magic extends React.Component {
 
         const yourSpells = [...this.props.characterData.grantedSpells.map(spell => {
             return this.getSpellByID(spell.id)
-        }), ...this.props.characterData.preparedSpells.map(id => {
+        }), ...(this.props.characterData.preparedSpells ? this.props.characterData.preparedSpells.map(id => {
             return { ...this.getSpellByID(id), prepared: true }
-        })];
+        }) : [])];
 
-        const selectedSpells = [...this.props.characterData.preparedSpells, ...this.props.characterData.grantedSpells.filter(spell => this.state.availableSpells.find(s => s.id === spell.id)).map(spell => spell.id)];
+        const selectedSpells = [...this.props.characterData.preparedSpells || [], ...this.props.characterData.grantedSpells.filter(spell => this.state.availableSpells.find(s => s.id === spell.id)).map(spell => spell.id)];
 
         const spellcastingModifier = calculateStat(`${this.props.spellcasting.ability.toLowerCase()}:modifier`, this.props.characterData);
         const spellSaveDC = calculateStat(`spellcasting:dc:${this.props.spellcasting.ability.toLowerCase().slice(0, 3)}`, this.props.characterData);
@@ -295,7 +344,7 @@ export default class Magic extends React.Component {
                                 </div>
                             </div>
                             {this.maxSorceryPoints > 0 &&
-                                <Slots className={"sorceryPoints"} label={"Sorcery points: "} value={this.props.characterData.usedSorceryPoints} max={this.maxSorceryPoints} onChange={this.updateSorceryPoints} />
+                                <Slots className={"sorceryPoints"} label={"Used sorcery points: "} value={this.props.characterData.usedSorceryPoints} max={this.maxSorceryPoints} onChange={this.updateSorceryPoints} />
                             }
                         </div>
                         <SpellcastingList data={yourSpells} upcasting={this.state.upcasting} updateCastLevel={this.updateCastLevel} spellSlots={spellSlots} usedSpellSlots={this.getUsedSpellSlots()} castSpell={this.castSpell} unprepareSpell={this.unprepareSpell} updateSpellSlots={this.updateSpellSlots} onItemSelected={this.handleItemSelected} selectedItemID={this.state.selectedItemID} />

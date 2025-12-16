@@ -75,11 +75,15 @@ export default class SpellcastingList extends React.Component {
                                     <div className="right">
                                         {spell.prepared && <button type="button" onClick={(e) => this.onUnprepareClick(e, spell.id)}><FiTrash2 size={18} /></button>}
 
+                                        {lvl !== "0" &&
+                                        
                                         <select value={this.props.upcasting[spell.id] || lvl} onChange={e => this.onUpcastUpdate(e, spell.id)} onClick={e => e.stopPropagation()}>
                                             {[...Array(this.props.spellSlots.length).keys()].filter(i => i >= (Number(spell.setters.level)||0) && (i == "0" || this.props.spellSlots[i] > 0)).map(level => <option key={level} value={level}>{level}</option>)}
                                         </select>
+                                        
+                                        }
                                     
-                                        <button type='button' onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
+                                        <button type='button' disabled={lvl != 0 && this.props.spellSlots[this.props.upcasting[spell.id] || lvl] === this.props.usedSpellSlots[this.props.upcasting[spell.id] || lvl]} onClick={(e) => this.onCastClick(e, spell.id)}>Cast</button>
                                     </div>
                                 </div>
                             )}

@@ -32,8 +32,9 @@ const MAGIC_ITEMS = everything.filter(i => i.type === 'Magic Item');
 const WEAPONS = everything.filter(i => i.type === 'Weapon');
 const ITEMS = everything.filter(i => i.type === 'Item');
 const ARMOR = everything.filter(i => i.type === 'Armor');
+const MONSTERS = everything;
 
 //const EVERYTHING = everything.concat(internal).concat(chrysalisInternal);
 const EVERYTHING = everything;
 
-export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES, MAGIC_ITEMS, WEAPONS, ARMOR, ITEMS };
+export { SPELLS, FEATS, CLASSES, ARCHETYPES, RACES, BACKGROUNDS, LANGUAGES, EVERYTHING, CLASS_FEATURES, ARCHETYPE_FEATURES, MAGIC_ITEMS, WEAPONS, ARMOR, ITEMS, MONSTERS };

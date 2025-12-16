@@ -128,6 +128,12 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
             continue;
         }
 
+        // Check inline (text, rather than number)
+        if (stat.inline && stat.inline === true) {
+            // Currently just returns first matching value it finds, might not be desired behaviour
+            return stat.value;
+        }
+
         // Calculate value
         let value = 0;
         if (Number.isNaN(Number(stat.value))) {
@@ -169,7 +175,7 @@ function getHitDie(characterData) {
 }
 
 function checkRequirements(reqs, characterData) {
-    return supportUtils.checkRequirments(reqs, characterData.grants.map(g => g.id));
+    return supportUtils.checkRequirements(reqs, characterData.grants.map(g => g.id));
 
     //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 
 }

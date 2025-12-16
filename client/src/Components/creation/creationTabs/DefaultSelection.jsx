@@ -2,7 +2,9 @@ import * as React from 'react';
 import ClassList from '../../lib/listTypes/ClassList.jsx';
 import { EVERYTHING } from '../../lib/indexData.js';
 import ChrysalisInfoPane from '../../lib/ChrysalisInfoPane.jsx';
-import { checkRequirments, checkSubset, checkSupports } from '../../lib/supportUtils.js';
+import { checkRequirements, checkRequirementsGrants, checkSubset, checkSupports } from '../../lib/supportUtils.js';
+import { getGrants, getStats, updateAllGrants } from '../../lib/grantUtils.js';
+import GenericList from '../../lib/GenericList.jsx';
 
 const CLASSES = EVERYTHING;
 let TYPE = "Horse";
@@ -56,7 +58,7 @@ export default class DefaultSelection extends React.Component {
                     {console.log(this.state.choices)}
                     {this.state.choices.map(
                         select => {
-                            return <ClassList
+                            return <GenericList
                                 onItemSelected={this.onFeatureSelected}
                                 selectedItemID={this.state.selectedFeatureID}
                                 onItemDoubleSelected={(id) => this.onFeatureDoubleSelected(id, select, select.number || 1)}
@@ -65,6 +67,12 @@ export default class DefaultSelection extends React.Component {
                                 // presetFilters={{Supports: e}}
                                 title={select.name + (select.optional ? " (Optional)" : "")}
                                 data={this.getDataForSelect(select)}
+                                columnNames = {["Name", "Type", "Source"]}
+                                shownColumns = {["Name", "Type", "Source"]}
+                                allowFilter = {["Source"]}
+                                allowSearch = {["Name"]}
+                                columnLocations = {["name", "type", "source"]}
+                                multiValueColumns = {[]}
                             />
                     })}
                 </div>
@@ -80,39 +88,14 @@ export default class DefaultSelection extends React.Component {
     saveData() {
         // console.log({creationData: {...this.props.characterData.creationData, choices: {...this.props.characterData.creationData, [TYPE]: this.state.choices}}});
         const choiceIds = this.state.choices.flatMap(e => e.data);
-        const grants = choiceIds.flatMap(id => this.getGrants(id));
-        const stats = this.getStats(grants);
+        const grants = choiceIds.flatMap(id => getGrants(id, this.state.level));
+        const stats = getStats(grants, this.state.level);
         console.log(choiceIds);
 
         const grantDict =  {...this.props.characterData.creationData.grants, [TYPE]: grants};
-        let allGrants = Object.keys(grantDict).flatMap(key => grantDict[key]);
+        const choices = {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]};
 
-        const statDict =  {...this.props.characterData.creationData.stats, [TYPE]: stats};
-        const allStats = Object.keys(statDict).flatMap(key => statDict[key]);
-
-        console.log(grantDict);
-        console.log(allGrants);
-        
-        console.log(statDict);
-        console.log(allStats);
-
-        allGrants = allGrants.map(id => {
-            return {"id": id, "type": this.getFromId(id)?.type};
-        });
-
-        console.log(allGrants);
-
-        this.props.updateCharacterData(
-            {
-                creationData: {...this.props.characterData.creationData,
-                    choices: {...this.props.characterData.creationData.choices, [TYPE]: [...this.state.choices]},
-                    grants: grantDict,
-                    stats: statDict
-                },
-                grants: allGrants,
-                stats: allStats
-            }
-        )
+        updateAllGrants(grantDict, this.props.characterData.level, this.props, {}, {choices: choices});
     }
 
     getDataForSelect(select) {
@@ -124,7 +107,9 @@ export default class DefaultSelection extends React.Component {
             });
         }
 
+        console.log(select);
         let filtered = EVERYTHING.filter(e => e.type === select.type);
+        console.log(filtered);
         if (select.supports !== undefined) {
             filtered = filtered.filter(e => {
                 let allSupports = [e.id];
@@ -133,11 +118,26 @@ export default class DefaultSelection extends React.Component {
                 //possibly not covering a real edge case (still a possible edge case so i'll leave it)
                 e.setters?.type !== undefined && allSupports.push(e.setters.type);
 
-                return checkSupports(select.supports, allSupports);
-                // console.log(select.supports.toString());
-                // return checkRequirments(select.supports.toString(), allSupports);
+                // if (select.name === "Ability Score Increase (Level 4)") {
+                //     console.log(select.supports.toString());
+                //     console.log(allSupports);
+                // }
+
+                // return checkSupports(select.supports, allSupports);
+                return checkRequirements(select.supports.toString(), allSupports);
             })
         }
+        // console.log(filtered);
+
+        // const grants = this.props.characterData.grants.map(e => e.id);
+
+        filtered = filtered.filter(e => {
+            if (e.requirements === undefined) {
+                return true;
+            } else {
+                return checkRequirementsGrants(e.requirements, this.props.characterData);
+            }
+        });
         
         return filtered
     }
@@ -169,7 +169,10 @@ export default class DefaultSelection extends React.Component {
                 e.from = id;
                 return e;
             })
-            this.setState({choices: [...this.state.choices, ...sels]}, this.saveData)
+
+            this.state.choices.splice(this.state.choices.indexOf(select) + 1, 0, ...sels);
+
+            this.setState({choices: [...this.state.choices]}, this.saveData);
 
 
         } else if (select.data.includes(id)) {
@@ -203,15 +206,6 @@ export default class DefaultSelection extends React.Component {
     onLoadPage(selects) {
         const newSelects = [original];
 
-        // for (const select of selects) {
-        //     // console.log(select, select.data.flatMap(e => this.getSelects(e)));
-        //     const same = newSelects.find(e => this.compareSelectObject(select, e));
-
-        //     if (same !== undefined) {
-        //         same.data = [...select.data];
-        //         newSelects.push(...select.data.flatMap(e => this.getSelects(e)));
-        //     }
-        // }
         let index = 0;
         while (index < newSelects.length) {
             console.log(index);
@@ -220,12 +214,15 @@ export default class DefaultSelection extends React.Component {
 
             if (same !== undefined) {
                 console.log(same, newSelect);
-                newSelect.data = [...same.data];
-                newSelects.push(...same.data.flatMap(e => {
+                newSelect.data = [...same.data.filter(e => this.getDataForSelect(newSelect).map(f => f.id).includes(e))];
+
+                const childSelects = newSelect.data.flatMap(e => {
                     let sels = this.getSelects(e);
                     sels = sels.map(sel => {sel.from = e; return sel});
                     return sels;
-                }));
+                });
+                
+                newSelects.splice(newSelects.indexOf(newSelect) + 1, 0, ...childSelects);
             }
 
             index++;
@@ -234,29 +231,6 @@ export default class DefaultSelection extends React.Component {
         return newSelects;
     }
 
-    // updateStuff() {
-    //     const choices = selects.flatMap(select => select.data);
-
-    //     const selects = [original, ...choices.flatMap(id => this.getSelects(id))];
-        
-    //     const checkChoices =  [...selects];
-
-    //     let id = 0
-    //     for (const select1 of selects) {
-    //         const same = checkChoices.find(select2 => this.compareSelectObject(select1, select2));
-    //         console.log(same);
-    //         if (same !== undefined) {
-    //             console.log(select1.name, select1.data, same.data);
-    //             select1.data = same.data;
-    //             checkChoices.splice(checkChoices.indexOf(select1), 1);
-    //         }
-    //         select1.id = id;
-    //         id++;
-    //     }
-
-    //     this.setState({choices: selects, change: !this.state.change});
-    // }
-
     compareSelectObject(obj1, obj2) {
         obj1 = {...obj1}; obj2 = {...obj2};
         delete obj1.data; delete obj2.data; delete obj1.id; delete obj2.id; delete obj1.from; delete obj2.from;
@@ -264,44 +238,17 @@ export default class DefaultSelection extends React.Component {
         return JSON.stringify(obj1) === JSON.stringify(obj2);
     }
 
-
-    // Transplanted from previous version - might be bad and in need of fixing
-    // This one gets weird and recursive for sure, crazy stuff
-    getGrants(id) {
-        let idList = [id];
-        const grant = CLASSES.find(e => e.id === id)?.rules?.grant;
-        if (grant !== undefined) {
-            grant.forEach(
-                e => {
-                    console.log(e);
-                    if ((e.level === undefined || parseInt(e.level) <= this.state.level)) {
-                        if (e.number === undefined) {
-                            idList = idList.concat(this.getGrants(e.id));
-                        } else {    
-                            for (let i = 0; i < parseInt(e.number); i++) {
-                                idList = idList.concat(this.getGrants(e.id));
-                            }
-                        }
-                    }
-                }
-            )
-        }
-
-        return idList;
-    }
-
     getSelects(id) {
         let choiceList = [];
-        let grants = this.getGrants(id);
+        let grants = getGrants(id, this.state.level);
 
         for (const grant of grants) {
             const select = CLASSES.find(e => e.id === grant)?.rules?.select
             if (select !== undefined) {
                 select.forEach(
                     e => {
-                        //the e.supports !== undefined is for ranger'choices favoured enemy which gives you language (deal with this properly later)
-                        // if (e.supports !== undefined && (e.level === undefined || parseInt(e.level) <= this.state.level)) {
-                        if (e.level === undefined || parseInt(e.level) <= this.state.level) {
+                        if ((e.level === undefined || parseInt(e.level) <= this.state.level)
+                            && (e.requirements === undefined || checkRequirementsGrants(e.requirements, this.props.characterData))) {
                             e.data = [];
                             choiceList.push(e);
                         }
@@ -314,23 +261,4 @@ export default class DefaultSelection extends React.Component {
 
         return choiceList;
     }
-
-    // This one is simple as there is no recalling behaviour, it just looks through every grant recieved by the character and collates any stats values
-    getStats(grantList) {
-        let statList = [];
-
-        for (const id of grantList) {
-            const stats = CLASSES.find(e => e.id === id)?.rules?.stat;
-            if (stats !== undefined) {
-                if (Array.isArray(stats)) {
-                    statList.push(...stats);
-                } else {
-                    statList.push(stats);
-                }
-            }
-        }
-        
-        return statList;
-    }
-    
 }

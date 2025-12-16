@@ -153,11 +153,16 @@ export default class Home extends React.Component {
                                 </div>)
                         })}
                     </div>
-                    <div className="titleWrapper">
-                        <span className="title">Content files</span>
-                        <button type="button" onClick={this.onImportContentClick}><FiPlus size={18} /></button>
-                        <button type="button" onClick={this.onRefreshContentClick}><FiRefreshCw size={18} /></button>
-                        <span className="path">Path: {this.contentFilePath}</span>
+                    <div className="titleWrapper files">
+                        <span className="title">
+                            Content files
+                            
+                            <div className="divider"></div>
+                            <button type="button" onClick={this.onImportContentClick}><FiPlus size={18} /></button>
+                            <button type="button" onClick={this.onRefreshContentClick}><FiRefreshCw size={18} /></button>
+
+                        </span>
+                        <span className="path subtitle">Path: {this.contentFilePath}</span>
 
                     </div>
                     <div className="fileList characterList">

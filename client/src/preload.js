@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getUserPath: () => ipcRenderer.invoke("getUserPath"),
   writeFile: (path, content) => ipcRenderer.invoke("writeFile", path, content),
   readFile: (path) => ipcRenderer.invoke("readFile", path),
+  readFileBytes: (path) => ipcRenderer.invoke("readFileBytes", path),
   deleteFile: (path) => ipcRenderer.invoke("deleteFile", path), // TODO: find out if this is dangerous??
   getDataPath: () => ipcRenderer.invoke("getDataPath"),
   openExternal: (url) => ipcRenderer.invoke("openExternal", url),
