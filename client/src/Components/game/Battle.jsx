@@ -152,7 +152,9 @@ export default class Battle extends React.Component {
             }
         })
 
-        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
+        //this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
+        this.processedActions = [] // TODO fix the inventory searching etc.
+
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
         this.updateHp = this.updateHp.bind(this);

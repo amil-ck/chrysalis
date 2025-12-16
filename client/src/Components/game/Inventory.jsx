@@ -3,7 +3,7 @@ import { ARMOR, ITEMS, MAGIC_ITEMS, WEAPONS, EVERYTHING } from '../lib/indexData
 import Modal from '../lib/BetterModal.jsx';
 import GenericList from '../lib/GenericList.jsx';
 import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
-import { checkRequirments } from '../lib/supportUtils.js';
+import { checkRequirements } from '../lib/supportUtils.js';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import InventoryList from './InventoryList.jsx';
 
@@ -158,7 +158,7 @@ export default class Inventory extends React.Component {
     filterBases(filterStr, list) {
         const results = [];
         for (const o of list) {
-            if (checkRequirments(filterStr, o)) {
+            if (checkRequirements(filterStr, o)) {
                 results.push(o[0]); // add ID to list
             }
         }
