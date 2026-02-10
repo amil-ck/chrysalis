@@ -363,7 +363,7 @@ export default class Battle extends React.Component {
                         
                         }
                         {this.processedWeapons.map(w => (
-                            <WeaponAction key={w.itemID} data={w} />
+                            <WeaponAction key={w.itemID} data={w} characterData={this.props.characterData} />
                         ))}
                         {this.processedActions.map(a => (
                             <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
