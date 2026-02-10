@@ -105,19 +105,12 @@ export default class Inventory extends React.Component {
                 // No choices necessary
                 const baseData = this.allItems.find(i => i.id === availableBases[0]);
 
-                // const combinedItem = {
-                //     ...item,
-                //     setters: {...baseData.setters, ...item.setters},
-                //     base: baseData
-                // }
-
                 this.addToInventory(this.combineIntoItem(item, baseData));
 
             } else {
-                // TODO: give user a choice of bases
 
                 const basesData = this.allItems.filter(i => availableBases.includes(i.id));
-                console.log(basesData)
+                console.log(basesData);
 
                 this.setState({
                     modalListData: basesData,
@@ -129,7 +122,7 @@ export default class Inventory extends React.Component {
                     showModal: true,
                     selectedItemData: undefined,
                     selectedItemID: undefined
-                })
+                });
 
             }
 
@@ -139,11 +132,12 @@ export default class Inventory extends React.Component {
     }
 
     combineIntoItem(magicItem, base) {
-        return {
+        const item = {
             ...magicItem,
             setters: { ...base.setters, ...magicItem.setters },
             base: base
-        }
+        };
+        return {...item, formattedName: this.formattedName(item)};
     }
 
     addWithBase(magicItem) {
@@ -229,6 +223,20 @@ export default class Inventory extends React.Component {
     //         return parsedDescription;
     //     }
 
+    onItemClick(listID, itemID) {
+        console.log(listID, itemID)
+
+        // Get item data from list and id
+        const item = this.props.characterData.inventory[listID].find(i => i.itemID === itemID);
+
+        if (item) {
+            this.setState({
+                selectedItemID: itemID,
+                selectedItemData: item
+            });
+        }
+    }
+
     onDragEnd(result, provided) {
         console.log(result);
 
@@ -236,23 +244,7 @@ export default class Inventory extends React.Component {
 
         if (!result.destination) return; // Dragged outside a container
 
-        // TEMP: this won't work with multiple different lists
-        // TODO: figure out how to store multiple different lists
-
         // TODO: figure out weird jittering behaviour on drag end - could be bc props change, could be scroll containers
-
-        // if (result.destination.droppableId === 'Misc') {
-        //     console.log('reordering')
-        //     const reorderedInv = [...this.props.characterData.inventory];
-        //     const item = reorderedInv[result.source.index];
-        //     reorderedInv.splice(result.source.index, 1); // Remove item from old index
-        //     reorderedInv.splice(result.destination.index, 0, item); // Add item to new index
-
-        //     this.props.updateCharacterData({
-        //         inventory: reorderedInv
-        //     })
-
-        // }
 
         const updatedInv = { ...this.props.characterData.inventory };
 
@@ -293,24 +285,23 @@ export default class Inventory extends React.Component {
                 <div className="tab inventory">
                     <DragDropContext onDragEnd={this.onDragEnd}>
 
-
                         <div className="main">
-
                             <div className="equipment section">
-                                <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} />
+                                <div className="header">Equipped</div>
 
+                                <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} onItemClick={(itemID) => this.onItemClick("Armor", itemID)} />
+                                <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} />
                             </div>
                             <div className="misc section">
-                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} />
+                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} />
 
                             </div>
 
                             <button type="button" onClick={() => this.openAddModal()}>Add item</button>
 
-
                         </div>
                     </DragDropContext>
-                    <ChrysalisInfoPane data={this.state.selectedItemData} />
+                    <ChrysalisInfoPane data={this.state.selectedItemData} onClose={() => this.setState({ selectedItemID: '', selectedItemData: undefined })} />
                 </div>
 
                 <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => { if (!this.state.keepModal) this.setState({ showModal: false, selectedItemID: undefined, selectedItemData: undefined }) }}>

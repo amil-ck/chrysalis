@@ -7,6 +7,7 @@ import Slots from '../lib/Slots.jsx';
 import Action from './Action.jsx';
 import Modal from '../lib/BetterModal.jsx';
 import { FiPlus } from 'react-icons/fi';
+import WeaponAction from './WeaponAction.jsx';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -152,8 +153,21 @@ export default class Battle extends React.Component {
             }
         })
 
+        
+        this.processedActions = [];
+
+        // TODO: Create actions from equipped weapons
         //this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
-        this.processedActions = [] // TODO fix the inventory searching etc.
+        
+        const equippedWeapons = this.props.characterData.inventory["Weapons"].filter(w => w.type === 'Weapon' || w.base?.type === 'Weapon');
+        console.log(equippedWeapons);
+        this.processedWeapons = equippedWeapons;
+        for (const weapon of equippedWeapons) {
+
+        }
+
+        // Create actions from feats & features
+        this.processedActions.push(...this.processedFeats.filter(f => f.action !== undefined))
 
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
@@ -163,7 +177,7 @@ export default class Battle extends React.Component {
 
     async componentDidMount() {
         const toUpdate = {};
-        const maxHp = await calculateStat("hp", this.props.characterData);
+        const maxHp = calculateStat("hp", this.props.characterData);
         if (this.props.characterData.hps === undefined) {
             let newHp = maxHp;
             if (typeof this.props.characterData.hp === 'number') newHp = this.props.characterData.hp; 
@@ -175,7 +189,6 @@ export default class Battle extends React.Component {
                     max: maxHp
                 }
             };
-            console.log("bing bong", toUpdate)
         } else if (maxHp !== this.props.characterData.hps.hp.maxHp) {
             toUpdate.hps = structuredClone(this.props.characterData.hps);
             toUpdate.hps.hp.max = maxHp;
@@ -349,6 +362,9 @@ export default class Battle extends React.Component {
                         </div>
                         
                         }
+                        {this.processedWeapons.map(w => (
+                            <WeaponAction key={w.itemID} data={w} />
+                        ))}
                         {this.processedActions.map(a => (
                             <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
                         ))}

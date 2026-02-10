@@ -156,8 +156,7 @@ export default class Reference extends React.Component {
                     <div className="searchRow">
                         
                         <div className="searchWrapper">
-                            {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */}
-
+                            {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */} 
                             <label htmlFor="search">Search everything</label>
                             <input autoFocus type='search' name='search' placeholder='e.g. Druid, Spare the Dying...'  value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
 
