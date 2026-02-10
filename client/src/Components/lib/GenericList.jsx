@@ -2,6 +2,27 @@ import * as React from 'react';
 import Chip from './Chip.jsx';
 
 export default class GenericList extends React.Component {
+    // TODO: write actual docs for this signature
+    /**
+     * 
+     * @param {object} props
+     * @param {string} props.title
+     * @param {object[]} props.data
+     * @param {string[]} props.columnNames
+     * @param {string[]} props.columnLocations
+     * @param {string[]} props.shownColumns
+     * @param {function(string)} props.onItemSelected
+     * @param {function(string)} props.onItemDoubleSelected
+     * @param {string} props.selectedItemID
+     * @param {string[]} props.doubleSelectedItems
+     * @param {boolean} props.startMinimised
+     * @param {string[]} props.allowFilter
+     * @param {object} props.presetFilters
+     * @param {string[]} props.multiValueColumns
+     * @param {boolean} props.doubleSelectOnSingleClick
+     * @param {number} props.maxDoubleSelected
+     * @param {boolean} props.hideSelected Defaults to false
+     */
     constructor(props) {
         super(props);
 

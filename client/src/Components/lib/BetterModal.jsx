@@ -1,6 +1,15 @@
 import * as React from 'react';
 
 export default class Modal extends React.Component {
+    /**
+     * 
+     * @param {object} props 
+     * @param {boolean} props.show
+     * @param {function()} props.onClose
+     * @param {string} props.title
+     * @param {JSX.Element[]} props.children
+     * @param {{text: string, className?: string, action: function()}[]} props.actions
+     */
     constructor(props) {
         super();
         this.props = props;
