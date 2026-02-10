@@ -159,12 +159,9 @@ export default class Battle extends React.Component {
         // TODO: Create actions from equipped weapons
         //this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
         
-        const equippedWeapons = this.props.characterData.inventory["Weapons"].filter(w => w.type === 'Weapon' || w.base?.type === 'Weapon');
+        const equippedWeapons = this.props.characterData.inventory?.["Weapons"]?.filter(w => w.type === 'Weapon' || w.base?.type === 'Weapon');
         console.log(equippedWeapons);
-        this.processedWeapons = equippedWeapons;
-        for (const weapon of equippedWeapons) {
-
-        }
+        this.processedWeapons = equippedWeapons || [];
 
         // Create actions from feats & features
         this.processedActions.push(...this.processedFeats.filter(f => f.action !== undefined))
