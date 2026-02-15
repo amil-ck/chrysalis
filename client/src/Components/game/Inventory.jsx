@@ -104,6 +104,9 @@ export default class Inventory extends React.Component {
 
             const availableBases = this.filterBases(baseFilterString, searchList);
 
+            // TODO: make this work for edge cases e.g. staff of the woodlands
+            // its type=staff rather than weapon but otherwise identical
+
             if (availableBases.length === 1) {
                 // No choices necessary
                 const baseData = this.allItems.find(i => i.id === availableBases[0]);
@@ -252,8 +255,6 @@ export default class Inventory extends React.Component {
                 [listID]: this.props.characterData.inventory[listID].filter(i => i.itemID !== itemID)
             }
         })
-        //const item = this.props.characterData.inventory[listID].remove(); // Get item
-        //updatedInv[result.source.droppableId].splice(result.source.index, 1); // Remove item from index
     }
 
     onDragEnd(result, provided) {
@@ -318,7 +319,7 @@ export default class Inventory extends React.Component {
                 <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => { if (!this.state.keepModal) this.setState({ showModal: false, selectedItemID: undefined, selectedItemData: undefined }) }}>
                     {this.state.modalType === 'general' &&
 
-                        <EquipmentList {...generalListOptions} />
+                        <EquipmentList {...generalListOptions} data={this.state.modalListData} />
 
                     }
                     <ChrysalisInfoPane data={this.state.selectedItemData} />
