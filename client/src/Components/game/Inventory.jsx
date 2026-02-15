@@ -75,6 +75,15 @@ export default class Inventory extends React.Component {
                 { text: 'Add', action: this.onModalAddItemClick }
             ],
             addTargetList: targetList
+        }, () => {
+            if (!this.props.characterData.inventory[targetList]) {
+                this.props.updateCharacterData({
+                    inventory: {
+                        ...this.props.characterData.inventory,
+                        [targetList]: []
+                    }
+                })
+            }
         });
     }
 
@@ -98,9 +107,10 @@ export default class Inventory extends React.Component {
     }
 
     addMagicItem(item) {
-        if (['Weapon', 'Armor'].includes(item.setters?.type)) {
-            const baseFilterString = item.setters[item.setters.type.toLowerCase()];
-            const searchList = item.setters.type === 'Weapon' ? this.searchableWeapons : this.searchableArmor;
+        if (['Weapon', 'Armor'].includes(item.setters?.type) || item.setters?.weapon !== undefined) {
+            let baseFilterString = item.setters[item.setters.type.toLowerCase()];
+            if (item.setters.weapon) baseFilterString = item.setters.weapon;
+            const searchList = item.setters.weapon ? this.searchableWeapons : this.searchableArmor;
 
             const availableBases = this.filterBases(baseFilterString, searchList);
 
@@ -139,12 +149,24 @@ export default class Inventory extends React.Component {
     }
 
     combineIntoItem(magicItem, base) {
+        let combGrants = [];
+        let combStats = [];
+
+        if (base.rules) {
+            if (base.rules.grants) combGrants.push(...base.rules.grants);
+            if (base.rules.stats) combStats.push(...base.rules.stats);
+        }
+        if (magicItem.rules) {
+            if (magicItem.rules.grants) combGrants.push(...magicItem.rules.grants);
+            if (magicItem.rules.stats) combStats.push(...magicItem.rules.stats);
+        }
+
         const item = {
             ...magicItem,
             setters: { ...base.setters, ...magicItem.setters },
             rules: {
-                grant: [...(base.rules?.grant || []), ...(magicItem.rules?.grant || [])],
-                stat: [...(base.rules?.stat || []), ...(magicItem.rules?.stat || [])]
+                grant: combGrants,
+                stat: combStats
             },
             base: base
         };
