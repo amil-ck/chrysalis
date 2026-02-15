@@ -6,6 +6,7 @@ import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import { checkRequirements } from '../lib/supportUtils.js';
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import InventoryList from './InventoryList.jsx';
+import EquipmentList from '../lib/listTypes/EquipmentList.jsx';
 
 export default class Inventory extends React.Component {
     constructor(props) {
@@ -21,6 +22,7 @@ export default class Inventory extends React.Component {
             modalTitle: "Add item",
             selectedItemID: undefined,
             selectedItemData: undefined,
+            addTargetList: "Misc"
         }
 
         this.allItems = MAGIC_ITEMS.concat(WEAPONS).concat(ITEMS).concat(ARMOR);
@@ -62,7 +64,7 @@ export default class Inventory extends React.Component {
         }
     }
 
-    openAddModal() {
+    openAddModal(targetList = "Misc") {
         this.setState({
             showModal: true,
             modalType: 'general',
@@ -71,8 +73,9 @@ export default class Inventory extends React.Component {
             modalActions: [
                 { text: 'Cancel', action: () => { } },
                 { text: 'Add', action: this.onModalAddItemClick }
-            ]
-        })
+            ],
+            addTargetList: targetList
+        });
     }
 
     onModalAddItemClick() {
@@ -104,6 +107,7 @@ export default class Inventory extends React.Component {
             if (availableBases.length === 1) {
                 // No choices necessary
                 const baseData = this.allItems.find(i => i.id === availableBases[0]);
+                console.log(baseData);
 
                 this.addToInventory(this.combineIntoItem(item, baseData));
 
@@ -135,6 +139,10 @@ export default class Inventory extends React.Component {
         const item = {
             ...magicItem,
             setters: { ...base.setters, ...magicItem.setters },
+            rules: {
+                grant: [...(base.rules?.grant || []), ...(magicItem.rules?.grant || [])],
+                stat: [...(base.rules?.stat || []), ...(magicItem.rules?.stat || [])]
+            },
             base: base
         };
         return {...item, formattedName: this.formattedName(item)};
@@ -160,7 +168,7 @@ export default class Inventory extends React.Component {
         return results;
     }
 
-    addToInventory(item, group = 'Misc', action) {
+    addToInventory(item) {
         let itemID = crypto.randomUUID();
 
         // Make sure itemID is unique in inventory:
@@ -173,7 +181,7 @@ export default class Inventory extends React.Component {
         // TODO: add item's stats and grants (should be on equip really)
 
         this.props.updateCharacterData({
-            inventory: { ...this.props.characterData.inventory, [group]: [...this.props.characterData.inventory[group], { ...item, itemID }] }
+            inventory: { ...this.props.characterData.inventory, [this.state.addTargetList]: [...this.props.characterData.inventory[this.state.addTargetList], { ...item, itemID }] }
         })
     }
 
@@ -237,6 +245,17 @@ export default class Inventory extends React.Component {
         }
     }
 
+    onRemoveItem(listID, itemID) {
+        this.props.updateCharacterData({
+            inventory: {
+                ...this.props.characterData.inventory,
+                [listID]: this.props.characterData.inventory[listID].filter(i => i.itemID !== itemID)
+            }
+        })
+        //const item = this.props.characterData.inventory[listID].remove(); // Get item
+        //updatedInv[result.source.droppableId].splice(result.source.index, 1); // Remove item from index
+    }
+
     onDragEnd(result, provided) {
         console.log(result);
 
@@ -266,15 +285,7 @@ export default class Inventory extends React.Component {
 
         const generalListOptions = {
             title: '',
-            columnNames: ["Name", "Type", "Source"],
-            shownColumns: ["Name", "Type", "Source"],
-            allowFilter: ["Type", "Source"],
-            allowSearch: ["Name"],
-            columnLocations: ["name", "type", "source"],
-            multiValueColumns: [],
-            presetFilters: {
-
-            },
+            
             onItemSelected: (id) => this.setState({ selectedItemID: id, selectedItemData: this.allItems.find(i => i.id === id) }),
             onItemDoubleSelected: () => { },
             doubleSelectedItems: [this.state.selectedItemID]
@@ -289,15 +300,15 @@ export default class Inventory extends React.Component {
                             <div className="equipment section">
                                 <div className="header">Equipped</div>
 
-                                <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} onItemClick={(itemID) => this.onItemClick("Armor", itemID)} />
-                                <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} />
+                                <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} onAddItemClick={() => this.openAddModal("Armor")} onItemClick={(itemID) => this.onItemClick("Armor", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Armor", itemID)} />
+                                <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onAddItemClick={() => this.openAddModal("Weapons")} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Weapons", itemID)}/>
                             </div>
                             <div className="misc section">
-                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} />
+                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onAddItemClick={() => this.openAddModal()} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Misc", itemID)} />
 
                             </div>
 
-                            <button type="button" onClick={() => this.openAddModal()}>Add item</button>
+                            {/* <button type="button" onClick={() => this.openAddModal()}>Add item</button> */}
 
                         </div>
                     </DragDropContext>
@@ -307,7 +318,7 @@ export default class Inventory extends React.Component {
                 <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => { if (!this.state.keepModal) this.setState({ showModal: false, selectedItemID: undefined, selectedItemData: undefined }) }}>
                     {this.state.modalType === 'general' &&
 
-                        <GenericList {...generalListOptions} data={this.state.modalListData} />
+                        <EquipmentList {...generalListOptions} />
 
                     }
                     <ChrysalisInfoPane data={this.state.selectedItemData} />

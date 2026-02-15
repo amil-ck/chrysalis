@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
-import { FiMove } from 'react-icons/fi';
+import { FiMove, FiPlus } from 'react-icons/fi';
 
 export default class InventoryList extends React.Component {
     /**
@@ -10,6 +10,8 @@ export default class InventoryList extends React.Component {
      * @param {string} props.title 
      * @param {object[]} props.data
      * @param {function(string)} props.onItemClick
+     * @param {function(string)} props.onAddItemClick
+     * @param {function(string)} props.onRemoveItemClick
      */
     constructor(props) {
         super();
@@ -66,7 +68,10 @@ export default class InventoryList extends React.Component {
                                             </div>
 
                                             <div className="right">
-
+                                                <button type="button" onClick={(e) => {
+                                                    e.stopPropagation(); // stops the item being clicked when inner button is clicked
+                                                    this.props.onRemoveItemClick(item.itemID)
+                                                }}>del</button>
                                             </div>
                                         </div>
                                     )}
@@ -74,7 +79,15 @@ export default class InventoryList extends React.Component {
 
                             ))}
                             {provided.placeholder}
-
+                            {(!this.props.data || this.props.data.length === 0) &&
+                            
+                            <>
+                               
+                                
+                            </>
+                            
+                            }
+                            <button type="button" onClick={this.props.onAddItemClick}><FiPlus size={14} /> Add item</button>
                         </div>
                     </div>
                 )}

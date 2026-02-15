@@ -13,6 +13,10 @@ export default class WeaponAction extends React.Component {
         this.props = props;
     }
 
+    plusify(value) {
+        return Number(value) >= 0 ? `+${value}` : `${value}`;
+    }
+
     render() {
         let attackBonus = 0;
         let dmgBonus = 0;
@@ -48,6 +52,8 @@ export default class WeaponAction extends React.Component {
         if (itemProf && this.props.characterData.grants.some(g => g.id === itemProf)) {
             attackBonus += calculateStat("proficiency", this.props.characterData);
         }
+
+        const enhancement = Number(this.props.data.setters?.enhancement) || 0;
         
         return (
             <div className="weapon action">
@@ -59,10 +65,10 @@ export default class WeaponAction extends React.Component {
                         </div>
                     </div>
                     <div className="right">
-                        <button type='button'>+{attackBonus}</button>
+                        <button type='button'>{this.plusify(attackBonus + enhancement)}</button>
                         {/* <button type="button" className={this.state.collapsed ? "collapse collapsed" : "collapse"} onClick={_ => this.setState({ collapsed: !this.state.collapsed })}><FiChevronDown size={18} /></button> */}
-                        <button type='button'>{this.props.data.setters.damage}+{dmgBonus}</button>
-                        {this.props.data.setters.versatile && <button type='button'>({this.props.data.setters.versatile}+{dmgBonus})</button>}
+                        <button type='button'>{this.props.data.setters.damage}{this.plusify(dmgBonus + enhancement)}</button>
+                        {this.props.data.setters.versatile && <button type='button'>({this.props.data.setters.versatile}{this.plusify(dmgBonus + enhancement)})</button>}
                     </div>
                 </div>
             </div>
