@@ -62,9 +62,10 @@ export default class InventoryList extends React.Component {
                                             onClick={() => this.props.onItemClick(item.itemID)}
                                             {...prov.draggableProps}
                                         >
-                                            <span className="dragHandle" {...prov.dragHandleProps}><FiMove size={14}/></span>
+                                            <div className="dragHandle" {...prov.dragHandleProps}><FiMove size={14}/></div>
                                             <div className="left">
                                                 <span className="name">{item.formattedName || item.name}</span>
+                                                <span className="type">{item.type} &bull; {item.setters.category}</span>
                                             </div>
 
                                             <div className="right">

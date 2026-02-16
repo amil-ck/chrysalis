@@ -1700,15 +1700,32 @@ button.collapse {
             &.inventoryList {
                 .item {
                     cursor: pointer;
+                    justify-content: start;
+                    padding: 4px 6px;
+
+                    .dragHandle {
+                        padding: 0 12px 0 0;
+                        height: 100%;
+                    }
 
                     .left {
                         display: flex;
                         flex-direction: column;
+                        flex-grow: 1;
 
                         .name {
                             font-size: 12pt;
-                            font-variation-settings: "wght" 600;
                         }
+
+                        .type {
+                            font-size: 10pt;
+                            font-variation-settings: "wght" 700;
+                            color: var(--text-secondary);
+                        }
+                    }
+
+                    .right {
+
                     }
                 }
 

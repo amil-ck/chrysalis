@@ -70,14 +70,14 @@ export default class Battle extends React.Component {
         const characterClassID = this.props.characterData.grants?.find(grant => grant.type === 'Class')?.id;
         const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
         this.characterClass = characterClassData?.name || undefined;
-        const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
+        const subclassID = this.props.characterData.grants?.find(grant => grant && grant.type === 'Archetype')?.id;
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
         const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
         const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
         this.characterRace = raceData?.name || undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait')?.map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant && (grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait'))?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {

@@ -151,17 +151,65 @@ export default class Inventory extends React.Component {
     }
 
     combineIntoItem(magicItem, base) {
-        let combGrants = [];
-        let combStats = [];
+        const combGrants = [];
+        const combStats = [];
 
+        // Nonsense to deal with when stat/grant is sometimes a single object rather than an array
+        // grrrrrrr XML
         if (base.rules) {
-            if (base.rules.grant) combGrants.push(base.rules.grant);
-            if (base.rules.stat) combStats.push(base.rules.stat);
+            if (base.rules.grant) {
+                if (base.rules.grant?.length) {
+                    combGrants.push(...base.rules.grant);
+                } else {
+                    combGrants.push(base.rules.grant);
+                }
+            }
+
+
+            if (base.rules.stat) {
+                if (base.rules.stat?.length) {
+                    combStats.push(...base.rules.stat);
+                } else {
+                    combStats.push(base.rules.stat);
+                }
+            }
+
         }
         if (magicItem.rules) {
-            if (magicItem.rules.grant) combGrants.push(magicItem.rules.grant);
-            if (magicItem.rules.stat) combStats.push(magicItem.rules.stat);
+            if (magicItem.rules.grant) {
+                if (magicItem.rules.grant?.length) {
+                    combGrants.push(...magicItem.rules.grant);
+                } else {
+                    combGrants.push(magicItem.rules.grant);
+                }
+            }
+
+            if (magicItem.rules.stat) {
+                if (magicItem.rules.stat?.length) {
+                    combStats.push(...magicItem.rules.stat);
+                } else {
+                    combStats.push(magicItem.rules.stat)
+                }
+            }
+
         }
+
+        /*
+
+        const grants = [];
+        if (item.rules?.grant?.length) {
+            grants.push(...item.rules?.grant);
+        } else {
+            grants.push(item.rules?.grant);
+        }
+        const stats = [];
+        if (item.rules?.stat?.length) {
+            stats.push(...item.rules?.stat);
+        } else {
+            stats.push(item.rules?.stat);
+        }
+
+        */
 
         const item = {
             ...magicItem,
@@ -296,16 +344,39 @@ export default class Inventory extends React.Component {
 
         console.log(item);
 
-        const grants = item.rules?.grant || [];
-        const stats = item.rules?.stat || [];
+        // Deals with grants/stats sometimes being a single object rather than array
+        // thank you XML god bless
+        const grants = [];
+        if (item.rules?.grant !== undefined) {
+            if (item.rules?.grant?.length) {
+                grants.push(...item.rules?.grant);
+            } else {
+                grants.push(item.rules?.grant);
+            }
+        }
+
+        const stats = [];
+        if (item.rules?.stat !== undefined) {
+            if (item.rules?.stat?.length) {
+                stats.push(...item.rules?.stat);
+            } else {
+                stats.push(item.rules?.stat);
+            }
+        }
+
+        console.log(grants, item.rules?.grant);
+
         if (grants.length === 0 && stats.length === 0) return;
 
         console.log(grants, stats);
 
         if (EQUIPPED_LISTS.includes(listID)) {
             // Item has been equipped
-            const updatedStats = [...this.props.characterData.stats, ...stats];
-            const updatedGrants = [...this.props.characterData.grants, ...grants];
+            const updatedStats = [...this.props.characterData.stats];
+            const updatedGrants = [...this.props.characterData.grants];
+
+            if (stats.length > 0) updatedStats.push(...stats);
+            if (grants.length > 0) updatedGrants.push(...grants);
 
             console.log("equipping...", updatedGrants)
 
@@ -323,7 +394,7 @@ export default class Inventory extends React.Component {
 
             // For every grant, search through grants to find index (I hate json stringify grr)
             for (const grant of grants) {
-                const idx = this.props.characterData.grants.findIndex(g => JSON.stringify(g) === JSON.stringify(grant));
+                const idx = updatedGrants.findIndex(g => JSON.stringify(g) === JSON.stringify(grant));
                 if (idx === -1) continue;
 
                 updatedGrants.splice(idx, 1);
@@ -331,13 +402,16 @@ export default class Inventory extends React.Component {
 
             // Do the same for every stat
             for (const stat of stats) {
-                const idx = this.props.characterData.stats.findIndex(s => JSON.stringify(s) === JSON.stringify(stat));
+                console.log(stat);
+
+                const idx = updatedStats.findIndex(s => JSON.stringify(s) === JSON.stringify(stat));
                 if (idx === -1) continue;
+                console.log("2:", stat, idx);
 
                 updatedStats.splice(idx, 1);
             }
 
-            console.log("unequipping...", updatedGrants)
+            console.log("unequipping...", updatedStats);
 
             // Return if nothing has changed
             if (updatedStats.length === this.props.characterData.stats.length && updatedGrants.length === this.props.characterData.grants.length) {
