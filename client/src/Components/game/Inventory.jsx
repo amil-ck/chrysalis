@@ -448,7 +448,9 @@ export default class Inventory extends React.Component {
                                 <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} onAddItemClick={() => this.openAddModal("Armor")} onItemClick={(itemID) => this.onItemClick("Armor", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Armor", itemID)} />
                                 <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onAddItemClick={() => this.openAddModal("Weapons")} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Weapons", itemID)} />
                             </div>
+                            <div className="divider"></div>
                             <div className="misc section">
+                                <div className="header">Inventory</div>
                                 <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onAddItemClick={() => this.openAddModal()} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Misc", itemID)} />
 
                             </div>
