@@ -70,13 +70,16 @@ export default class Main extends React.Component {
         })
     }
 
-    updateCharacterData(data) {
+    updateCharacterData(data, cb=()=>{}) {
         const newData = { ...this.state.characterData, ...data, lastVersion: this.state.version };
 
         this.setState({
             characterData: newData
         }, () => {
-            saveCharacter(this.state.characterData.id, newData).then(() => console.log("Character saved"))
+            saveCharacter(this.state.characterData.id, newData).then(() => {
+                console.log("Character saved");
+                cb();
+            })
         })
     }
 

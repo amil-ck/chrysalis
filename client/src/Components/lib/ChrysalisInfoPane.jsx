@@ -3,6 +3,7 @@ import GenericInfoPane from './GenericInfoPane.jsx';
 
 export default class ChrysalisInfoPane extends React.Component {
     /**
+     * Wrapper around `GenericInfoPane` to provide Chrysalis-specific functions
      * 
      * @param {object} props 
      * @param {object} props.data

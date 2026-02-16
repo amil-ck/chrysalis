@@ -608,8 +608,7 @@ button.collapse {
     justify-content: start;
     align-items: start;
     padding: 20px;
-    padding-top: 0;
-    padding-bottom: 50px;
+    padding-top: 15px;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -632,10 +631,74 @@ button.collapse {
         background: transparent;
     }
 
+    &.hidden {
+        min-width: 0;
+        width: 0;
+    }
+
+    .header {
+        display: flex;
+        flex-direction: column;
+
+        width: 100%;
+
+        position: sticky;
+        background-color: inherit;
+        top: 0;
+
+        .top {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+
+            height: fit-content;
+
+            .titleWrapper {
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: start;
+
+                .title {
+                    font-size: 18pt;
+                }
+
+                .subtitle {
+                    font-size: 12pt;
+                    font-weight: 700;
+                    color: var(--text-secondary);
+                }
+            }
+        }
+
+    }
+
+    .attributes {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 0px;
+        width: 100%;
+        border-radius: 2px;
+        border: 1px solid var(--bg-5);
+
+        background-color: var(--bg-1);
+
+        gap: 2px;
+        padding: 4px 6px;
+
+    }
+
     .description {
         width: 100%;
         overflow-x: auto;
         overflow-y: visible;
+
+        flex-shrink: 1;
+
+        margin-bottom: 10px;
 
         table {
             table-layout: auto;
@@ -662,77 +725,6 @@ button.collapse {
             }
         }
     }
-}
-
-
-.infoPane.hidden {
-    min-width: 0;
-    width: 0;
-}
-
-.infoPane .header {
-    display: flex;
-    flex-direction: column;
-
-    width: 100%;
-
-    position: sticky;
-    background-color: inherit;
-    top: 0;
-}
-
-.infoPane .header .top {
-    padding-top: 20px;
-    padding-bottom: 10px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 20px;
-
-    height: fit-content;
-
-
-
-}
-
-.infoPane .header .titleWrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start;
-}
-
-.infoPane .header .title {
-    font-size: 18pt;
-}
-
-.infoPane .header .subtitle {
-    font-size: 12pt;
-    font-weight: 700;
-    color: var(--text-secondary);
-}
-
-.infoPane .header .closeButton {}
-
-.infoPane .attributes {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-}
-
-.infoPane .attributes .attribute {
-    margin: 2px 4px;
-}
-
-.infoPane .description {
-    margin-bottom: 20px;
-    flex-shrink: 1;
-}
-
-.infoPane .source {
-    margin-bottom: 20px;
 }
 
 /* END INFO PANE STYLING */
@@ -1274,7 +1266,7 @@ button.collapse {
             }
         }
 
-        .header {
+        &>.header {
             height: fit-content;
             display: flex;
             flex-direction: row;
@@ -1708,6 +1700,7 @@ button.collapse {
             &.inventoryList {
                 .item {
                     cursor: pointer;
+
                     .left {
                         display: flex;
                         flex-direction: column;

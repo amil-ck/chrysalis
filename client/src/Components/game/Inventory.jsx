@@ -8,6 +8,8 @@ import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import InventoryList from './InventoryList.jsx';
 import EquipmentList from '../lib/listTypes/EquipmentList.jsx';
 
+const EQUIPPED_LISTS = ["Armor", "Weapons"]; // temporary, until I figure out custom lists
+
 export default class Inventory extends React.Component {
     constructor(props) {
         super();
@@ -153,12 +155,12 @@ export default class Inventory extends React.Component {
         let combStats = [];
 
         if (base.rules) {
-            if (base.rules.grants) combGrants.push(...base.rules.grants);
-            if (base.rules.stats) combStats.push(...base.rules.stats);
+            if (base.rules.grant) combGrants.push(base.rules.grant);
+            if (base.rules.stat) combStats.push(base.rules.stat);
         }
         if (magicItem.rules) {
-            if (magicItem.rules.grants) combGrants.push(...magicItem.rules.grants);
-            if (magicItem.rules.stats) combStats.push(...magicItem.rules.stats);
+            if (magicItem.rules.grant) combGrants.push(magicItem.rules.grant);
+            if (magicItem.rules.stat) combStats.push(magicItem.rules.stat);
         }
 
         const item = {
@@ -170,7 +172,7 @@ export default class Inventory extends React.Component {
             },
             base: base
         };
-        return {...item, formattedName: this.formattedName(item)};
+        return { ...item, formattedName: this.formattedName(item) };
     }
 
     addWithBase(magicItem) {
@@ -203,11 +205,14 @@ export default class Inventory extends React.Component {
             itemID = crypto.randomUUID();
         }
 
-        // TODO: add item's stats and grants (should be on equip really)
 
         this.props.updateCharacterData({
             inventory: { ...this.props.characterData.inventory, [this.state.addTargetList]: [...this.props.characterData.inventory[this.state.addTargetList], { ...item, itemID }] }
-        })
+        }, () => {
+            // Only call calculate when actually equipping, no need to run unequip code
+            if (EQUIPPED_LISTS.includes(this.state.addTargetList)) this.calculateGrants(item, this.state.addTargetList);
+        });
+
     }
 
     formattedName(item) {
@@ -236,26 +241,6 @@ export default class Inventory extends React.Component {
         return formatted;
     }
 
-    // insertStats(description = '') {
-
-    //         let parsedDescription = `${description}`;
-
-    //         const statNames = description.split("{{").map(str => {
-    //             if (str.includes("}}")) {
-    //                 return str.split("}}")[0]; // get substring between brackets
-    //             }
-    //         }).filter(i => !!i); // not null or undefined
-
-    //         console.log(statNames);
-
-    //         for (const statName of statNames) {
-    //             const value = calculateStat(statName, this.props.characterData);
-    //             parsedDescription = parsedDescription.replace(`{{${statName}}}`, value);
-    //         }
-
-    //         return parsedDescription;
-    //     }
-
     onItemClick(listID, itemID) {
         console.log(listID, itemID)
 
@@ -271,12 +256,16 @@ export default class Inventory extends React.Component {
     }
 
     onRemoveItem(listID, itemID) {
+        const item = this.props.characterData.inventory[listID].find(i => i.itemID === itemID);
+
         this.props.updateCharacterData({
             inventory: {
                 ...this.props.characterData.inventory,
                 [listID]: this.props.characterData.inventory[listID].filter(i => i.itemID !== itemID)
             }
-        })
+        }, () => this.calculateGrants(item, "NONE"));
+
+
     }
 
     onDragEnd(result, provided) {
@@ -299,8 +288,67 @@ export default class Inventory extends React.Component {
 
         this.props.updateCharacterData({
             inventory: updatedInv
-        })
+        }, () => this.calculateGrants(item, result.destination.droppableId));
 
+    }
+
+    calculateGrants(item, listID) {
+
+        console.log(item);
+
+        const grants = item.rules?.grant || [];
+        const stats = item.rules?.stat || [];
+        if (grants.length === 0 && stats.length === 0) return;
+
+        console.log(grants, stats);
+
+        if (EQUIPPED_LISTS.includes(listID)) {
+            // Item has been equipped
+            const updatedStats = [...this.props.characterData.stats, ...stats];
+            const updatedGrants = [...this.props.characterData.grants, ...grants];
+
+            console.log("equipping...", updatedGrants)
+
+            this.props.updateCharacterData({
+                stats: updatedStats,
+                grants: updatedGrants
+            });
+
+        } else {
+            // Item has been unequipped
+            const updatedStats = [...this.props.characterData.stats];
+            const updatedGrants = [...this.props.characterData.grants];
+
+
+
+            // For every grant, search through grants to find index (I hate json stringify grr)
+            for (const grant of grants) {
+                const idx = this.props.characterData.grants.findIndex(g => JSON.stringify(g) === JSON.stringify(grant));
+                if (idx === -1) continue;
+
+                updatedGrants.splice(idx, 1);
+            }
+
+            // Do the same for every stat
+            for (const stat of stats) {
+                const idx = this.props.characterData.stats.findIndex(s => JSON.stringify(s) === JSON.stringify(stat));
+                if (idx === -1) continue;
+
+                updatedStats.splice(idx, 1);
+            }
+
+            console.log("unequipping...", updatedGrants)
+
+            // Return if nothing has changed
+            if (updatedStats.length === this.props.characterData.stats.length && updatedGrants.length === this.props.characterData.grants.length) {
+                return;
+            }
+
+            this.props.updateCharacterData({
+                stats: updatedStats,
+                grants: updatedGrants
+            });
+        }
     }
 
     render() {
@@ -308,7 +356,7 @@ export default class Inventory extends React.Component {
 
         const generalListOptions = {
             title: '',
-            
+
             onItemSelected: (id) => this.setState({ selectedItemID: id, selectedItemData: this.allItems.find(i => i.id === id) }),
             onItemDoubleSelected: () => { },
             doubleSelectedItems: [this.state.selectedItemID]
@@ -324,7 +372,7 @@ export default class Inventory extends React.Component {
                                 <div className="header">Equipped</div>
 
                                 <InventoryList id="Armor" title="Armour" data={this.props.characterData.inventory?.["Armor"]} onAddItemClick={() => this.openAddModal("Armor")} onItemClick={(itemID) => this.onItemClick("Armor", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Armor", itemID)} />
-                                <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onAddItemClick={() => this.openAddModal("Weapons")} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Weapons", itemID)}/>
+                                <InventoryList id="Weapons" title="Weapons" data={this.props.characterData.inventory?.["Weapons"]} onAddItemClick={() => this.openAddModal("Weapons")} onItemClick={(itemID) => this.onItemClick("Weapons", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Weapons", itemID)} />
                             </div>
                             <div className="misc section">
                                 <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onAddItemClick={() => this.openAddModal()} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Misc", itemID)} />
