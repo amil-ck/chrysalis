@@ -326,7 +326,7 @@ export default class Magic extends React.Component {
                     <div className="spellcastingWrapper">
                         <div className="title">
                             Your spells
-                            {this.props.spellcasting.prepare && <span className="preparedCount">&bull; {this.props.characterData.preparedSpells.length}/{this.getPrepareSlots()} prepared</span>}
+                            {this.props.spellcasting.prepare && <span className="preparedCount">&bull; {this.props.characterData.preparedSpells?.length || 0}/{this.getPrepareSlots()} prepared</span>}
                         </div>
                         <div className="stats list card">
                             <div className="body">
@@ -351,7 +351,7 @@ export default class Magic extends React.Component {
                     </div>
 
                     {this.props.spellcasting.prepare &&
-                        <SpellList startMinimised={this.props.characterData.preparedSpells.length === this.getPrepareSlots()} hideSelected={true} data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} doubleSelectedItems={selectedSpells} />
+                        <SpellList startMinimised={this.props.characterData.preparedSpells?.length === this.getPrepareSlots()} hideSelected={true} data={this.state.availableSpells} title={"Available spells"} selectedItemID={this.state.selectedItemID} onItemSelected={this.handleItemSelected} onItemDoubleSelected={this.prepareSpell} doubleSelectedItems={selectedSpells} />
                     }
                 </div>
 

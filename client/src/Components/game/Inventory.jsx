@@ -17,6 +17,8 @@ export default class Inventory extends React.Component {
 
         this.groups = ["Weapons", "Armor", "Misc"];
 
+        this.defaultCustomModalData = {name: '', description: '', category: ''};
+
         this.state = {
             modalType: 'general',
             showModal: false,
@@ -24,7 +26,8 @@ export default class Inventory extends React.Component {
             modalTitle: "Add item",
             selectedItemID: undefined,
             selectedItemData: undefined,
-            addTargetList: "Misc"
+            addTargetList: "Misc",
+            customModalData: this.defaultCustomModalData
         }
 
         this.allItems = MAGIC_ITEMS.concat(WEAPONS).concat(ITEMS).concat(ARMOR);
@@ -40,6 +43,7 @@ export default class Inventory extends React.Component {
 
         this.onModalAddItemClick = this.onModalAddItemClick.bind(this);
         this.onDragEnd = this.onDragEnd.bind(this);
+        this.onModalAddCustomClick = this.onModalAddCustomClick.bind(this);
     }
 
     componentDidMount() {
@@ -263,6 +267,36 @@ export default class Inventory extends React.Component {
 
     }
 
+    openCustomModal(targetList = "Misc") {
+        this.setState({
+            showModal: true,
+            modalType: 'custom',
+            modalTitle: 'Add custom item',
+            modalActions: [
+                { text: 'Cancel', action: () => { } },
+                { text: 'Add', action: this.onModalAddCustomClick }
+            ],
+            addTargetList: targetList,
+            customModalData: this.defaultCustomModalData
+        }, () => {
+            if (!this.props.characterData.inventory[targetList]) {
+                this.props.updateCharacterData({
+                    inventory: {
+                        ...this.props.characterData.inventory,
+                        [targetList]: []
+                    }
+                })
+            }
+        });
+    }
+
+    onModalAddCustomClick() {
+        const { name='', category='', description='' } = this.state.customModalData;
+        if (!name) return alert("Custom items need names");
+
+        this.addToInventory({name, description, type: "Custom Item",setters: {category}});        
+    }
+
     formattedName(item) {
         if (!item.setters["name-format"]) return item.name;
 
@@ -306,14 +340,20 @@ export default class Inventory extends React.Component {
     onRemoveItem(listID, itemID) {
         const item = this.props.characterData.inventory[listID].find(i => i.itemID === itemID);
 
+        // Close info pane if removed item was selected
+        if (itemID === this.state.selectedItemID) {
+            this.setState({
+                selectedItemID: '',
+                selectedItemData: undefined
+            });
+        }
+
         this.props.updateCharacterData({
             inventory: {
                 ...this.props.characterData.inventory,
                 [listID]: this.props.characterData.inventory[listID].filter(i => i.itemID !== itemID)
             }
         }, () => this.calculateGrants(item, "NONE"));
-
-
     }
 
     onDragEnd(result, provided) {
@@ -323,21 +363,26 @@ export default class Inventory extends React.Component {
 
         if (!result.destination) return; // Dragged outside a container
 
-        // TODO: figure out weird jittering behaviour on drag end - could be bc props change, could be scroll containers
-
         const updatedInv = { ...this.props.characterData.inventory };
 
-        // Create inventory list if needed
-        if (!updatedInv[result.destination.droppableId]) updatedInv[result.destination.droppableId] = [];
+        const sourceList = result.source.droppableId;
+        const destinationList = result.destination.droppableId;
 
-        const item = updatedInv[result.source.droppableId][result.source.index]; // Get item from source
-        updatedInv[result.source.droppableId].splice(result.source.index, 1); // Remove item from index at source
-        updatedInv[result.destination.droppableId].splice(result.destination.index, 0, item); // Add item to new index at destination
+        // Create inventory list if needed
+        if (!updatedInv[destinationList]) updatedInv[destinationList] = [];
+
+        const item = updatedInv[sourceList][result.source.index]; // Get item from source
+        updatedInv[sourceList].splice(result.source.index, 1); // Remove item from index at source
+        updatedInv[destinationList].splice(result.destination.index, 0, item); // Add item to new index at destination
 
         this.props.updateCharacterData({
             inventory: updatedInv
-        }, () => this.calculateGrants(item, result.destination.droppableId));
-
+        }, () => {
+            if (EQUIPPED_LISTS.includes(sourceList) !== EQUIPPED_LISTS.includes(destinationList)) {
+                // Only recalculate grants if status of item has actually changed
+                this.calculateGrants(item, result.destination.droppableId)
+            }
+        });
     }
 
     calculateGrants(item, listID) {
@@ -348,7 +393,7 @@ export default class Inventory extends React.Component {
         // thank you XML god bless
         const grants = [];
         if (item.rules?.grant !== undefined) {
-            if (item.rules?.grant?.length) {
+            if (item.rules?.grant?.length !== undefined) {
                 grants.push(...item.rules?.grant);
             } else {
                 grants.push(item.rules?.grant);
@@ -357,7 +402,7 @@ export default class Inventory extends React.Component {
 
         const stats = [];
         if (item.rules?.stat !== undefined) {
-            if (item.rules?.stat?.length) {
+            if (item.rules?.stat?.length !== undefined) {
                 stats.push(...item.rules?.stat);
             } else {
                 stats.push(item.rules?.stat);
@@ -389,8 +434,6 @@ export default class Inventory extends React.Component {
             // Item has been unequipped
             const updatedStats = [...this.props.characterData.stats];
             const updatedGrants = [...this.props.characterData.grants];
-
-
 
             // For every grant, search through grants to find index (I hate json stringify grr)
             for (const grant of grants) {
@@ -451,7 +494,7 @@ export default class Inventory extends React.Component {
                             <div className="divider"></div>
                             <div className="misc section">
                                 <div className="header">Inventory</div>
-                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onAddItemClick={() => this.openAddModal()} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Misc", itemID)} />
+                                <InventoryList id="Misc" title="Uncategorised" data={this.props.characterData.inventory?.["Misc"]} onAddItemClick={() => this.openAddModal()} onItemClick={(itemID) => this.onItemClick("Misc", itemID)} onRemoveItemClick={(itemID) => this.onRemoveItem("Misc", itemID)} onAddCustomClick={() => this.openCustomModal("Misc")} />
 
                             </div>
 
@@ -465,10 +508,31 @@ export default class Inventory extends React.Component {
                 <Modal show={this.state.showModal} title={this.state.modalTitle} actions={this.state.modalActions} onClose={() => { if (!this.state.keepModal) this.setState({ showModal: false, selectedItemID: undefined, selectedItemData: undefined }) }}>
                     {this.state.modalType === 'general' &&
 
+                        <>
                         <EquipmentList {...generalListOptions} data={this.state.modalListData} />
+                        {/* <ChrysalisInfoPane data={this.state.selectedItemData} /> */}
+                        </>
+                    }
+                    {this.state.modalType === 'custom' &&
+
+                        <div className="inputList">
+                            <div className="inputWrapper">
+                                <label htmlFor="name">Name</label>
+                                <input type="text" name="name" value={this.state.customModalData.name} onChange={(e) => this.setState({customModalData: {...this.state.customModalData, [e.target.name]: e.target.value}})} placeholder='My extra special magic item' />
+                            </div>
+
+                            <div className="inputWrapper">
+                                <label htmlFor="category">Category</label>
+                                <input type="text" name="category" value={this.state.customModalData.category} onChange={(e) => this.setState({customModalData: {...this.state.customModalData, [e.target.name]: e.target.value}})} placeholder='What kind of thing is it' />
+                            </div>
+
+                            <div className="inputWrapper">
+                                <label htmlFor="description">Description</label>
+                                <textarea name="description" value={this.state.customModalData.description} rows={6} onChange={(e) => this.setState({customModalData: {...this.state.customModalData, [e.target.name]: e.target.value}})} placeholder='I felt the need to invent a custom item because ...' />
+                            </div>
+                        </div>
 
                     }
-                    <ChrysalisInfoPane data={this.state.selectedItemData} />
                 </Modal>
             </>
         )

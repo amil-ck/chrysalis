@@ -150,6 +150,11 @@ button {
             background-color: var(--bg-control) !important;
         }
     }
+
+    &>svg {
+        margin: 0 6px;
+        align-self: center;
+    }
 }
 
 select {
@@ -1449,6 +1454,16 @@ button.collapse {
                         }
                     }
                 }
+
+                .actions {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: row;
+
+                    &>button {
+                        flex: 1;
+                    }
+                }
             }
 
             .stats {
@@ -1968,7 +1983,9 @@ button.collapse {
 
                         height: 100%;
 
-                        border-radius: 0 6px 6px 0;
+                        &:last-child {
+                            border-radius: 0 6px 6px 0;
+                        }
 
                         &:hover {
                             background-color: var(--bg-5);
@@ -2012,6 +2029,12 @@ button.collapse {
         max-width: 80%;
         overflow-y: hidden;
 
+        &:has(.inputList) {
+            width: 60%;
+            min-width: 500px;
+            max-width: 700px;
+        }
+
         .title {
             font-size: 14pt;
             font-variation-settings: "wght" 500;
@@ -2026,6 +2049,7 @@ button.collapse {
         .actions {
             display: flex;
             flex-direction: row;
+            gap: 2px;
 
             button {
                 padding: 8px 16px;
