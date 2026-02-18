@@ -50,16 +50,18 @@ export function checkRequirementsGrants(bool, characterData) {
 
 
 export function checkRequirements(bool, grantArray) {
-    if (bool === {}.toString()) {
-        console.log(jsep(bool.toString()));
-    }
+    bool = bool.replace(/\d/g, "n$&");
+    // console.log(bool)
+    
+    grantArray = grantArray.map(grant => grant.replace(/\d/g, "n$&"));
+
     return recurse(jsep(bool.toString()), grantArray);
 }
 
 export function test() {
     let values = ["ID_WOTC_PHB_CLASS_WARLOCK", "ID_WOTC_PHB_MULTICLASS_WARLOCK"];
 
-    let stuff = jsep(["[horse]", "world"].toString());
+    let stuff = jsep(["[horse type feat, the end of all]", "world horset"].toString());
     console.log(stuff);
     console.log(recurse(stuff, values));
 }
@@ -72,6 +74,8 @@ function recurse(obj, values) {
         return values.includes(obj.name);
     } else if (obj.type === "Literal") {
         return values.includes(obj.raw);
+    } else if (obj.type === "MemberExpression") {
+        return values.includes(obj.property.value)
     } else if (obj.operator === "!") {
         return !recurse(obj.argument, values);
     } else if (obj.operator === "||" || obj.operator === "|") {
