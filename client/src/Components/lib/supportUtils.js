@@ -50,7 +50,7 @@ export function checkRequirementsGrants(bool, characterData) {
 
 
 export function checkRequirements(bool, grantArray) {
-    bool = bool.replace(/\d/g, "n$&");
+    bool = bool.toString().replace(/\d/g, "n$&");
     // console.log(bool)
     
     grantArray = grantArray.map(grant => grant.replace(/\d/g, "n$&"));
