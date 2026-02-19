@@ -4,6 +4,22 @@ import { FiChevronDown } from 'react-icons/fi';
 import Slots from '../lib/Slots.jsx';
 
 export default class Action extends React.Component {
+    /**
+     * 
+     * @param {object} props 
+     * 
+     * @param {object} props.data
+     * @param {string} props.data.name
+     * @param {string} props.data.action
+     * @param {number} props.data.maxUsage
+     * @param {string} props.data.usageStr
+     * @param {number} props.data.maxUsage
+     * @param {string} props.data.description HTML string
+     * 
+     * @param {number} props.useValue
+     * @param {boolean} props.startCollapsed
+     * @param {function(any)} props.onChange
+     */
     constructor(props) {
         super();
         this.props = props;

@@ -3,7 +3,7 @@ import Chip from '../lib/Chip.jsx';
 import ClassList from '../lib/listTypes/ClassList.jsx';
 import GenericList from '../lib/GenericList.jsx';
 import FeatList from '../lib/listTypes/FeatList.jsx';
-import { ARCHETYPE_FEATURES, ARCHETYPES, BACKGROUNDS, CLASS_FEATURES, CLASSES, EVERYTHING, FEATS, LANGUAGES, RACES, SPELLS } from '../lib/indexData.js';
+import { ALL_EQUIPMENT, ARCHETYPE_FEATURES, ARCHETYPES, BACKGROUNDS, CLASS_FEATURES, CLASSES, EVERYTHING, FEATS, LANGUAGES, RACES, SPELLS } from '../lib/indexData.js';
 import SpellList from '../lib/listTypes/SpellList.jsx';
 import ChrysalisInfoPane from '../lib/ChrysalisInfoPane.jsx';
 import RaceList from '../lib/listTypes/RaceList.jsx';
@@ -11,6 +11,7 @@ import LanguageList from '../lib/listTypes/LanguageList.jsx';
 import FloatingSearchResults from '../lib/FloatingSearchResults.jsx';
 import BackgroundList from '../lib/listTypes/BackgroundList.jsx';
 import FeaturesList from '../lib/listTypes/FeaturesList.jsx';
+import EquipmentList from '../lib/listTypes/EquipmentList.jsx';
 
 export default class Reference extends React.Component {
     constructor(props) {
@@ -38,6 +39,7 @@ export default class Reference extends React.Component {
             "Spells": SPELLS,
             "Backgrounds": BACKGROUNDS,
             "Languages": LANGUAGES,
+            "Equipment": ALL_EQUIPMENT
         }
 
         // Collate all data for searching
@@ -133,7 +135,8 @@ export default class Reference extends React.Component {
             "Spells": SpellList,
             "Races": RaceList,
             "Languages": LanguageList,
-            "Backgrounds": BackgroundList
+            "Backgrounds": BackgroundList,
+            "Equipment": EquipmentList
         }
 
         let CurrentList = lists[this.state.currentCategory];
@@ -156,8 +159,7 @@ export default class Reference extends React.Component {
                     <div className="searchRow">
                         
                         <div className="searchWrapper">
-                            {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */}
-
+                            {/* {this.state.searchCategory !== undefined && <Chip className="filterChip" text={this.state.searchCategory} />} */} 
                             <label htmlFor="search">Search everything</label>
                             <input autoFocus type='search' name='search' placeholder='e.g. Druid, Spare the Dying...'  value={this.state.searchValue} onChange={this.onSearchChange} onFocus={() => this.setState({showSearchResults: true})} onBlur={this.onSearchBlur} />
 

@@ -7,6 +7,7 @@ import Slots from '../lib/Slots.jsx';
 import Action from './Action.jsx';
 import Modal from '../lib/BetterModal.jsx';
 import { FiPlus } from 'react-icons/fi';
+import WeaponAction from './WeaponAction.jsx';
 
 export default class Battle extends React.Component {
     constructor(props) {
@@ -16,7 +17,8 @@ export default class Battle extends React.Component {
         this.state = {
             miscTab: 'Actions',
             notes: this.props.characterData.notes || { general: '', conditions: '' },
-            showModal: false,
+            showTempHPModal: false,
+            showHDModal: false,
             modalText: {
                 name: '',
                 value: '0',
@@ -25,12 +27,16 @@ export default class Battle extends React.Component {
             onModalPositive: () => {
                 if (this.state.modalText.name.length > 0) {
                     this.addTempHp(
-                        this.state.modalText.name.toLowerCase(), 
+                        this.state.modalText.name.toLowerCase(),
                         this.state.modalText.name,
                         Number(this.state.modalText.value) || 0,
                         Number(this.state.modalText.max) || -1
                     )
                 }
+            },
+            hdModalContent: {
+                hitDiceUsed: 0,
+                hpGained: 0
             }
         }
 
@@ -69,18 +75,27 @@ export default class Battle extends React.Component {
         const characterClassID = this.props.characterData.grants?.find(grant => grant.type === 'Class')?.id;
         const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
         this.characterClass = characterClassData?.name || undefined;
-        const subclassID = this.props.characterData.grants?.find(grant => grant.type === 'Archetype')?.id;
+        const subclassID = this.props.characterData.grants?.find(grant => grant && grant.type === 'Archetype')?.id;
         this.subclass = subclassID ? ARCHETYPES.find(a => a.id === subclassID)?.name : undefined;
         const raceID = this.props.characterData.grants?.find(g => g.type === 'Race')?.id;
         const raceData = raceID ? RACES.find(r => r.id === raceID) : undefined;
         this.characterRace = raceData?.name || undefined;
 
         // Feats and features
-        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait')?.map(g => g.id);
+        const featsFeatureIDs = this.props.characterData.grants?.filter(grant => grant && (grant.type === 'Feat' || grant.type?.includes('Feature') || grant.type === 'Racial Trait'))?.map(g => g.id);
         const featsFeatures = EVERYTHING.filter(item => featsFeatureIDs?.includes(item.id) && !(item.sheet?.display == false));
         console.log(featsFeatureIDs, featsFeatures)
         this.processedFeats = featsFeatures.map(feat => {
-            const sanitisedDescription = DOMPurify.sanitize(feat.sheet?.description || feat.description, { USE_PROFILES: { html: true } });
+            const adaptDescription = feat.sheet?.description || feat.description;
+            let levelledDescription = adaptDescription;
+            if (adaptDescription !== 'string') {
+                for (const i in adaptDescription) {
+                    if (adaptDescription[i].level && Number(adaptDescription[i].level) < this.props.characterData.level) {
+                        levelledDescription = adaptDescription[i].text
+                    }
+                }
+            }
+            const sanitisedDescription = DOMPurify.sanitize(levelledDescription, { USE_PROFILES: { html: true } });
             const descriptionWithStats = this.insertStats(sanitisedDescription);
             const maxUsage = feat.sheet?.usage?.split("/")[0];
             const resetOn = feat.sheet?.usage?.split("/")[1];
@@ -100,6 +115,9 @@ export default class Battle extends React.Component {
         this.initiative = calculateStat("initiative", this.props.characterData);
         this.speed = calculateStat("speed", this.props.characterData);
         this.maxHp = calculateStat("hp", this.props.characterData);
+
+        // Monk-specific
+        this.maxKiPoints = calculateStat("ki:points", this.props.characterData);
 
         this.hitDice = "";
         const hdType = characterClassData?.setters?.hd;
@@ -140,7 +158,19 @@ export default class Battle extends React.Component {
             }
         })
 
-        this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
+
+        this.processedActions = [];
+
+        // TODO: Create actions from equipped weapons
+        //this.processedActions = [...this.processedFeats.filter(f => f.action !== undefined), ...(this.props.characterData.inventory || []).filter(i => i.action === true || i.action?.length > 0)];
+
+        const equippedWeapons = this.props.characterData.inventory?.["Weapons"]?.filter(w => w.type === 'Weapon' || w.base?.type === 'Weapon');
+        console.log(equippedWeapons);
+        this.processedWeapons = equippedWeapons || [];
+
+        // Create actions from feats & features
+        this.processedActions.push(...this.processedFeats.filter(f => f.action !== undefined))
+
         this.handleNotesChange = this.handleNotesChange.bind(this);
         this.handleInputBlur = this.handleInputBlur.bind(this);
         this.updateHp = this.updateHp.bind(this);
@@ -149,10 +179,10 @@ export default class Battle extends React.Component {
 
     async componentDidMount() {
         const toUpdate = {};
-        const maxHp = await calculateStat("hp", this.props.characterData);
+        const maxHp = calculateStat("hp", this.props.characterData);
         if (this.props.characterData.hps === undefined) {
             let newHp = maxHp;
-            if (typeof this.props.characterData.hp === 'number') newHp = this.props.characterData.hp; 
+            if (typeof this.props.characterData.hp === 'number') newHp = this.props.characterData.hp;
 
             toUpdate.hps = {
                 hp: {
@@ -161,7 +191,6 @@ export default class Battle extends React.Component {
                     max: maxHp
                 }
             };
-            console.log("bing bong", toUpdate)
         } else if (maxHp !== this.props.characterData.hps.hp.maxHp) {
             toUpdate.hps = structuredClone(this.props.characterData.hps);
             toUpdate.hps.hp.max = maxHp;
@@ -169,6 +198,11 @@ export default class Battle extends React.Component {
 
         if (this.props.characterData.actionUsage === undefined) {
             toUpdate.actionUsage = {};
+        }
+
+        // Initialise ki pts
+        if (this.maxKiPoints > 0 && this.props.characterData.usedKiPoints === undefined) {
+            toUpdate.usedKiPoints = 0
         }
 
         if (this.props.characterData.hdUsage === undefined) {
@@ -218,7 +252,7 @@ export default class Battle extends React.Component {
 
     handleActionUse(id, value) {
         this.props.updateCharacterData({
-            actionUsage: {...this.props.characterData.actionUsage, [id]: value}
+            actionUsage: { ...this.props.characterData.actionUsage, [id]: value }
         })
     }
 
@@ -229,49 +263,69 @@ export default class Battle extends React.Component {
             value: newValue
         }
         this.props.updateCharacterData({
-            hps: {...this.props.characterData.hps, [id]: newObj}
+            hps: { ...this.props.characterData.hps, [id]: newObj }
         })
     }
-    
-    addTempHp(id, name, value, max=-1) {
+
+    addTempHp(id, name, value, max = -1) {
         this.props.updateCharacterData({
-            hps: {...this.props.characterData.hps, [id]: {
-                name, value, max
-            }}
+            hps: {
+                ...this.props.characterData.hps, [id]: {
+                    name, value, max
+                }
+            }
         })
     }
 
     removeTempHp(id) {
         this.props.updateCharacterData({
-            hps: {...this.props.characterData.hps, [id]: undefined}
+            hps: { ...this.props.characterData.hps, [id]: undefined }
         })
     }
 
     onAddTempHpClicked() {
         this.setState({
-            showModal: true
+            showTempHPModal: true
         })
     }
 
     onModalInputChange(e) {
         this.setState({
-            modalText: {...this.state.modalText, [e.target.name]: e.target.value}
+            modalText: { ...this.state.modalText, [e.target.name]: e.target.value }
         })
+    }
+
+    onShortRestClick() {
+        if (this.props.characterData.hdUsage >= this.props.characterData.level || this.props.characterData.hps.hp.value >= this.maxHp) {
+            // All hit dice already used (or HP already full), continue to rest of short rest
+            this.shortRest();
+        } else {
+            // Still some hit dice left, open modal
+            this.setState({
+                showHDModal: true
+            })
+        }
     }
 
     shortRest() {
         const toUpdate = {};
 
+        // Get hit dice & hp from modal
+        const { hitDiceUsed, hpGained } = this.state.hdModalContent;
+        toUpdate.hdUsage = Math.min(this.props.characterData.level, this.props.characterData.hdUsage + Number(hitDiceUsed));
+        toUpdate.hps = { ...this.props.characterData.hps };
+        toUpdate.hps.hp.value = Math.min(this.maxHp, toUpdate.hps.hp.value + Number(hpGained));
+
         // Reset action usage
-        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        toUpdate.actionUsage = { ...this.props.characterData.actionUsage };
         for (const action of this.processedActions) {
             if (action.resetOn === 'Short Rest') {
                 toUpdate.actionUsage[action.id] = 0;
             }
         }
 
-        // Hit dice modal - 
-        // TODO when bettermodal is merged
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
 
         this.props.updateCharacterData(toUpdate);
     }
@@ -282,11 +336,11 @@ export default class Battle extends React.Component {
         toUpdate.hdUsage = 0;
 
         // HP to max
-        toUpdate.hps = {...this.props.characterData.hps};
+        toUpdate.hps = { ...this.props.characterData.hps };
         toUpdate.hps.hp.value = toUpdate.hps.hp.max;
 
         // Reset action usage
-        toUpdate.actionUsage = {...this.props.characterData.actionUsage};
+        toUpdate.actionUsage = { ...this.props.characterData.actionUsage };
         for (const action of this.processedActions) {
             if (['Long Rest', 'Short Rest'].includes(action.resetOn)) {
                 toUpdate.actionUsage[action.id] = 0;
@@ -296,11 +350,14 @@ export default class Battle extends React.Component {
         // Reset spell slots
         toUpdate.usedSpellSlots = {};
         for (const i in this.props.characterData.usedSpellSlots) {
-            toUpdate.usedSpellSlots[i] = [0,0,0,0,0,0,0,0,0,0]
+            toUpdate.usedSpellSlots[i] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         }
-        
+
         // Reset sorcery points
         toUpdate.usedSorceryPoints = 0;
+
+        // Reset ki
+        toUpdate.usedKiPoints = 0;
 
         // Update state
         this.props.updateCharacterData(toUpdate);
@@ -317,6 +374,16 @@ export default class Battle extends React.Component {
             Actions: (
                 <div className="actionList card list">
                     <div className="body">
+                        {this.maxKiPoints > 0 &&
+
+                            <div className="action">
+                                <Slots label="Used ki points: " value={this.props.characterData.usedKiPoints} max={this.maxKiPoints} onChange={(value) => this.props.updateCharacterData({ usedKiPoints: value })} />
+                            </div>
+
+                        }
+                        {this.processedWeapons.map(w => (
+                            <WeaponAction key={w.itemID} data={w} characterData={this.props.characterData} />
+                        ))}
                         {this.processedActions.map(a => (
                             <Action key={a.name} data={a} useValue={this.props.characterData.actionUsage?.[a.id] || 0} startCollapsed={true} onChange={v => this.handleActionUse(a.id, v)} />
                         ))}
@@ -365,7 +432,7 @@ export default class Battle extends React.Component {
                             <div className="value">
                                 <div className="current">{this.props.characterData.level - this.props.characterData.hdUsage}{this.hdType}</div>
                                 <div className="max">/{this.hitDice}</div>
-                                
+
                             </div>
                         </div>
                         <button type="button" className='addTemp' onClick={() => this.onAddTempHpClicked()}>
@@ -373,7 +440,7 @@ export default class Battle extends React.Component {
                             <span className="icon"><FiPlus size={24} /></span>
                             <span className="text">HP</span>
                         </button>
-                        
+
                         {/* <HPControl hp={this.props.characterData.hps?.hp?.value} maxHp={this.props.characterData.hps?.hp?.max} updateHp={(newHp) => this.updateHp("hp", newHp)} /> */}
                         <HPControl hps={this.props.characterData.hps} updateHp={this.updateHp} removeTempHp={(id) => this.removeTempHp(id)} />
                     </div>
@@ -431,17 +498,21 @@ export default class Battle extends React.Component {
                                 <div className="title">Initiative</div>
                                 <div className="value">{this.plusify(this.initiative)}</div>
                             </div>
+
                             <div className="speed card miscStat">
                                 <div className="title">Speed</div>
-                                <div className="value">{this.speed}</div>
+                                <div className="value">
+                                    <span className="current">{this.speed}</span>
+                                    <span className="title">ft.</span>
+                                </div>
                             </div>
-                            <div className="proficiency card miscStat">
+                            <div className="proficiency card miscStat withSecondary">
                                 <div className="title">Proficiency</div>
                                 <div className="value">{this.plusify(this.proficiencyBonus)}</div>
                                 <div className="title">Bonus</div>
                             </div>
                             <div className="rest card miscStat">
-                                <button type="button" className='short' onClick={() => this.shortRest()}>Short Rest</button>
+                                <button type="button" className='short' onClick={() => this.onShortRestClick()}>Short Rest</button>
                                 <button type="button" className='long' onClick={() => this.longRest()}>Long Rest</button>
                             </div>
                         </div>
@@ -470,7 +541,7 @@ export default class Battle extends React.Component {
                         </div>
                     </div> */}
                 </div>
-                <Modal show={this.state.showModal} title="Add Temporary HP" positiveText="Add" negativeText="Cancel" onPositive={this.state.onModalPositive} onClose={() => {this.setState({showModal: false, modalText: {name:'',value:'0',max:''}})}}>
+                <Modal show={this.state.showTempHPModal} title="Add Temporary HP" actions={[{ text: 'Cancel', action: () => { } }, { text: 'Add', action: this.state.onModalPositive }]} onClose={() => { this.setState({ showTempHPModal: false, modalText: { name: '', value: '0', max: '' } }) }}>
                     <div className="inputList">
                         <div className="inputWrapper">
                             <label htmlFor="name">Name</label>
@@ -486,7 +557,20 @@ export default class Battle extends React.Component {
                         </div>
                     </div>
                 </Modal>
-                
+
+                <Modal show={this.state.showHDModal} title='Roll hit dice' actions={[{ text: 'Cancel short rest', action: () => { } }, { text: 'Continue', action: () => this.shortRest() }]} onClose={() => this.setState({ showHDModal: false, hdModalContent: { hitDiceUsed: 0, hpGained: 0 } })}>
+                    <div className="inputList">
+                        <div className="inputWrapper">
+                            <label htmlFor="hitdice">Use hit dice (max: {this.hitDice})</label>
+                            <input type="number" name="hitdice" min={0} max={this.props.characterData.level - this.props.characterData.hdUsage} value={this.state.hdModalContent.hitDiceUsed} onChange={(e) => this.setState({ hdModalContent: { ...this.state.hdModalContent, hitDiceUsed: e.target.value } })} />
+                        </div>
+                        <div className="inputWrapper">
+                            <label htmlFor="hpGained">HP gained after roll</label>
+                            <input type="number" name="hpGained" min={0} value={this.state.hdModalContent.hpGained} onChange={(e) => this.setState({ hdModalContent: { ...this.state.hdModalContent, hpGained: e.target.value } })} />
+                        </div>
+                    </div>
+                </Modal>
+
             </div>
         )
     }

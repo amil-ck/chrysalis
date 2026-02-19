@@ -3,6 +3,22 @@ import DOMPurify from 'dompurify';
 import { FiX } from 'react-icons/fi';
 
 export default class GenericInfoPane extends React.Component {
+    /**
+     * 
+     * @param {object} props
+     * @param {object} props.data
+     * @param {string} props.data.title
+     * @param {string} props.data.subtitle
+     * @param {{[key: string]: [value: string]}} props.data.attributes
+     * @param {string} props.data.description HTML string
+     * @param {{[key: string]: [value: string]}} props.data.footerAttributes\
+     * @param {boolean} props.data.added
+     * @param {string} props.data.type
+     * 
+     * @param {function()} props.onClose
+     * @param {boolean} props.showAddButton
+     * @param {function()} props.onAddButtonClick
+     */ 
     constructor(props) {
         super();
         this.props = props;

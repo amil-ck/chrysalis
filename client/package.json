@@ -1,7 +1,7 @@
 {
   "name": "chrysalis",
   "productName": "chrysalis",
-  "version": "0.1.2-alpha",
+  "version": "0.2.0-alpha",
   "description": "TTRPG Character Creator",
   "main": ".webpack/main",
   "scripts": {
@@ -47,6 +47,7 @@
     "@electron-forge/plugin-fuses": "^7.8.1",
     "@electron-forge/plugin-webpack": "^7.8.1",
     "@electron/fuses": "^1.8.0",
+    "@types/react": "^19.2.13",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "babel-loader": "^10.0.0",
     "css-loader": "^6.11.0",
@@ -55,6 +56,7 @@
     "style-loader": "^3.3.4"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "dompurify": "^3.2.6",
     "electron-settings": "^4.0.4",
     "electron-squirrel-startup": "^1.0.1",
