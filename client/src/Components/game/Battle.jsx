@@ -498,11 +498,15 @@ export default class Battle extends React.Component {
                                 <div className="title">Initiative</div>
                                 <div className="value">{this.plusify(this.initiative)}</div>
                             </div>
+
                             <div className="speed card miscStat">
                                 <div className="title">Speed</div>
-                                <div className="value">{this.speed}</div>
+                                <div className="value">
+                                    <span className="current">{this.speed}</span>
+                                    <span className="title">ft.</span>
+                                </div>
                             </div>
-                            <div className="proficiency card miscStat">
+                            <div className="proficiency card miscStat withSecondary">
                                 <div className="title">Proficiency</div>
                                 <div className="value">{this.plusify(this.proficiencyBonus)}</div>
                                 <div className="title">Bonus</div>
