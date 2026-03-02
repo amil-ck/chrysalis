@@ -50,9 +50,8 @@ export function checkRequirementsGrants(bool, characterData) {
 
 
 export function checkRequirements(bool, grantArray) {
-    bool = bool.replace(/\d/g, "n$&");
-    // console.log(bool)
-    
+    // replaces all instances of a number with n(number) e.g 5 is replaced with n5 in all instances
+    bool = bool.toString().replace(/\d/g, "n$&");
     grantArray = grantArray.map(grant => grant.replace(/\d/g, "n$&"));
 
     return recurse(jsep(bool.toString()), grantArray);

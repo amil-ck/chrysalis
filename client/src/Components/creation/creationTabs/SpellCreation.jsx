@@ -8,7 +8,7 @@ import { checkRequirements, checkSupports, filterSpells } from '../../lib/suppor
 import { calculateStat } from '../../lib/statUtils.js';
 
 
-const spellSlot = 4;
+const spellSlot = 5;
 
 
 export default class SpellCreation extends React.Component {
@@ -33,7 +33,7 @@ export default class SpellCreation extends React.Component {
 
 
             if (x?.rules?.select !== undefined) {
-                let list = x.rules.select.filter(sel => sel?.type === "Spell");
+                let list = x.rules.select.filter(sel => sel?.type === "Spell"); 
                 
                 let spellcastingList = "";
                 if (x?.spellcasting?.list !== undefined) {
@@ -55,6 +55,32 @@ export default class SpellCreation extends React.Component {
         });
 
         console.log(selects);
+        console.log(spellcastings);
+        // let magicIntiates = grants.filter(e => /^ID_PHB_FEAT_MAGIC_INITIATE.*/.test(e.id)).map(e => e.id);
+        // magicIntiates = magicIntiates.map(e => e.match(/^ID_PHB_FEAT_MAGIC_INITIATE_(.*)/)[1]);
+
+        // console.log(magicIntiates);
+
+        // for (let magic of magicIntiates) {
+        //     if (magic === "DRUID") {
+        //         spellcastings.push({
+        //             ability: "Wisdom",
+        //             name: "Druid",
+        //             list: "Druid"
+        //         })
+        //     } else if (magic === "SORCERER") {
+        //         spellcastings.push({
+        //             ability: "Charisma",
+        //             name: "Sorcerer",
+        //             list: "Sorcerer"
+        //         })
+        //     }
+        // }
+        // {
+        //     ability: "Wisdom"
+        //     allowReplace
+        //     name: "Sorceror Magic Intiate"
+        // }
 
         this.state = {
             level: this.props.characterData.level
