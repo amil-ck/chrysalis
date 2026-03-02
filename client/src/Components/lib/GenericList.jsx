@@ -2,6 +2,27 @@ import * as React from 'react';
 import Chip from './Chip.jsx';
 
 export default class GenericList extends React.Component {
+    // TODO: write actual docs for this signature
+    /**
+     * 
+     * @param {object} props
+     * @param {string} props.title
+     * @param {object[]} props.data
+     * @param {string[]} props.columnNames
+     * @param {string[]} props.columnLocations
+     * @param {string[]} props.shownColumns
+     * @param {function(string)} props.onItemSelected
+     * @param {function(string)} props.onItemDoubleSelected
+     * @param {string} props.selectedItemID
+     * @param {string[]} props.doubleSelectedItems
+     * @param {boolean} props.startMinimised
+     * @param {string[]} props.allowFilter
+     * @param {object} props.presetFilters
+     * @param {string[]} props.multiValueColumns
+     * @param {boolean} props.doubleSelectOnSingleClick
+     * @param {number} props.maxDoubleSelected
+     * @param {boolean} props.hideSelected Defaults to false
+     */
     constructor(props) {
         super(props);
 
@@ -170,13 +191,31 @@ export default class GenericList extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevProps !== this.props) {
             // Props have changed
+            const toUpdate = {};
 
             // Sets minimised state based on the current doubleSelectedItems
             console.log(this.props.doubleSelectedItems, prevProps.doubleSelectedItems);
             if (JSON.stringify(this.props.doubleSelectedItems) !== JSON.stringify(prevProps.doubleSelectedItems)) {
-                this.setState({
-                    minimised: this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected
-                });
+                // this.setState({
+                //     minimised: this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected
+                // });
+                toUpdate.minimised = this.props.maxDoubleSelected > 0 && this.props.doubleSelectedItems.length >= this.props.maxDoubleSelected;
+
+            }
+
+            if (this.props.data !== prevProps.data) {
+                // Something about the data has changed, reset search & filter
+                toUpdate.columnFilters = this.props.presetFilters || {};
+                toUpdate.sortBy = {
+                    column: undefined,
+                    direction: undefined
+                };
+                toUpdate.searchValue = '';
+                toUpdate.showSearch = false;
+            }
+
+            if (Object.keys(toUpdate).length > 0) {
+                this.setState(toUpdate);
             }
         }
     }

@@ -1,7 +1,12 @@
 import { CLASSES } from './indexData.js';
 import * as supportUtils from './supportUtils.js';
 
-
+/**
+ * A wrapper for calculateGenericStat, which adds Chrysalis-specific logic
+ * @param {string} statName The name of the stat to calculate
+ * @param {object} characterData The characterData object 
+ * @returns {number | string} The resulting value of the stat (usually a number)
+ */
 export function calculateStat(statName, characterData) {
     if (!characterData.stats) return 0;
 
@@ -103,6 +108,15 @@ export function calculateStat(statName, characterData) {
     return calculateGenericStat(statName, characterData);
 }
 
+/**
+ * Uses character stats to calculate the value of a given stat. 
+ * 
+ * `calculateStat()` is usually better for external use.
+ * @param {string} statName The name of the stat to calculate
+ * @param {object} characterData The characterData object
+ * @param {string[]} altNames Other names the stat might be known by
+ * @returns {number | string} The resulting value of the stat (usually a number)
+ */
 function calculateGenericStat(statName, characterData, altNames=[]) {
     
 
@@ -163,6 +177,11 @@ function calculateGenericStat(statName, characterData, altNames=[]) {
     return finalValue;
 }
 
+/**
+ * Uses character class to determine which hit die the character uses
+ * @param {object} characterData The entire characterData object
+ * @returns {number} The number of sides of the hit die (e.g. 8 for d8)
+ */
 function getHitDie(characterData) {
     const characterClassID = characterData.grants?.find(grant => grant.type === 'Class')?.id;
     const characterClassData = characterClassID ? CLASSES.find(c => c.id === characterClassID) : undefined;
@@ -174,12 +193,24 @@ function getHitDie(characterData) {
     }
 }
 
+/**
+ * A wrapper for `supportUtils.checkRequirements()` which checks whether certain requirements are fulfilled by a character's grants
+ * @param {string} reqs An expression representing the condition to check 
+ * @param {object} characterData The characterData object 
+ * @returns {boolean} Whether the requirements are fulfilled
+ */
 function checkRequirements(reqs, characterData) {
     return supportUtils.checkRequirements(reqs, characterData.grants.map(g => g.id));
 
     //return checkRequirements(reqs, characterData.grants.map(g => g.id)); 
 }
 
+/**
+ * Checks whether the character's equipped inventory fulfils given requirements
+ * @param {string} equipped An expression representing the condition to check 
+ * @param {object} characterData The characterData object 
+ * @returns {boolean} Whether the requirements are fulfilled
+ */
 function checkEquipped(equipped, characterData) {
     // TODO: CHECK EQUIPMENT??
     return true;

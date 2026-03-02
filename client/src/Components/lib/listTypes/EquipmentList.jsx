@@ -1,32 +1,33 @@
 import * as React from 'react';
 import GenericList from '../GenericList.jsx';
-import { BACKGROUNDS } from '../indexData.js';
+import { ALL_EQUIPMENT } from '../indexData.js';
 
-export default class BackgroundList extends React.Component {
+export default class EquipmentList extends React.Component {
     constructor(props) {
         super();
 
         this.props = props;
 
         this.state = {
-            data: BACKGROUNDS
+            data: ALL_EQUIPMENT
         }
 
     }
 
     render() {
 
+
         const propsToPass = {
             data: this.state.data,
-            title: 'Backgrounds',
-            columnNames: ["Name", "Source"],
-            shownColumns: ["Name", "Source"],
-            allowFilter: ["Source"],
+            title: 'Equipment',
+            columnNames: ["Name", "Type", "Source"],
+            shownColumns: ["Name", "Type", "Source"],
+            allowFilter: ["Type", "Source"],
             allowSearch: ["Name"],
-            columnLocations: ["name", "source"],
+            columnLocations: ["name", "setters/category", "source"],
             multiValueColumns: [],
             presetFilters: {
-                
+
             },
             ...this.props
         }

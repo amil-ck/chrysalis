@@ -12,7 +12,6 @@ export default class HPControl extends React.Component {
             changeValues: {}
         }
 
-        // TODO: make changevalues initialise to 1 for each hp
         for (const i in this.props.hps) {
             this.state.changeValues[i] = 1;
         }

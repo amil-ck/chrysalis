@@ -21,7 +21,7 @@ export default class Main extends React.Component {
             modalOptions: {
                 show: false
             },
-            version: '0.1.2-alpha'
+            version: '0.2.0-alpha'
         }
 
         this.updateCharacterData = this.updateCharacterData.bind(this);
@@ -70,13 +70,16 @@ export default class Main extends React.Component {
         })
     }
 
-    updateCharacterData(data) {
-        const newData = { ...this.state.characterData, ...data };
+    updateCharacterData(data, cb=()=>{}) {
+        const newData = { ...this.state.characterData, ...data, lastVersion: this.state.version };
 
         this.setState({
             characterData: newData
         }, () => {
-            saveCharacter(this.state.characterData.id, newData).then(() => console.log("Character saved"))
+            saveCharacter(this.state.characterData.id, newData).then(() => {
+                console.log("Character saved");
+                cb();
+            })
         })
     }
 

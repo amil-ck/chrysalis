@@ -1,4 +1,8 @@
-
+/**
+ * Saves the given character data to the corresponding local file
+ * @param {string} id The character's ID
+ * @param {object} data The characterData object to save 
+ */
 export async function saveCharacter(id, data) {
     const dataString = JSON.stringify(data);
 
@@ -7,6 +11,10 @@ export async function saveCharacter(id, data) {
     await window.electronAPI.writeFile(`${dataPath}/characters/${id}.character.json`, dataString);
 }
 
+/**
+ * Creates and initialises a new character file
+ * @returns {string} The id of the newly created character
+ */
 export async function createCharacter() {
     const id = crypto.randomUUID();
 
@@ -38,6 +46,11 @@ export async function createCharacter() {
     return id;
 }
 
+/**
+ * Loads a character from local files
+ * @param {string} id The character's ID
+ * @returns {object} The characterData object
+ */
 export async function loadCharacter(id) {
     const dataPath = await window.electronAPI.getDataPath();
 
@@ -52,6 +65,10 @@ export async function loadCharacter(id) {
     return parsedData;
 }
 
+/**
+ * Loads the data for all locally-stored characters
+ * @returns {object[]} An array of characterData objects
+ */
 export async function loadAllCharacters() {
     const characters = [];
 
@@ -67,11 +84,20 @@ export async function loadAllCharacters() {
     return characters;
 }
 
+/**
+ * Checks whether a character with a given ID exists
+ * @param {string} id The ID of the character to search for
+ * @returns {boolean} Whether the character exists
+ */
 export async function doesCharacterExist(id) {
     const fileList = await window.electronAPI.readdir(`${await window.electronAPI.getDataPath()}/characters`);
     return fileList.includes(`${id}.character.json`);
 }
 
+/**
+ * Allows the user to pick an external character file to import into Chrysalis, and loads its data 
+ * @returns {object | null} If successful, the characterData object, else null
+ */
 export async function importCharacter() {
     // 1. Show file picker dialog
     const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
@@ -117,6 +143,10 @@ export async function importCharacter() {
     }
 }
 
+/**
+ * Allows the user to pick an external content file to import, and loads its data
+ * @returns {string | null} The imported filename if successful, else null
+ */
 export async function importContent() {
     // 1. Show file picker dialog
     const { filePaths, canceled } = await window.electronAPI.showOpenDialog({
@@ -164,6 +194,11 @@ export async function importContent() {
 }
 
 
+/**
+ * Copies the specified character file to a user-picked external path
+ * @param {string} id The ID of the character to export
+ * @returns {boolean} Whether the export was successful
+ */
 export async function exportCharacter(id) {
     try {
         // 1. Get character data
@@ -196,6 +231,11 @@ export async function exportCharacter(id) {
 
 }
 
+/**
+ * Deletes a given character
+ * @param {string} id The ID of the character to delete
+ * @returns {boolean} Whether the deletion was successful
+ */
 export async function deleteCharacter(id) {
     try {
         await window.electronAPI.deleteFile(`${await window.electronAPI.getDataPath()}/characters/${id}.character.json`);
