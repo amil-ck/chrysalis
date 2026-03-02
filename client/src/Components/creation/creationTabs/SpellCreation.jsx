@@ -8,7 +8,7 @@ import { checkRequirements, checkSupports, filterSpells } from '../../lib/suppor
 import { calculateStat } from '../../lib/statUtils.js';
 
 
-const spellSlot = 5;
+const spellSlot = 6;
 
 
 export default class SpellCreation extends React.Component {
